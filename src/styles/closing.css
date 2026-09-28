@@ -1,0 +1,191 @@
+/*
+ * The end of the page: final CTA over a horizon scene, the footer, and the legal / 404 layout.
+ * The near ridge colour (--ridge-near) equals --footer-bg, so CTA -> footer has no seam.
+ */
+@layer components {
+  /* ---------- Final CTA ---------- */
+  .final-cta {
+    padding-top: var(--section-y);
+    padding-bottom: clamp(9rem, 22vw, 17rem); /* room for the ridgelines below the panel */
+  }
+  .final-cta__scene {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: var(--z-base);
+    pointer-events: none;
+  }
+  .horizon {
+    display: block;
+    width: 100%;
+    height: clamp(11rem, 26vw, 20rem);
+    max-width: none;
+  }
+  .horizon path {
+    stroke: var(--ridge-rim);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .horizon__far {
+    fill: var(--ridge-far);
+  }
+  .horizon__mid {
+    fill: var(--ridge-mid);
+  }
+  .horizon__near {
+    fill: var(--ridge-near);
+    stroke: none;
+  }
+
+  .final-cta__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    max-width: 48rem;
+    margin-inline: auto;
+    padding: clamp(2rem, 1rem + 4vw, 4.5rem) var(--card-pad);
+    --glass-radius: var(--radius-panel);
+  }
+  .final-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 479px) {
+    .final-cta__actions {
+      flex-direction: column;
+      align-self: stretch;
+    }
+    .final-cta__actions .btn {
+      width: 100%;
+    }
+  }
+
+  /* ---------- Footer ---------- */
+  .site-footer {
+    background: var(--footer-bg);
+    overflow: hidden;
+  }
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    padding-top: clamp(2.5rem, 2rem + 3vw, 4.5rem);
+    padding-bottom: 1.25rem;
+  }
+  .site-footer__top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 1.5rem;
+  }
+  .site-footer__brand {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  @media (min-width: 768px) {
+    .site-footer__top {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .site-footer__brand {
+      grid-column: auto;
+    }
+  }
+  .site-footer__nav ul {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .site-footer__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-min);
+    color: var(--text);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    transition: color var(--dur-fast) var(--ease-standard);
+  }
+  .site-footer__nav a:hover {
+    color: var(--text-strong);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .site-footer__wordmark {
+    margin: clamp(1.5rem, 1rem + 3vw, 3.5rem) 0 0;
+    font-size: clamp(3rem, 15vw, 14rem);
+    font-weight: 600;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    color: transparent;
+    background: linear-gradient(to bottom, var(--border-strong), transparent 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    user-select: none;
+  }
+  .site-footer__legal {
+    margin: 0.75rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .break-anywhere {
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- Legal pages and 404: plain readable text, no glass ---------- */
+  .legal {
+    padding-top: calc(var(--nav-h) + clamp(3rem, 2rem + 4vw, 6rem));
+    padding-bottom: clamp(4rem, 3rem + 5vw, 8rem);
+  }
+  .not-found {
+    min-height: 70dvh;
+  }
+  .legal__wrap {
+    max-width: 44rem;
+  }
+  .legal__head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .legal__head .t-lead {
+    max-width: 52ch;
+  }
+  .legal__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2.25rem;
+    padding-top: 2.25rem;
+  }
+  .legal__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    scroll-margin-top: calc(var(--nav-h) + 1rem);
+  }
+  .legal__section p,
+  .legal__section li {
+    max-width: 68ch;
+    color: var(--text);
+  }
+  .legal__section ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .legal__section a {
+    color: var(--accent-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}

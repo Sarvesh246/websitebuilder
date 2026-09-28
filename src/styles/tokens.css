@@ -70,6 +70,13 @@
   --grid-line: light-dark(rgb(15 23 42 / 0.06), rgb(255 255 255 / 0.05));
   --noise-opacity: light-dark(0.05, 0.07);
 
+  /* ---------- Horizon scene (final CTA) and footer. The near ridge IS the footer colour, so they join seamlessly ---------- */
+  --ridge-far: light-dark(#dbe4f0, #18202b);
+  --ridge-mid: light-dark(#cfdaea, #121923);
+  --ridge-near: light-dark(#c8d4e4, #0c1119);
+  --ridge-rim: light-dark(rgb(255 255 255 / 0.9), rgb(150 180 230 / 0.35));
+  --footer-bg: var(--ridge-near);
+
   /* ---------- Glass (see styles/glass.css) ---------- */
   --glass-bg-subtle: light-dark(rgb(255 255 255 / 0.36), rgb(255 255 255 / 0.035));
   --glass-bg: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.06));
