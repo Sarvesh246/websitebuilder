@@ -22,21 +22,22 @@ One accent only (glacier blue). Shape rule: buttons `--radius-sm` 12px, cards `-
 
 ## Architecture
 ```
-src/app/            layout.tsx (fonts, theme script, nav, grain), page.tsx (Stage 1 placeholder), design-system/ (noindex living style guide)
+src/app/            layout.tsx (fonts, theme script, nav, footer, grain, metadata), page.tsx (Hero, Pricing, About, Expect, FinalCta + JSON-LD), start/, privacy/, terms/, not-found.tsx, robots.ts, sitemap.ts, opengraph-image.tsx, design-system/ (noindex living style guide)
 src/styles/         tokens.css  all design tokens (colours as light-dark() pairs, type, space, radii, shadows, motion, z-index)
                     theme.css   Tailwind @theme bridge + dark variant
                     base.css / type.css (.t-display .t-h2 .t-h3 .t-h4 .t-lead .t-body .t-small .t-label .t-price)
                     glass.css   glass system      ambient.css  glows/grid/fade/grain/scene
                     ui.css      buttons, icon-btn, badge   nav.css  header + mobile sheet
                     hero.css, mockup.css   pricing.css  packages, Custom panel, comparison, ownership/scope notes
+                    about.css (About + What you can expect)   closing.css (final CTA horizon, footer, legal/404 layout)
 src/components/layout/  Container, Section, SectionHeader, Grid
 src/components/ui/      Button, Badge, GlassSurface
 src/components/visual/  Ambient (+Glow, GridOverlay, Fade, Grain), SceneImage
 src/components/motion/  MotionProvider, Reveal, RevealGroup, RevealItem
 src/components/nav/     SiteNav (client), ThemeToggle
-src/components/sections/ (Hero, HeroVisual, Pricing) and visual/mockup/ (device frames + concept screens)
+src/components/sections/ (Hero, HeroVisual, Pricing, About, Expect, FinalCta), footer/SiteFooter, legal/LegalPage (+LegalSection, ContactLine) and visual/mockup/ (device frames + concept screens)
 src/components/pricing/ PackageCard, CustomPackage, CompareTable (server components, all read config/pricing.ts)
-src/config/         site.ts, nav.ts, pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth)
+src/config/         site.ts (name, tagline, contactEmail, social, founder, legalUpdated), nav.ts (nav/footer/legal links), about.ts (About, Expect, final CTA copy), pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth)
 src/lib/            cn.ts, motion.ts     src/hooks/  useLockBodyScroll, useScrolledPast
 public/images/      scenes/ work/ og/  (see public/images/README.md for asset rules)
 ```
@@ -91,7 +92,7 @@ Goal: same code quality, fewer tokens. Skills are loaded **once per stage, only 
 ## Git
 Remote `origin` = https://github.com/Sarvesh246/websitebuilder.git (branch `main`). **Standing authorization (given by the user 2026-09-28):** at the end of every stage, after all work, validation, and skills have finished and passed, commit and push directly to `main` without asking. This covers stage-completion commits only; any other commit/push (mid-stage, other branches, force-push, history rewrites) still needs an explicit request. Never push if lint/typecheck/build fail. Before committing run `git status` and confirm no `.env*`, secrets, `node_modules`, `.next`, or screenshots are staged. One commit per stage: `feat(stage-N): <summary>`, ending with the Co-Authored-By line from the session attribution reminder. Push with `git push origin main`.
 
-**Non-negotiable:** every stage MUST be committed and pushed directly to `main` (`git push origin main`) when it is finished. A stage is not done until `main` contains it, and the final response must state the `main` commit hash. Only if a session is technically restricted to a feature branch: push the branch, open a PR, and merge it into `main` (ask the user if you cannot), then confirm `main` has it. Stage 5 was merged to `main` via PR #2.
+**Non-negotiable:** every stage MUST be committed and pushed directly to `main` (`git push origin main`) when it is finished. A stage is not done until `main` contains it, and the final response must state the `main` commit hash. Only if a session is technically restricted to a feature branch: push the branch, open a PR, and merge it into `main` (ask the user if you cannot), then confirm `main` has it. Stage 5 was merged to `main` via PR #2. Stage 6 was built on branch `claude/northframe-stage-6-zsdmay` (cloud session restricted to that branch) and pushed with a draft PR.
 
 ## Stage 1 (Foundation): DONE 2026-09-28
 Repo was empty (only `skills-lock.json`). Scaffolded Next 16 app, built the token, type, layout, glass, ambient, motion, button/badge, and nav foundation described above, plus `/design-system` living style guide and Stage 1 placeholder home. Validated: lint, typecheck, contrast script, production build all pass; verified in browser at 1440 and 390 widths, light and dark, mobile menu, reduced motion, zero console errors.
@@ -176,3 +177,40 @@ Scope notes: Stage 4 (Work/Process/Why) is NOT built yet (roadmap unchanged); St
 **Tested**: lint/typecheck/build pass; API tested with curl (bad JSON, content type, origin, size, honeypot, timing, validation, rate limit, header-injection name, HTML escaping); browser E2E (playwright) against a LOCAL MOCK of the Resend API: all CTAs preselect, validation, back/edit, refresh restore, provider failure then retry then success, 320-1920 no overflow, dark + reduced motion. **Not tested against real Resend** (no key in this environment).
 **Known limitations / future**: rate limiter is per-instance and trusts x-forwarded-for (add a platform firewall rule for real protection); no CAPTCHA; auto-reply could be abused to email a third party (rate limit + static text mitigate); no inquiry storage/DB (email only, a lost email = lost lead); no privacy policy or terms route yet (must exist before public launch since personal data is collected); no analytics events; no file uploads; mobile menu focus trap still pending.
 **Still deferred (do not forget)**: Selected Work until real approved client work exists; full cinematic visual polish; dark ownership transformation; final footer/about/legal; final cross-site cohesion pass; Stage 4 sections.
+
+## Stage 6 (About, principles, final CTA, footer, legal, SEO): DONE 2026-09-28
+**Reality check found at start:** Stage 4 (What We Build / Services, Why Northframe, Process, Work) was never built; the homepage was only Hero + Pricing. Stage 6 did NOT build those (out of scope). Consequences: nav has **no Services or Process links** (they would be dead). Add `Services /#services` and `Process /#process` to `config/nav.ts` when Stage 4 lands. Ownership content lives only in the pricing section (panel now has `id="ownership"`).
+
+**Homepage order:** Hero, Pricing, About (`#about`), Expect ("What you can expect"), FinalCta. Move Pricing after the Stage 4 sections when they exist.
+
+**Navigation (final for now):** header + mobile sheet: Pricing, About, CTA "Start a Project" (/start). Footer: Pricing, About, Start a Project | Privacy, Terms. All anchors resolve. No Work link (portfolio deferred).
+
+**Copy (config/about.ts)**
+- About: eyebrow "About"; h2 "Small studio. Serious about the details."; lead "Northframe is an independent web design and development studio for students, creators, organizations, and small businesses."; body "The goal is the care and polish people expect from expensive agencies, without a price that makes a professional website unrealistic when you're just starting out."
+- Founder: "Built by Sarvesh." + "I'm a student and developer who likes building polished digital products. Northframe started from a simple idea: good website design shouldn't only be available to companies with agency budgets." Monogram "S" tile, NO photo (none exists or is approved). First name only, in `siteConfig.founder`.
+- Expect: eyebrow "How it works", h2 "What you can expect.", 4 numbered editorial rows (Clear communication, Thoughtful design, Responsive by default, You own it -> link "See what's covered" to `/#ownership`). Rows, not cards. Replaces testimonials.
+- Final CTA: eyebrow "Have something in mind?", h2 "Let's build something worth sharing.", body "Tell me what you're working on and I'll help figure out the right direction.", primary "Start a Project" -> `/start`, secondary "View Pricing" -> `/#pricing`. Feature glass panel over a CSS/SVG horizon (`Horizon.tsx` ridgelines, `Ambient preset="horizon"`, tokens `--ridge-far/mid/near/rim`). `--ridge-near` == `--footer-bg`, so CTA flows into the footer with no seam. No environmental motion (only Reveal).
+- `AboutVisual` (server): reused PortfolioScreen browser inside an architectural frame + hairlines; decorative role="img". Mobile: copy first, visual below.
+
+**Voice rules:** "Northframe" (third person) for marketing statements. First person "I" only where the founder speaks: founder note, final CTA, inquiry confirmation. Never "we", "our team", "our clients". Audited: none left in visible copy. Package names stay Starter / Plus / Pro / Custom, "Launch price".
+
+**Footer (`SiteFooter`, in layout so every page has it):** logo + descriptor "Independent web design & development." (`siteConfig.descriptor`), Footer nav, Legal nav, large faint aria-hidden wordmark, bottom line "(c) {year} Northframe. Designed and built independently." Year = render/build year (refreshes on redeploy). No social links (`siteConfig.social` is empty on purpose; add only real, approved profiles), no address/phone. Links are 44px tall.
+
+**Public contact config:** `NEXT_PUBLIC_CONTACT_EMAIL` (optional, in `.env.example`). Separate from server-only `CONTACT_EMAIL` (inquiry inbox, may be private). While unset, NO email is shown anywhere and Privacy/Terms point to the inquiry form (`ContactLine`). Set it to a Northframe business address before launch; it then appears in the footer, both legal pages, and JSON-LD.
+
+**Legal:** `/privacy` and `/terms` via `LegalPage` (plain text on page bg, 44rem measure, no glass). `legalUpdated` in `config/site.ts` (bump on any text change). Privacy states only what exists: inquiry form fields, sessionStorage draft, localStorage theme, Resend email delivery, host logs, in-memory IP rate limit, no DB, no cookies, no analytics, no sale of data, retention = inbox until no longer needed, delete on request. **If analytics, a DB, another provider, or storage is added, update Privacy first.** Hosting provider is described generically: name it once deployment is decided. No company entity, address, jurisdiction, or compliance claims. Terms: lightweight website terms; an inquiry is not a contract; scope, payment, delivery, revisions, ownership go in a separate written project agreement; third-party costs separate; no uptime guarantee for third parties. **A real project contract must still be written separately before paid client work begins.**
+
+**SEO/metadata:** title "Northframe | Websites for students, creators and small businesses" (template `%s | Northframe`), description in `siteConfig`, canonical per page, Open Graph + twitter summary_large_image, generated `opengraph-image.tsx` (simple gradient card, replace with real art later), `robots.ts` (disallows /api and /design-system), `sitemap.ts` (/, /start, /privacy, /terms), JSON-LD `Organization` on home with only name, url, description, founder name, and email if configured. Favicon = `app/favicon.ico`. One h1 per page verified.
+**404:** `app/not-found.tsx` ("Page not found." + Back home + Start a Project), noindex, uses the legal layout.
+
+**A11y:** `<footer>` with two labelled navs; decorative visuals aria-hidden or labelled role="img"; Expect numbers aria-hidden; legal links use accent-ink; footer contrast rows added to `scripts/contrast.mjs`; motion respects reduced motion via existing systems.
+
+**Validated:** lint, typecheck, contrast, production build pass. Playwright (chromium) on the prod build at 1920/1440/1280/1024/768/430/390/375/320: no horizontal overflow, one h1 on /, /privacy, /terms, /start, 404; zero console errors apart from the intentional 404 request; mobile menu, About anchor, View Pricing, See what's covered, Start a Project, and footer links verified; reduced motion checked at 1440; light + dark screenshots at 1440 and 390 reviewed. No test runner exists yet (Stage 9).
+
+**Config still required before deploy:** RESEND_API_KEY, CONTACT_EMAIL, FROM_EMAIL (Stage 5); NEXT_PUBLIC_CONTACT_EMAIL; NEXT_PUBLIC_SITE_URL (real domain; canonical, OG, sitemap use it); name the hosting provider in Privacy; confirm Sarvesh is comfortable being named publicly; write the project contract.
+
+**FUTURE REQUIREMENTS (do not lose)**
+- **Selected Work:** intentionally deferred. Do not publish until strong real client work exists. Client examples need permission. Testimonials/results must be real. Never publish Datebook or ParkPoint as portfolio work.
+- **Final visual polish (cinematic pass):** architectural/mountain environment; physical/refractive glass; stronger edge lighting; consistent lighting direction; reflective stone/concrete surfaces; foreground/midground/background depth; asymmetrical editorial compositions; seamless section-to-section environmental transitions; remove remaining generic SaaS patterns; hero transformation; What We Build, Why Northframe, Process refinement (once built); pricing transformation; ownership dark cinematic transformation; final CTA cinematic treatment (current horizon is a CSS/SVG placeholder); compare against the reference images.
+- Stage 4 sections still to build; then re-add nav links and re-check copy for repetition with About/Expect.
+- Known gaps: mobile menu focus trap (Stage 7/9), analytics decision (Stage 9), no FAQ (no real content).

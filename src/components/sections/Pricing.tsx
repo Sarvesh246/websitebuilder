@@ -55,7 +55,7 @@ export const Pricing = () => (
 
       <Reveal>
         <div className="pricing__notes">
-          <GlassSurface variant="default" className="ownership">
+          <GlassSurface id="ownership" variant="default" className="ownership">
             <KeyRound aria-hidden size={20} strokeWidth={1.8} />
             <div className="flex flex-col gap-4">
               <h3 className="t-h3">{ownership.title}</h3>

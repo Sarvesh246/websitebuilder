@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
 import Script from "next/script";
+import { SiteFooter } from "@/components/footer/SiteFooter";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteNav } from "@/components/nav/SiteNav";
 import { Grain } from "@/components/visual/Ambient";
@@ -14,6 +15,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} | ${siteConfig.tagline}`,
+    description: siteConfig.description,
+    url: "./",
+  },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -45,6 +55,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <MotionProvider>
           <SiteNav />
           <main id="main">{children}</main>
+          <SiteFooter />
         </MotionProvider>
         <Grain />
       </body>
