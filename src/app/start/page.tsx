@@ -4,12 +4,17 @@ import { Section } from "@/components/layout/Section";
 import { InquiryFlow } from "@/components/inquiry/InquiryFlow";
 import { Ambient } from "@/components/visual/Ambient";
 import { parsePackageId } from "@/config/inquiry";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Start a project",
-  description: "Tell Northframe about your website project. A few short questions, no commitment.",
-  alternates: { canonical: "/start" },
-};
+// Conversion form, not search content (and `?package=` makes variants): noindex, canonical /start,
+// left out of the sitemap. Social previews still work when the link is shared.
+export const metadata: Metadata = pageMetadata({
+  title: "Start a Project",
+  description:
+    "Tell Northframe what you're building and choose the website package or custom scope that fits your project.",
+  path: "/start",
+  index: false,
+});
 
 /** Project inquiry. `?package=launch|presence|business|custom` preselects a package (see startHref in config/inquiry.ts). */
 export default async function StartPage({ searchParams }: PageProps<"/start">) {

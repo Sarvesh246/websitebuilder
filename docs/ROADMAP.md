@@ -15,5 +15,6 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | 9 | Accessibility, performance, testing: keyboard/screen-reader pass, contrast, Lighthouse (LCP/CLS/INP), Playwright smoke tests, SEO/OG, analytics decision | Done |
 | 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | Partial: Ownership visual transformation done; launch audit still open |
 | 11 | Pricing clarity + conversion: Launch/Presence/Business/Custom naming, Founding Client Pricing, shared inclusions, comparison, CTA wording, preselection | Done |
+| 12 | SEO, metadata, social preview, icons, sitemap/robots, structured data, semantic audit | Done |
 
 Open decisions to resolve before the stage that needs them: brand name and domain (Stage 2), artwork sourcing/generation (Stage 2 and 8), contact form backend (Stage 5), analytics provider (Stage 9).

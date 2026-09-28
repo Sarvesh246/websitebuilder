@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { About } from "@/components/sections/About";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero } from "@/components/sections/Hero";
@@ -7,16 +8,34 @@ import { Process } from "@/components/sections/Process";
 import { Services } from "@/components/sections/Services";
 import { Why } from "@/components/sections/Why";
 import { siteConfig } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-/** Organization data: only facts that exist. No address, ratings, founding date, or profiles. */
+export const metadata: Metadata = pageMetadata({ description: siteConfig.description, path: "/" });
+
+/**
+ * Structured data: only facts that exist (name, url, description, founder first name, public
+ * email if configured). No address, phone, ratings, reviews, founding date, counts, or profiles.
+ */
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: siteConfig.name,
-  url: siteConfig.url,
-  description: siteConfig.description,
-  founder: { "@type": "Person", name: siteConfig.founder.name },
-  ...(siteConfig.contactEmail && { email: siteConfig.contactEmail }),
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      description: siteConfig.description,
+      founder: { "@type": "Person", name: siteConfig.founder.name },
+      ...(siteConfig.contactEmail && { email: siteConfig.contactEmail }),
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteConfig.url}/#website`,
+      name: siteConfig.name,
+      url: siteConfig.url,
+      publisher: { "@id": `${siteConfig.url}/#organization` },
+    },
+  ],
 };
 
 export default function Home() {
