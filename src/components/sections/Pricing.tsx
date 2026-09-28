@@ -1,4 +1,4 @@
-import { Info, KeyRound, Tag } from "lucide-react";
+import { Info, Tag } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Grid } from "@/components/layout/Grid";
 import { Section } from "@/components/layout/Section";
@@ -9,16 +9,18 @@ import { CustomPackage } from "@/components/pricing/CustomPackage";
 import { PackageCard } from "@/components/pricing/PackageCard";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Ambient } from "@/components/visual/Ambient";
-import { customTier, launchPricing, ownership, packageTiers, scopeNotes } from "@/config/pricing";
+import { Plinth, Scene } from "@/components/visual/environment/Scene";
+import { customTier, launchPricing, packageTiers, scopeNotes } from "@/config/pricing";
 
 /**
  * Packages and pricing. Serves the single `#pricing` nav anchor (there is no separate Services
  * section: the packages are the services). Order: intro + launch note, three core packages,
- * Custom panel, comparison, ownership and scope notes. All content comes from config/pricing.ts.
+ * Custom panel, comparison, scope notes. Ownership has its own dark section. All content comes from config/pricing.ts.
  */
 export const Pricing = () => (
   <Section id="pricing" aria-labelledby="pricing-title">
     <Ambient preset="pricing" />
+    <Scene variant="backdrop" seed={31} relief={0.9} />
     <Container className="flex flex-col gap-[var(--section-header-gap)]">
       <Reveal className="pricing__intro">
         <SectionHeader
@@ -36,14 +38,17 @@ export const Pricing = () => (
         </GlassSurface>
       </Reveal>
 
-      <RevealGroup className="flex flex-col gap-[var(--grid-gap)]">
-        <Grid cols="packages">
-          {packageTiers.map((tier) => (
-            <RevealItem key={tier.id} className="h-full">
-              <PackageCard tier={tier} />
-            </RevealItem>
-          ))}
-        </Grid>
+      <RevealGroup className="pricing__stage">
+        <div className="pricing__cards">
+          <Plinth className="pricing__plinth" />
+          <Grid cols="packages" className="pricing__row">
+            {packageTiers.map((tier) => (
+              <RevealItem key={tier.id} className="h-full">
+                <PackageCard tier={tier} />
+              </RevealItem>
+            ))}
+          </Grid>
+        </div>
         <RevealItem>
           <CustomPackage tier={customTier} />
         </RevealItem>
@@ -55,20 +60,6 @@ export const Pricing = () => (
 
       <Reveal>
         <div className="pricing__notes">
-          <GlassSurface id="ownership" variant="default" className="ownership">
-            <KeyRound aria-hidden size={20} strokeWidth={1.8} />
-            <div className="flex flex-col gap-4">
-              <h3 className="t-h3">{ownership.title}</h3>
-              <p className="t-body max-w-[52ch] text-muted">{ownership.body}</p>
-              <ul className="chip-list">
-                {ownership.items.map((item) => (
-                  <li key={item} className="badge badge--neutral">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </GlassSurface>
           <div className="scope-notes">
             <h3 className="t-label">Good to know</h3>
             <ul>

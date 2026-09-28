@@ -14,6 +14,15 @@ export const AboutVisual = () => (
     <BrowserMockup url="nora.studio" className="about-visual__browser">
       <PortfolioScreen />
     </BrowserMockup>
+    <span aria-hidden className="about-visual__chip glass-elevated">
+      <b>Aa</b>
+      <i />
+      <i />
+      <i />
+    </span>
+    <span aria-hidden className="about-visual__code glass">
+      {"<Hero />"}
+    </span>
     <span aria-hidden className="about-visual__caption badge badge--neutral">
       {about.visualCaption}
     </span>

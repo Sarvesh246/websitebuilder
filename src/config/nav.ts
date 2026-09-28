@@ -2,10 +2,11 @@ export type NavLink = { label: string; href: string };
 
 /**
  * Header links. Every href must resolve to a real anchor or route (no dead links).
- * "Services" (/#services) and "Process" (/#process) join once those sections exist (roadmap Stage 4);
  * "Work" stays out until real, approved client work exists.
  */
 export const navLinks: readonly NavLink[] = [
+  { label: "Services", href: "/#services" },
+  { label: "Process", href: "/#process" },
   { label: "Pricing", href: "/#pricing" },
   { label: "About", href: "/#about" },
 ];

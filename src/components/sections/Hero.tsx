@@ -5,7 +5,8 @@ import { Section } from "@/components/layout/Section";
 import { HeroVisual } from "@/components/sections/HeroVisual";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Ambient, Glow } from "@/components/visual/Ambient";
+import { Ambient } from "@/components/visual/Ambient";
+import { Scene } from "@/components/visual/environment/Scene";
 import { siteConfig } from "@/config/site";
 
 const valuePoints = [
@@ -24,11 +25,7 @@ const step = (i: number) => ({ "--i": i }) as CSSProperties;
 export const Hero = () => (
   <Section id="top" spacing="none" className="hero">
     <Ambient preset="hero" />
-    {/* Extra light behind the mockups so glass and shadows have something to sit in. */}
-    <div aria-hidden className="ambient hero-stagelight">
-      <Glow tone="cool" x="72%" y="52%" size="46rem" intensity={0.8} />
-      <Glow tone="warm" x="86%" y="82%" size="28rem" intensity={0.7} />
-    </div>
+    <Scene variant="hero" seed={7} />
     <Container className="hero__grid">
       <div className="hero__copy">
         <Badge tone="neutral" className="hero-enter" style={step(0)}>
@@ -44,8 +41,8 @@ export const Hero = () => (
           <Button href={siteConfig.cta.href} size="lg" icon="diag" className="w-full sm:w-auto">
             {siteConfig.cta.label}
           </Button>
-          <Button href="/#work" variant="secondary" size="lg" icon="right" className="w-full sm:w-auto">
-            Explore Work
+          <Button href="/#process" variant="secondary" size="lg" icon="right" className="w-full sm:w-auto">
+            How It Works
           </Button>
         </div>
         <ul className="hero__values hero-enter" style={step(4)}>

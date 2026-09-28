@@ -148,12 +148,6 @@ export const compareRows: readonly CompareRow[] = [
 export const compareFootnote =
   "Every package includes custom design, mobile-responsive layouts, and domain and deployment setup.";
 
-export const ownership = {
-  title: "You own your site and accounts.",
-  body: "Whatever your project uses, from hosting and domain to analytics, email, databases, or logins, lives in accounts under your name.",
-  items: ["Hosting", "Domain", "Email", "Analytics", "Database", "Logins"],
-};
-
 /** Scope boundaries, kept short on purpose. */
 export const scopeNotes: readonly string[] = [
   "Domain names cost extra if you don't already own one.",

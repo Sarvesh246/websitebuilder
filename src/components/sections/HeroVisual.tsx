@@ -3,6 +3,7 @@
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
 import { type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { BrowserMockup, CafeScreen, CreatorScreen, PhoneMockup, PortfolioScreen } from "@/components/visual/mockup/Mockups";
+import { Plinth } from "@/components/visual/environment/Scene";
 import { cn } from "@/lib/cn";
 
 /**
@@ -61,13 +62,22 @@ export const HeroVisual = () => {
         onPointerMove={onMove}
         onPointerLeave={onLeave}
       >
+        <Plinth className="hero-plinth" />
+        <div className="hero-scene3d">
+        <Layer x={x} y={y} depth={8} index={1} className="hero-layer--panel">
+          <div className="glass hero-panel">
+            <span className="hero-panel__row hero-panel__row--on" />
+            <span className="hero-panel__row" />
+            <span className="hero-panel__row" />
+          </div>
+        </Layer>
         <Layer x={x} y={y} depth={10} index={2} className="hero-layer--back">
           <BrowserMockup url="alder.coffee">
             <CafeScreen />
           </BrowserMockup>
         </Layer>
         <Layer x={x} y={y} depth={22} index={3} className="hero-layer--main">
-          <BrowserMockup url="nora.studio">
+          <BrowserMockup url="nora.studio" className="reflect">
             <PortfolioScreen />
           </BrowserMockup>
         </Layer>
@@ -87,6 +97,7 @@ export const HeroVisual = () => {
             </span>
           </div>
         </Layer>
+        </div>
       </div>
       <p className="hero-visual__note">Concept designs, not client work.</p>
     </div>

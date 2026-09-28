@@ -21,7 +21,10 @@
   color-scheme: dark;
 }
 
-:root {
+:root,
+.dusk {
+  /* .dusk re-declares every token so light-dark() resolves against the dusk subtree's own color-scheme
+     (custom properties resolve at the element that declares them, not where they are used). */
   /* ---------- Colour: backgrounds & surfaces ---------- */
   --bg: light-dark(#edf1f6, #0b0e13);
   --bg-deep: light-dark(#e2e9f1, #07090c);
@@ -76,6 +79,29 @@
   --ridge-near: light-dark(#c8d4e4, #0c1119);
   --ridge-rim: light-dark(rgb(255 255 255 / 0.9), rgb(150 180 230 / 0.35));
   --footer-bg: var(--ridge-near);
+
+  /* ---------- Environment: one light source (upper left, slightly behind), one cool palette ---------- */
+  --light-x: 16%; /* where the key light sits, used by glass specular + terrain sun */
+  --light-y: 0%;
+  --sun: light-dark(rgb(255 240 218 / 0.95), rgb(255 232 200 / 0.22));
+  --sky-a: light-dark(#cfdcec, #0c1016);
+  --sky-b: light-dark(#e6edf5, #131a24);
+  --terrain-far: light-dark(#c3d2e5, #1a222d);
+  --terrain-mid: light-dark(#a6b9d1, #141b25);
+  --terrain-near: light-dark(#8aa2c0, #0e141c);
+  --terrain-lit: light-dark(rgb(255 255 255 / 0.78), rgb(170 196 240 / 0.2)); /* faces toward the light */
+  --terrain-shade: light-dark(rgb(70 96 132 / 0.28), rgb(0 0 0 / 0.45));
+  --mist: light-dark(rgb(240 246 252 / 0.92), rgb(150 172 208 / 0.16));
+  --stone-top: light-dark(#f3f6fa, #232a35);
+  --stone-face: light-dark(#d9e1ea, #10151c);
+  --stone-edge: light-dark(rgb(255 255 255 / 0.95), rgb(190 210 245 / 0.32));
+  --stone-shadow: light-dark(rgb(40 62 100 / 0.28), rgb(0 0 0 / 0.7));
+
+  /* ---------- Glass thickness (edge light on the lit side, edge shade on the far side) ---------- */
+  --glass-edge-lit: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.5));
+  --glass-edge-shade: light-dark(rgb(40 70 120 / 0.2), rgb(0 0 0 / 0.55));
+  --glass-specular: light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.16));
+  --glass-refract: light-dark(rgb(150 190 255 / 0.22), rgb(130 170 240 / 0.14)); /* faint cool lip inside the far edge */
 
   /* ---------- Glass (see styles/glass.css) ---------- */
   --glass-bg-subtle: light-dark(rgb(255 255 255 / 0.36), rgb(255 255 255 / 0.035));
@@ -184,4 +210,25 @@
     --glass-blur: 14px;
     --glass-blur-sm: 8px;
   }
+}
+
+/* Resolved once at :root, so a `color-scheme: dark` subtree (ownership) can still reference the page colour outside it. */
+@property --bg-outer {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #edf1f6;
+}
+:root {
+  --bg-outer: light-dark(#edf1f6, #0b0e13);
+}
+
+/* Ownership scene: same world, forced to dusk, a step darker than the dark theme. Unlayered so it beats the re-declared tokens above. */
+.dusk {
+  color-scheme: dark;
+  --bg: #07090d;
+  --bg-deep: #05070a;
+  --terrain-far: #141b25;
+  --terrain-mid: #0f151d;
+  --terrain-near: #0a0f15;
+  --mist: rgb(120 146 190 / 0.1);
 }
