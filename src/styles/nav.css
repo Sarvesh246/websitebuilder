@@ -4,6 +4,7 @@
     inset: 0 0 auto 0;
     z-index: var(--z-nav);
     height: var(--nav-h);
+    padding-top: env(safe-area-inset-top);
   }
 
   /* Glass backing fades in on scroll. Only opacity animates. */
@@ -145,6 +146,7 @@
     -webkit-backdrop-filter: blur(var(--glass-blur));
     backdrop-filter: blur(var(--glass-blur));
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
   @media (prefers-reduced-motion: no-preference) {
     .site-nav__sheet {

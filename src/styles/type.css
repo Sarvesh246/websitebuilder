@@ -76,6 +76,18 @@
     background: var(--border-strong);
   }
 
+  @media (max-width: 479px) {
+    /* Centred eyebrows lose their hairlines on phones so long labels wrap cleanly. */
+    .t-label--rule-both {
+      justify-content: center;
+      text-align: center;
+    }
+    .t-label--rule-both::before,
+    .t-label--rule-both::after {
+      display: none;
+    }
+  }
+
   .t-button {
     font-size: var(--fs-button);
     font-weight: 600;

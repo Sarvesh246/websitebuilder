@@ -144,16 +144,16 @@
   --container-wide: 100rem; /* 1600px, full-bleed artwork */
   --container-narrow: 62rem; /* 992px, focused blocks (pricing intro, CTA) */
   --container-prose: 42rem; /* 672px, long-form text */
-  --gutter: clamp(1.25rem, 0.5rem + 3.4vw, 4.5rem);
+  --gutter: max(clamp(1.25rem, 0.5rem + 3.4vw, 4.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
 
-  --section-y: clamp(5rem, 3rem + 8vw, 10rem);
-  --section-y-tight: clamp(3rem, 2rem + 4vw, 6rem);
+  --section-y: clamp(3.75rem, 2.25rem + 9vw, 10rem);
+  --section-y-tight: clamp(2.5rem, 1.75rem + 4.5vw, 6rem);
   --section-header-gap: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
   --card-pad: clamp(1.25rem, 1rem + 1vw, 2rem);
   --grid-gap: clamp(1rem, 0.6rem + 1.4vw, 1.75rem);
   --stack-gap: clamp(1rem, 0.8rem + 0.6vw, 1.5rem);
 
-  --nav-h: 4rem; /* mobile */
+  --nav-h: calc(4rem + env(safe-area-inset-top)); /* mobile; includes the notch inset */
   --touch-min: 2.75rem; /* 44px minimum touch target */
 
   /* ---------- Motion ---------- */
@@ -174,7 +174,7 @@
 
 @media (min-width: 1024px) {
   :root {
-    --nav-h: 4.5rem;
+    --nav-h: calc(4.5rem + env(safe-area-inset-top));
   }
 }
 
