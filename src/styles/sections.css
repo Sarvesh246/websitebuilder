@@ -242,6 +242,22 @@
   .panel__art {
     padding: 0.85rem 0.85rem 0;
   }
+  /* Phones: crop each sketch to its top band and drop the bullet list (pricing repeats it), so the
+     four panels read as a compact stack instead of ~2600px of scroll. */
+  @media (max-width: 639.98px) {
+    .panel__art {
+      max-height: 8.5rem;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(#000 60%, transparent);
+      mask-image: linear-gradient(#000 60%, transparent);
+    }
+    .panel .panel__body {
+      padding-top: 0.5rem;
+    }
+    .panel .panel__points {
+      display: none;
+    }
+  }
   .panel__body {
     display: flex;
     flex: 1;

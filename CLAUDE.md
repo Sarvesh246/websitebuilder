@@ -319,3 +319,16 @@ Metadata-only stage: no visual, pricing, inquiry, or section-copy changes. Basel
 **Stage 13 must preserve:** the metadata architecture above (no root canonical), noindex on /start, sitemap contents, truthful JSON-LD. **Stage 13 focus:** production infrastructure: deployment platform + real domain, NEXT_PUBLIC_SITE_URL, Resend domain verification and real email delivery test, NEXT_PUBLIC_CONTACT_EMAIL, analytics/privacy alignment, security headers, firewall/rate limiting, hosting name in Privacy.
 **SELECTED WORK: intentionally deferred.** No /work route, not in sitemap, not in nav. A future portfolio needs real client-approved work (never Datebook or ParkPoint).
 **BUSINESS ACCURACY:** no fake ratings, reviews, clients, metrics, awards, founding year, or local address anywhere in metadata or schema.
+
+
+## Stage 14 (Mobile polish + interaction stress test): DONE 2026-09-28
+**Reality check:** the brief assumed Stage 13 (production infra) existed; it does NOT (repo ended at Stage 12). "Stage 13 inquiry" = the Stage 5/11 flow, tested as-is. There is no GSAP/ScrollTrigger and no scroll-jacked or pinned sequence: Process is stacked panels, so there is no scrub/refresh logic to harden. Only scroll-linked effect is the CSS `animation-timeline: view()` terrain drift (768+, no reduced motion), which recovers on rotation by itself. Baseline audit was clean, so changes are small on purpose.
+**Baseline (Chromium, prod build, 320/360/375/390/414/430/768/834/900/1024 on /, /start, /privacy):** zero horizontal overflow, zero console errors. Real problem found: phone home page ~13.3k px tall, Services alone 2600px.
+**Changes**
+- Services (phones <640): sketch cropped to a top band (8.5rem, masked fade) and bullet list hidden (Pricing repeats it). Services 2603 -> 1701px, page 13.3k -> 12.4k at 390. 640+ unchanged.
+- Mobile nav sheet: `@media (max-height: 520px)` compacts links so the CTA stays on screen in landscape phones.
+- `/start` Back/Continue bar: `position: static` at `max-height: 520px` (landscape) so it does not eat a fifth of the screen; still sticky in portrait phones, static at lg+.
+**Verified, no change needed:** viewport units (100dvh only in base, sheet, lg+ hero, inquiry min-height; no 100vh); safe areas already on nav/sheet/footer/form bar/gutters; menu toggle 44px, main inert while open, html scroll lock; fast flick/reverse scroll leaves 0 hidden reveals; all four `?package=` links preselect; validation focuses first invalid field; review screen compact; portrait->landscape->portrait recovers with no overflow; no hover-only interactions (parallax is mouse-only).
+**Not verified:** WebKit/iOS Safari and real devices (only Chromium is installed here), real on-screen keyboard behaviour, Chrome Android, Lighthouse, real Resend delivery. Ownership, Pricing, SEO and inquiry logic untouched. Pricing phone section is still ~3350px (kept: Stage 11 content).
+**Stage 15 must preserve / focus:** cross-browser QA (Safari/WebKit, Firefox, Edge, iOS, Android), reload-at-scroll and resize tests, final a11y/perf, launch gate. Still needed: Stage 13 production infra.
+**SELECTED WORK: intentionally deferred.** **BUSINESS ACCURACY:** no fake social proof. **CREDENTIALS:** the site never collects client passwords or credentials.

@@ -170,4 +170,15 @@
     letter-spacing: var(--tracking-h3);
     color: var(--text-strong);
   }
+  /* Landscape phones: keep the CTA on screen without scrolling the sheet. */
+  @media (max-height: 520px) {
+    .site-nav__sheet {
+      gap: 1rem;
+      padding-top: calc(var(--nav-h) + 0.5rem);
+    }
+    .site-nav__sheet-link {
+      min-height: 2.75rem;
+      font-size: var(--fs-h4);
+    }
+  }
 }
