@@ -15,14 +15,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
-  alternates: { canonical: "./" },
-  openGraph: {
-    type: "website",
-    siteName: siteConfig.name,
-    title: `${siteConfig.name} | ${siteConfig.tagline}`,
-    description: siteConfig.description,
-    url: "./",
-  },
+  applicationName: siteConfig.name,
+  // No canonical/openGraph.url here: each route sets its own via pageMetadata, so a route that
+  // forgets to (like the 404) never inherits a wrong one.
+  openGraph: { type: "website", siteName: siteConfig.name, locale: "en_US" },
   twitter: { card: "summary_large_image" },
 };
 
