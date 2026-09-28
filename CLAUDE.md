@@ -35,8 +35,11 @@ src/components/visual/  Ambient (+Glow, GridOverlay, Fade, Grain), SceneImage
 src/components/motion/  MotionProvider, Reveal, RevealGroup, RevealItem
 src/components/nav/     SiteNav (client), ThemeToggle
 src/components/sections/ (Hero, HeroVisual, Pricing) and visual/mockup/ (device frames + concept screens)
+src/components/sections/ also WhatWeBuild, WhyNorthframe, Process (Stage 4); src/components/process/ ProcessVisual (server), ProcessTrack (client)
+src/styles/         also environment.css (horizon, stone, arc), services.css, why.css, process.css; glass.css has `.glass-slab`
+src/components/visual/Horizon.tsx  shared SVG landscape
 src/components/pricing/ PackageCard, CustomPackage, CompareTable (server components, all read config/pricing.ts)
-src/config/         site.ts, nav.ts, pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth)
+src/config/         site.ts, nav.ts, pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth), services.ts, why.ts, process.ts (Stage 4 copy), work.ts (deferred case-study schema, renders nothing)
 src/lib/            cn.ts, motion.ts     src/hooks/  useLockBodyScroll, useScrolledPast
 public/images/      scenes/ work/ og/  (see public/images/README.md for asset rules)
 ```
@@ -95,7 +98,7 @@ Remote `origin` = https://github.com/Sarvesh246/websitebuilder.git (branch `main
 Repo was empty (only `skills-lock.json`). Scaffolded Next 16 app, built the token, type, layout, glass, ambient, motion, button/badge, and nav foundation described above, plus `/design-system` living style guide and Stage 1 placeholder home. Validated: lint, typecheck, contrast script, production build all pass; verified in browser at 1440 and 390 widths, light and dark, mobile menu, reduced motion, zero console errors.
 
 Stage 1 carry-overs still true:
-- Nav links are in-page anchors (`#work #process #pricing #about`, CTA `#contact`; `#services` was removed in Stage 3); sections must use matching `id`s. Nav is fixed; `scroll-padding-top` accounts for it.
+- Nav links are in-page anchors (`#services #process #pricing #about`, CTA `#contact`; `Work` was removed in Stage 4 and returns only via `config/work.ts`); sections must use matching `id`s. Nav is fixed; `scroll-padding-top` accounts for it.
 - Mobile menu has no focus trap yet (Escape closes, focus moves in, aria-modal set). Do a proper trap or `inert` on `<main>` in Stage 9.
 - Scroll reveals (`Reveal`) start hidden (`data-reveal`); a `<noscript>` style makes them visible without JS.
 - `/design-system` is noindex. Keep it as the regression reference; remove or gate before launch if desired.
@@ -157,3 +160,29 @@ Backend/auth/db/payments are explicitly NOT in Starter/Plus/Pro (only "simple in
 **CTA behaviour**: every CTA is `href="#contact"` with `data-package="starter|plus|pro|custom"`. `#contact` does not exist yet. Stage 5 builds it and can read `data-package` (or add a `?package=` param) to preselect.
 **Stage 4 must preserve**: the single `#pricing` anchor (no Services duplicate), package names/prices from config only, no "most popular" claim, the `Section > Ambient > Container` pattern, and Reveal patterns (never put `RevealGroup` on a `display: contents` element: IntersectionObserver needs a box). `#work` and `#process` are still inert nav targets; when they land, move `<Pricing/>` in `page.tsx` after them.
 Tooling tip: `playwright-core` with `chromium-1243` under `%LOCALAPPDATA%/ms-playwright` works from a scratch dir when the Playwright MCP is busy.
+
+## Stage 4 (What we build, Why Northframe, Process): DONE 2026-09-28
+Page order: Hero, `#services` What we build, `#about` Why Northframe (temporary About target), `#process`, `#pricing` (contains the Stage 3 ownership panel, unchanged).
+Validated: lint, typecheck, production build pass; no test runner yet (Stage 9). Checked with playwright (global, chromium at /opt/pw-browsers/chromium) at 1920/1440/1280/1024/768/430/390: zero horizontal overflow, zero console errors, all four anchors resolve, reduced motion checked at 1280 dark. `#contact` still has no target (Stage 5), so "Start a Project" is inert as before.
+
+**Selected Work is intentionally NOT public.** No client work is approved yet and personal projects (Datebook, ParkPoint) must not stand in for it. The old `#work` nav link was removed (it had no section anyway). `config/work.ts` holds the future `CaseStudy` type (client, category, summary, services, desktop/mobile screens, projectUrl, detailHref, testimonial, results with source, `permission: pending|approved|declined`), an empty `caseStudies` array, `publicCaseStudies` (approved only) and `showSelectedWork`. `config/nav.ts` adds "Work" only when `showSelectedWork` is true, so no dead anchor. When real work exists: add entries, build a `#work` section (floating dimensional browser panels with refractive glass framing, architectural environment, depth/perspective, desktop + mobile views, asymmetric editorial layout using `.glass-slab` + `Horizon` + `BrowserMockup`/`PhoneMockup`), render only `publicCaseStudies`, add testimonials/results only when real. Never publish placeholder content.
+
+**Copy (config/services.ts, why.ts, process.ts, change only there)**
+- What we build: eyebrow "What we build", h2 "What we build.", lead "From a straightforward portfolio to a more custom digital experience." Categories: Personal (students, resumes, portfolios, personal sites), Professional (creators, freelancers, independent professionals, personal brands), Business (organizations, student organizations, small businesses, teams), Custom (authenticated experiences, database-backed projects, dashboards, integrations). Each has the approved one-line description. Panels link to `#pricing`; no prices here.
+- Why Northframe: "Good work deserves more than a template." / "Your website should feel like an extension of what you're building, not something you settled for." / "Intentional design, clear structure, and a stronger online presence." plus four points (Custom visual direction, Clear structure, Responsive by default, Yours to keep). No template-bashing, no unverifiable claims.
+- Process: "A clear process." / "From first direction to final launch, every step has a purpose." 01 Define, 02 Design, 03 Build, 04 Launch with the approved step copy.
+
+**Environment and material system (new, reuse it)**
+- `Horizon` (SVG, static): layered far/mid ridges plus a lit facet on each right-hand slope (light always from the upper right). Variants `wide` and `a-d` (panel fragments). Colours are `--mtn-*` tokens. `.horizon-band` pins it to a section bottom with a fade into the page colour. `.stone` = platform, `.arc` = one faint arc. Ambient presets added: `build`, `scene`, `flow`. `.why` uses a soft deeper-tone band that fades in and out (no seams).
+- `.glass-slab` (glass.css, tokens `--slab-*`): lit bevel, edge-thickness band, inner base shade, specular streak, grounded shadow. Use on a few hero objects only (service panels, process frames, floating concept panels). Reduced-transparency and no-backdrop fallbacks included.
+- No raster art was added; nothing to optimise. `public/images` unchanged.
+
+**Responsive**: Services: 1 col phones, 2 cols at sm, 4 tall slabs at lg (rise 1.75rem each, rotateY up to ~4deg, per-item perspective so text stays flat). Why: copy then main browser then two small panels on phones (phone mock, ridge, arc, stone hidden); md+ full floating composition bleeding right. Process: vertical rail below md; visual + text side by side md-xl; four columns on subgrid rows at xl (nodes share a baseline, later visuals sit higher), connectors draw left to right. Mockups are decorative (`aria-hidden` / `role="img"`).
+**Motion**: reveal once (existing Reveal/RevealGroup), process steps stagger and connectors scale in (`ProcessTrack`), slab hover lift, Why floating panels drift via CSS scroll-driven animation (md+, only with `animation-timeline` support and no reduced motion). No loops, no JS parallax.
+**Performance**: 4 blurred slabs + 4 process frames + 2 Why panels, each in a different viewport; blur reduced on phones; SVG landscape only.
+
+**Ownership final treatment (NOT built yet; the Stage 3 panel in Pricing stays)**: dark cinematic environment. Eyebrow "OWNERSHIP"; h2 "Built for you. Owned by you."; "Your website, domain, accounts, and data stay under your control."; items Your domain / Your code / Your accounts / Your data; secondary "No locked platform. No mystery credentials. No dependency on Northframe to keep your site running." Visual: dark architectural environment, large refractive browser panel, dramatic edge lighting, reflective stone platform, minimal cool highlights.
+
+**Known limitations**: `#contact` missing (Stage 5). Slab tilt/rise is subtle. Ridge facets are low-poly and read as a placeholder for real landscape art. Slab links all go to `#pricing`. Why concept screens reuse fictional demo names inside mockups (labelled concept, not client work). No case-study section, No Work nav. Nav order (Services, Process, Pricing, About) differs from page order because About currently targets Why (section 2).
+
+**FINAL VISUAL POLISH stage must address**: stronger architectural/mountain environmental continuity (real art replacing SVG ridges); more physical/refractive glass and better edge highlights; stronger foreground/midground/background depth; reflective stone/concrete materials; consistent lighting direction; more asymmetrical, cinematic spatial layouts; seamless section transitions; removal of remaining generic SaaS patterns (pricing cards, comparison table, hero mockups); final matching against the approved reference imagery; the dark cinematic Ownership section above; Selected Work only once real approved client work exists.

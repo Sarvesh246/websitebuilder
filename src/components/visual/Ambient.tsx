@@ -34,8 +34,11 @@ export const Fade = ({ edge }: { edge: "top" | "bottom" }) => (
  *   section  one soft cool glow off-centre, edges faded into the page colour
  *   pricing  centred glow behind the featured card, haze either side
  *   quiet    a single faint glow, for text-heavy sections
+ *   build    cool key light behind the panel row, warm low haze (What we build)
+ *   scene    warm sun highlight upper right, cool fill left (Why Northframe)
+ *   flow     a low horizontal haze band (Process)
  */
-type Preset = "hero" | "section" | "pricing" | "quiet";
+type Preset = "hero" | "section" | "pricing" | "quiet" | "build" | "scene" | "flow";
 
 export const Ambient = ({ preset = "section", className }: { preset?: Preset; className?: string }) => (
   <div aria-hidden className={cn("ambient", className)}>
@@ -62,6 +65,27 @@ export const Ambient = ({ preset = "section", className }: { preset?: Preset; cl
         <Glow tone="haze" x="8%" y="30%" size="36rem" intensity={0.7} />
         <Glow tone="haze" x="92%" y="70%" size="36rem" intensity={0.7} />
         <Fade edge="top" />
+        <Fade edge="bottom" />
+      </>
+    )}
+    {preset === "build" && (
+      <>
+        <Glow tone="cool" x="50%" y="46%" size="64rem" intensity={0.75} />
+        <Glow tone="warm" x="86%" y="12%" size="34rem" intensity={0.6} />
+        <Glow tone="haze" x="12%" y="78%" size="40rem" intensity={0.7} />
+      </>
+    )}
+    {preset === "scene" && (
+      <>
+        <Glow tone="warm" x="80%" y="30%" size="48rem" intensity={0.8} />
+        <Glow tone="cool" x="22%" y="62%" size="46rem" intensity={0.6} />
+        <Glow tone="haze" x="60%" y="90%" size="50rem" intensity={0.7} />
+      </>
+    )}
+    {preset === "flow" && (
+      <>
+        <Glow tone="haze" x="50%" y="62%" size="70rem" intensity={0.7} />
+        <Glow tone="cool" x="88%" y="20%" size="36rem" intensity={0.45} />
         <Fade edge="bottom" />
       </>
     )}

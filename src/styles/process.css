@@ -1,0 +1,370 @@
+/*
+ * Process. < md: vertical rail (number node + line on the left, visual then text on the right).
+ * md-xl: visual and text side by side on the same rail. xl+: four columns on subgrid rows
+ * (visual / node / text) so nodes share one baseline while later visuals sit a little higher.
+ * Artwork colours are scoped (--pv-*): design and live stages look the same in either theme.
+ */
+@layer components {
+  .process__steps {
+    display: grid;
+    gap: 2.5rem;
+    padding: 0;
+    list-style: none;
+  }
+  .process__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: 1.25rem;
+    row-gap: 1.25rem;
+  }
+  .process__node {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: relative;
+  }
+  .process__visual {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .process__text {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 34ch;
+  }
+  .process__text .t-body {
+    color: var(--text-muted);
+  }
+
+  .process__num {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--glass-bg-strong);
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      inset 0 1px 0 var(--slab-rim),
+      var(--shadow-md);
+    font-family: var(--font-rounded);
+    font-size: var(--fs-small);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-ink);
+  }
+  .process__link {
+    position: absolute;
+    background: linear-gradient(var(--_dir, to bottom), var(--accent), var(--border-strong));
+    opacity: 0.6;
+  }
+  .process__link--h {
+    display: none;
+  }
+  .process__link--v {
+    --_dir: to bottom;
+    top: 3.25rem;
+    bottom: calc(-2.5rem - 0.25rem);
+    left: calc(1.5rem - 1px);
+    width: 2px;
+    transform-origin: top;
+  }
+  /* md-xl: visual and text side by side. */
+  @media (min-width: 768px) {
+    .process__step {
+      grid-template-columns: 3rem minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: center;
+    }
+    .process__node {
+      grid-row: 1;
+      align-self: stretch;
+    }
+    .process__text {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+
+  /* xl+: four columns, shared baseline for the nodes. */
+  @media (min-width: 1280px) {
+    .process__steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: auto auto auto;
+      column-gap: var(--grid-gap);
+      row-gap: 0;
+      padding-top: 3rem; /* room for the rising visuals */
+    }
+    .process__step {
+      grid-row: 1 / span 3;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: subgrid;
+      row-gap: 0;
+      align-items: start;
+    }
+    .process__visual {
+      grid-column: 1;
+      grid-row: 1;
+      align-self: end;
+      margin-bottom: 1.5rem;
+      translate: 0 calc(var(--i, 0) * -1rem);
+    }
+    .process__node {
+      grid-column: 1;
+      grid-row: 2;
+      align-self: center;
+    }
+    .process__text {
+      grid-column: 1;
+      grid-row: 3;
+      padding-top: 1.5rem;
+    }
+    .process__link--v {
+      display: none;
+    }
+    .process__link--h {
+      display: block;
+      top: calc(1.5rem - 1px);
+      left: 3.75rem;
+      right: calc(var(--grid-gap) * -1 + 0.75rem);
+      height: 2px;
+      transform-origin: left;
+      --_dir: to right;
+    }
+  }
+
+  /* ---------- Visual frames ---------- */
+  .pv {
+    --slab-radius: var(--radius-card);
+    --glass-blur: 10px;
+    --pv-line: light-dark(rgb(40 62 100 / 0.38), rgb(200 216 245 / 0.34));
+    --pv-fill: light-dark(rgb(40 62 100 / 0.09), rgb(200 216 245 / 0.09));
+    container-type: inline-size;
+    padding: 0.6rem;
+    overflow: hidden;
+  }
+  .pv > * {
+    position: relative;
+    z-index: 1;
+  }
+  .pv__screen {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: calc(var(--radius-card) - 0.6rem);
+    font-size: 3.4cqw;
+  }
+  .pv__bar {
+    display: flex;
+    padding: 0.15rem 0.4rem 0.6rem;
+  }
+  .pv__lock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg);
+    box-shadow: inset 0 0 0 1px var(--border);
+    font-family: var(--font-rounded);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .pv__live {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 1.1rem;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.75rem 0.3rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-family: var(--font-rounded);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* One layout at three levels of finish. */
+  .pv-site {
+    --s-bg: #f4f6fa;
+    --s-ink: #0f1620;
+    --s-a: #7ea6f5;
+    --s-b: #cfdcf6;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+    height: 100%;
+    padding: 1.4em;
+    background: var(--s-bg);
+  }
+  .pv-site__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .pv-site__nav b {
+    width: 5em;
+    height: 0.9em;
+    border-radius: 99px;
+    background: var(--s-ink);
+  }
+  .pv-site__nav span {
+    display: flex;
+    gap: 0.8em;
+  }
+  .pv-site__nav span i {
+    width: 2.2em;
+    height: 0.5em;
+    border-radius: 99px;
+    background: var(--s-ink);
+    opacity: 0.3;
+  }
+  .pv-site__hero {
+    display: grid;
+    flex: 1;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 1.4em;
+    min-height: 0;
+  }
+  .pv-site__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.7em;
+  }
+  .pv-site__h {
+    display: block;
+    height: 1.5em;
+    border-radius: 0.4em;
+    background: var(--s-ink);
+  }
+  .pv-site__h--short {
+    width: 68%;
+  }
+  .pv-site__line {
+    display: block;
+    height: 0.6em;
+    border-radius: 99px;
+    background: var(--s-ink);
+    opacity: 0.26;
+  }
+  .pv-site__btn {
+    display: block;
+    width: 45%;
+    height: 1.7em;
+    border-radius: 0.5em;
+    background: var(--s-ink);
+  }
+  .pv-site__art {
+    border-radius: 0.9em;
+    background: linear-gradient(140deg, var(--s-a), var(--s-b));
+  }
+  .pv-site__tiles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9em;
+    height: 4.2em;
+  }
+  .pv-site__tiles i {
+    border-radius: 0.6em;
+    background: linear-gradient(150deg, var(--s-b), var(--s-a));
+  }
+
+  /* Define: dashed outlines, flat grey, a crossed placeholder where the image will go. */
+  .pv-site--wire {
+    --s-bg: light-dark(#f2f5fa, #161c26);
+    --s-ink: var(--pv-line);
+  }
+  .pv-site--wire .pv-site__h,
+  .pv-site--wire .pv-site__nav b,
+  .pv-site--wire .pv-site__btn {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--pv-line);
+    border-style: dashed;
+  }
+  .pv-site--wire .pv-site__line,
+  .pv-site--wire .pv-site__nav span i {
+    background: var(--pv-line);
+    opacity: 0.5;
+  }
+  .pv-site--wire .pv-site__art,
+  .pv-site--wire .pv-site__tiles i {
+    background:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--pv-line) 50%, transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), var(--pv-line) 50%, transparent calc(50% + 1px)),
+      var(--pv-fill);
+    box-shadow: inset 0 0 0 1.5px var(--pv-line);
+  }
+
+  /* Design / live: the finished look. Live adds a subtle browser lift. */
+  .pv-site--design .pv-site__h--short {
+    background: #2a4fa6;
+  }
+  .pv-site--design .pv-site__btn,
+  .pv-site--live .pv-site__btn {
+    background: #2a4fa6;
+  }
+  .pv-site--live .pv-site__h--short {
+    background: #2a4fa6;
+  }
+
+  /* Build: an editor. Neutral bars in one accent hue; row 4 is the active line. */
+  .pv-code {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    height: 100%;
+    padding: 1.2em 1.4em;
+    background: #10151d;
+    font-family: var(--font-rounded);
+  }
+  .pv-code__tabs {
+    display: flex;
+    gap: 0.6em;
+    margin-bottom: 0.3em;
+  }
+  .pv-code__tabs i {
+    width: 5em;
+    height: 1.2em;
+    border-radius: 0.4em 0.4em 0 0;
+    background: #1a2331;
+  }
+  .pv-code__tabs i:first-child {
+    background: #24324a;
+  }
+  .pv-code__row {
+    display: flex;
+    align-items: center;
+    gap: 0.9em;
+    border-radius: 0.3em;
+  }
+  .pv-code__row--on {
+    background: rgb(126 166 245 / 0.14);
+    box-shadow: -1.4em 0 0 rgb(126 166 245 / 0.14), 1.4em 0 0 rgb(126 166 245 / 0.14);
+  }
+  .pv-code__row em {
+    width: 1.4em;
+    font-size: 0.8em;
+    font-style: normal;
+    color: #5b6675;
+    text-align: right;
+  }
+  .pv-code__row i {
+    display: block;
+    height: 0.6em;
+    border-radius: 99px;
+    background: #7ea6f5;
+  }
+  .pv-code__row i.pv-code__b {
+    background: #cdd5df;
+    opacity: 0.55;
+  }
+}

@@ -112,6 +112,14 @@
     --m-b: #cfe0d6;
     --m-c: #2c5d47;
   }
+  .ms--org {
+    --m-bg: #f3f5f9;
+    --m-ink: #121a2b;
+    --m-mute: #566179;
+    --m-a: #9db6ea;
+    --m-b: #dbe4f7;
+    --m-c: #2a4fa6;
+  }
   .ms--creator {
     --m-bg: #10151d;
     --m-ink: #f3f6fa;

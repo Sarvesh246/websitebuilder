@@ -1,0 +1,166 @@
+/*
+ * What we build. Phones: one stack of compact slabs. sm: 2 columns. lg+: four tall slabs that
+ * stand at rising heights and turn slightly toward the centre (a gentle curved wall), each with
+ * its own perspective so text stays flat and readable. Tilt is 4deg at most.
+ */
+@layer components {
+  .build {
+    padding-bottom: calc(var(--section-y) + 4rem);
+  }
+
+  .build__stage {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap);
+  }
+  @media (min-width: 640px) {
+    .build__stage {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .build__stage {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: end;
+      padding-top: 5.5rem; /* room for the rise */
+    }
+  }
+
+  .build__item {
+    height: 100%;
+    --i: 0;
+  }
+  .build__item:nth-child(2) {
+    --i: 1;
+  }
+  .build__item:nth-child(3) {
+    --i: 2;
+  }
+  .build__item:nth-child(4) {
+    --i: 3;
+  }
+  @media (min-width: 1024px) {
+    .build__item {
+      perspective: 1600px;
+      /* later slabs stand higher: 0, 1.75, 3.5, 5.25rem */
+      translate: 0 calc(var(--i, 0) * -1.75rem);
+    }
+  }
+
+  .build-panel {
+    --slab-radius: var(--radius-panel);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    height: 100%;
+    min-height: 15rem;
+    padding: var(--card-pad) var(--card-pad) 6rem;
+    overflow: hidden;
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      transform var(--dur-slow) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  @media (min-width: 1024px) {
+    .build-panel {
+      min-height: 33rem;
+      padding-bottom: 9rem;
+      transform: rotateY(calc((1.5 - var(--i, 0)) * 2.6deg));
+    }
+  }
+  @media (hover: hover) {
+    .build-panel:hover {
+      transform: translateY(-6px);
+      box-shadow:
+        inset 1px 1px 0 var(--slab-rim),
+        inset -1px -1px 0 var(--slab-rim-dim),
+        inset 0 0 0 5px var(--slab-thick),
+        inset 0 -28px 44px -30px var(--slab-inner-shade),
+        var(--slab-shadow-hover);
+    }
+  }
+  .build-panel:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 4px;
+  }
+
+  .build-panel > * {
+    position: relative;
+    z-index: 1;
+  }
+  .build-panel__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    box-shadow: inset 0 1px 0 var(--slab-rim);
+  }
+  .build-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .build-panel__body p {
+    color: var(--text-muted);
+  }
+  .build-panel__for {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0;
+    list-style: none;
+  }
+  .build-panel__for li {
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg-subtle);
+    box-shadow: inset 0 0 0 1px var(--border);
+    font-family: var(--font-rounded);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .build-panel__go {
+    position: absolute;
+    top: var(--card-pad);
+    right: var(--card-pad);
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--glass-bg-strong);
+    box-shadow:
+      inset 0 0 0 1px var(--border),
+      inset 0 1px 0 var(--slab-rim);
+    color: var(--text-strong);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .build-panel:hover .build-panel__go {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  /* Landscape fragment at the base of each slab: fades up into the glass, keeps text area clear. */
+  .build-panel__scene {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: 0;
+    height: 6rem;
+    opacity: 0.9;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 40%);
+    mask-image: linear-gradient(to bottom, transparent, #000 40%);
+  }
+  @media (min-width: 1024px) {
+    .build-panel__scene {
+      height: 9rem;
+    }
+  }
+}
