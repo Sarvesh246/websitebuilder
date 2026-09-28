@@ -12,7 +12,7 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | 6 | Supporting sections and footer: About, principles, final CTA, footer, Privacy + Terms, 404, metadata/SEO (FAQ skipped: no real content) | Done |
 | 7 | Responsive + mobile pass: safe areas, nav focus trap, section rhythm, compact mobile pricing, touch targets, overflow audit (Stage 4 sections still missing) | Done |
 | 8 | Art direction: environment system, glass rebuild, hero, Services/Why/Process/Ownership scenes, pricing platform, About, final CTA (Stage 4 sections built here) | Done |
-| 9 | Accessibility, performance, testing: keyboard/screen-reader pass, contrast, Lighthouse (LCP/CLS/INP), Playwright smoke tests, SEO/OG, analytics decision | | Done |
+| 9 | Accessibility, performance, testing: keyboard/screen-reader pass, contrast, Lighthouse (LCP/CLS/INP), Playwright smoke tests, SEO/OG, analytics decision | Done |
 | 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | |
 
 Open decisions to resolve before the stage that needs them: brand name and domain (Stage 2), artwork sourcing/generation (Stage 2 and 8), contact form backend (Stage 5), analytics provider (Stage 9).
