@@ -3,23 +3,23 @@
  * so prices and package contents only ever change in one place.
  * No client counts, testimonials, or "most popular" claims belong here: the business is new.
  */
-export type PackageId = "starter" | "plus" | "pro" | "custom";
+export type PackageId = "launch" | "presence" | "business" | "custom";
 
 export type PackageTier = {
   id: Exclude<PackageId, "custom">;
   name: string;
-  /** One line on what the package is. */
+  /** One line on what the package is for. */
   blurb: string;
   /** Who it is for. Starts with "Best for". */
   audience: string;
   /** Price the visitor pays today, in USD. */
   price: number;
-  /** Regular price. Present only while launch pricing applies to this package. */
+  /** Regular price. Present only while Founding Client Pricing applies to this package. */
   regularPrice?: number;
   /** Lead-in above the feature list when a package builds on the previous one. */
-  includesLead?: string;
+  includesLead: string;
   features: readonly string[];
-  /** Small reassurance line under the CTA. */
+  /** Scope boundary under the CTA: what this package stops at. */
   note: string;
   ctaLabel: string;
   /** Factual emphasis label ("Best value"); never a popularity claim. */
@@ -40,62 +40,60 @@ export type CustomTier = {
 
 export const packageTiers: readonly PackageTier[] = [
   {
-    id: "starter",
-    name: "Starter",
-    blurb: "A polished one-page site for your work and contact info.",
+    id: "launch",
+    name: "Launch",
+    blurb: "A polished one-page site for your work and contact details.",
     audience: "Best for student portfolios and resumes.",
     price: 50,
     includesLead: "What's included",
     features: [
-      "One-page custom design",
+      "1 custom-designed page",
       "Projects and resume sections",
-      "Mobile responsive",
-      "Contact and social links",
-      "Domain and deployment setup",
+      "Basic contact section",
       "1 revision round",
     ],
-    note: "You own the final site.",
-    ctaLabel: "Choose Starter",
+    note: "One page. Need more pages? See Presence.",
+    ctaLabel: "Get Launch",
   },
   {
-    id: "plus",
-    name: "Plus",
-    blurb: "A fuller site with more pages, stronger polish, and a contact form.",
-    audience: "Best for creators, freelancers, and student orgs.",
+    id: "presence",
+    name: "Presence",
+    blurb: "A fuller site for creators and professionals who need it to do more.",
+    audience: "Best for creators and professionals.",
     price: 200,
     regularPrice: 350,
-    includesLead: "Everything in Starter, plus",
+    includesLead: "Everything in Launch, plus",
     features: [
       "Up to 3 pages",
-      "Project and gallery sections",
+      "Portfolio and project sections",
       "Contact form",
-      "SEO and analytics setup",
+      "SEO setup and analytics",
       "Enhanced animations",
       "2 revision rounds",
     ],
-    note: "Domain and setup help included.",
-    ctaLabel: "Choose Plus",
+    note: "Logins, databases, and payments are Custom.",
+    ctaLabel: "Get Presence",
     badge: "Best value",
     featured: true,
   },
   {
-    id: "pro",
-    name: "Pro",
-    blurb: "A larger custom site with advanced interactions and room to grow.",
-    audience: "Best for organizations and small businesses.",
+    id: "business",
+    name: "Business",
+    blurb: "More pages, structure, and content for organizations and small businesses.",
+    audience: "Best for organizations and businesses.",
     price: 350,
     regularPrice: 500,
-    includesLead: "Everything in Plus, plus",
+    includesLead: "Everything in Presence, plus",
     features: [
       "Up to 5 pages",
       "Service, team, or event pages",
-      "Forms and simple integrations",
-      "CMS support where it fits",
-      "Advanced UI and interactions",
+      "FAQ and testimonial sections",
+      "Simple integrations",
+      "Advanced animations",
       "3 revision rounds",
     ],
-    note: "Scope is confirmed before work starts.",
-    ctaLabel: "Choose Pro",
+    note: "Simple integrations only. Anything bigger is Custom.",
+    ctaLabel: "Get Business",
   },
 ];
 
@@ -103,25 +101,34 @@ export const customTier: CustomTier = {
   id: "custom",
   name: "Custom",
   blurb: "For projects that go beyond a website: accounts, data, payments, or unusual requirements.",
-  audience: "Best for complex or unusual projects.",
+  audience: "Best for advanced projects.",
   scope: [
     "Authentication",
     "Databases",
     "Dashboards",
     "Payments",
-    "Admin panels",
-    "APIs",
-    "Advanced integrations",
+    "Admin tools",
+    "API integrations",
     "Custom functionality",
   ],
   note: "Priced by scope after a short conversation. No commitment to ask.",
-  ctaLabel: "Request a quote",
+  ctaLabel: "Start a Conversation",
 };
 
-/** Launch pricing is intro pricing, stated plainly. It is not a countdown and not a scarcity claim. */
-export const launchPricing = {
-  title: "Launch pricing",
-  body: "Intro pricing while the studio builds its first client portfolio. Regular prices apply once launch pricing ends.",
+/** Term for discounted prices everywhere on the site. Not a countdown and not a scarcity claim. */
+export const foundingLabel = "Founding Client Pricing";
+
+export const foundingPricing = {
+  title: foundingLabel,
+  body: "Available while Northframe builds its first client portfolio. Regular prices apply afterward.",
+};
+
+/** What every fixed package has, said once instead of on every card. */
+export const commonInclusions = {
+  title: "Every package includes",
+  items: ["Custom visual design", "Responsive layout", "Domain setup help", "Deployment"],
+  ownership: "You own the final site and accounts.",
+  flow: "Each button opens a short project request with the package already selected. No payment, no commitment.",
 };
 
 /** true = included, false = not included, string = short description. */
@@ -129,28 +136,23 @@ export type CompareCell = boolean | string;
 
 export type CompareRow = {
   label: string;
-  /** Order matches [starter, plus, pro, custom]. */
+  /** Order matches [launch, presence, business, custom]. */
   values: readonly [CompareCell, CompareCell, CompareCell, CompareCell];
 };
 
 export const compareRows: readonly CompareRow[] = [
-  { label: "Best for", values: ["Portfolios and resumes", "Creators and student orgs", "Organizations and businesses", "Complex builds"] },
+  { label: "Best for", values: ["Portfolios and resumes", "Creators and professionals", "Organizations and businesses", "Advanced projects"] },
   { label: "Pages", values: ["1 page", "Up to 3", "Up to 5", "As scoped"] },
-  { label: "Contact", values: ["Links", "Contact form", "Contact form", "As scoped"] },
-  { label: "Animation", values: ["Subtle", "Enhanced", "Advanced", "As scoped"] },
-  { label: "SEO and analytics", values: [false, true, true, "As scoped"] },
-  { label: "CMS support", values: [false, false, "Where it fits", "As scoped"] },
+  { label: "Contact form", values: ["Basic contact section", true, true, "As scoped"] },
+  { label: "SEO setup and analytics", values: [false, true, true, "As scoped"] },
+  { label: "Animations", values: ["Subtle", "Enhanced", "Advanced", "As scoped"] },
   { label: "Simple integrations", values: [false, false, true, "As scoped"] },
-  { label: "Logins, database, payments", values: [false, false, false, "Quoted"] },
-  { label: "Revisions", values: ["1 round", "2 rounds", "3 rounds", "By scope"] },
+  { label: "Revision rounds", values: ["1", "2", "3", "By scope"] },
+  { label: "Logins, databases, payments", values: [false, false, false, "Quoted"] },
 ];
-
-export const compareFootnote =
-  "Every package includes custom design, mobile-responsive layouts, and domain and deployment setup.";
 
 /** Scope boundaries, kept short on purpose. */
 export const scopeNotes: readonly string[] = [
-  "Domain names cost extra if you don't already own one.",
-  "Paid third-party services, like premium hosting or email plans, have their own fees.",
+  "Domain registration and paid third-party services, like premium hosting or email plans, are billed separately where required.",
   "If a request goes beyond your package, the price is updated and you approve it before work continues.",
 ];

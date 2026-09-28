@@ -3,7 +3,7 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { InquiryFlow } from "@/components/inquiry/InquiryFlow";
 import { Ambient } from "@/components/visual/Ambient";
-import { isPackageId } from "@/config/inquiry";
+import { parsePackageId } from "@/config/inquiry";
 
 export const metadata: Metadata = {
   title: "Start a project",
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/start" },
 };
 
-/** Project inquiry. `?package=starter|plus|pro|custom` preselects a package (see startHref in config/inquiry.ts). */
+/** Project inquiry. `?package=launch|presence|business|custom` preselects a package (see startHref in config/inquiry.ts). */
 export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const { package: requested } = await searchParams;
-  const initialPackage = isPackageId(requested) ? requested : null;
+  const initialPackage = parsePackageId(requested);
 
   return (
     <Section className="start" spacing="none">

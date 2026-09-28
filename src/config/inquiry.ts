@@ -3,16 +3,25 @@
  * validator (server), so an option can never exist in one and not the other.
  * Package names, prices and contents come from config/pricing.ts, never restated here.
  */
-import { customTier, packageTiers, type PackageId } from "@/config/pricing";
+import { customTier, foundingLabel, packageTiers, type PackageId } from "@/config/pricing";
 
 export const startPath = "/start";
 
 /** Where every "Start a Project" / package CTA goes. Pass a package to preselect it. */
 export const startHref = (pkg?: PackageId) => (pkg ? `${startPath}?package=${pkg}` : startPath);
 
-export const packageIds = ["starter", "plus", "pro", "custom"] as const satisfies readonly PackageId[];
+export const packageIds = ["launch", "presence", "business", "custom"] as const satisfies readonly PackageId[];
 export const isPackageId = (value: unknown): value is PackageId =>
   typeof value === "string" && (packageIds as readonly string[]).includes(value);
+
+/** Earlier package names. Old links and saved drafts still resolve to the right package. */
+const legacyPackageIds: Record<string, PackageId> = { starter: "launch", plus: "presence", pro: "business" };
+
+/** URL or stored value to a package id, or null. Accepts the current ids and the legacy ones. */
+export const parsePackageId = (value: unknown): PackageId | null => {
+  if (isPackageId(value)) return value;
+  return typeof value === "string" ? (legacyPackageIds[value] ?? null) : null;
+};
 
 /** One-line description per package for the picker. Prices are derived from pricing.ts. */
 export type PackageChoice = { id: PackageId; name: string; price: string; blurb: string };
@@ -21,14 +30,14 @@ export const packageChoices: readonly PackageChoice[] = [
   ...packageTiers.map((tier) => ({
     id: tier.id,
     name: tier.name,
-    price: tier.regularPrice !== undefined ? `$${tier.price} launch price` : `$${tier.price} flat`,
+    price: tier.regularPrice !== undefined ? `$${tier.price} ${foundingLabel}` : `$${tier.price} one-time`,
     blurb: tier.audience.replace(/^Best for /, "For "),
   })),
   {
     id: customTier.id,
     name: customTier.name,
     price: "Request a quote",
-    blurb: "For accounts, data, payments, or unusual requirements.",
+    blurb: "For advanced projects: accounts, data, payments, or unusual requirements.",
   },
 ];
 
@@ -44,7 +53,7 @@ export const projectTypes = [
   { id: "other", label: "Other" },
 ] as const;
 
-/** `advanced` features are not part of Starter, Plus or Pro, so they trigger the quote note. */
+/** `advanced` features are not part of Launch, Presence or Business, so they trigger the quote note. */
 export const features = [
   { id: "contact-form", label: "Contact form", advanced: false },
   { id: "gallery", label: "Gallery or portfolio", advanced: false },
@@ -56,6 +65,7 @@ export const features = [
   { id: "database", label: "Database", advanced: true },
   { id: "payments", label: "Payments", advanced: true },
   { id: "dashboard", label: "Dashboard", advanced: true },
+  { id: "admin", label: "Admin tools", advanced: true },
   { id: "api", label: "API integration", advanced: true },
   { id: "other", label: "Something else", advanced: false },
 ] as const;

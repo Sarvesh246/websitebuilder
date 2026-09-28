@@ -27,7 +27,7 @@ const packageLabel = (id: InquiryValues["package"]) => {
   if (id === "custom") return `${customTier.name} (quote)`;
   const tier = packageTiers.find((t) => t.id === id);
   if (!tier) return id;
-  return tier.regularPrice !== undefined ? `${tier.name} ($${tier.price} launch price)` : `${tier.name} ($${tier.price})`;
+  return tier.regularPrice !== undefined ? `${tier.name} ($${tier.price} Founding Client Pricing)` : `${tier.name} ($${tier.price})`;
 };
 
 const escapeHtml = (value: string) =>

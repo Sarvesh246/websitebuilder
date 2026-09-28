@@ -1,7 +1,6 @@
 import { Check, ChevronDown, Minus } from "lucide-react";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import {
-  compareFootnote,
   compareRows,
   customTier,
   packageTiers,
@@ -13,7 +12,7 @@ const columns = [
   ...packageTiers.map((tier) => ({
     id: tier.id,
     name: tier.name,
-    price: tier.regularPrice ? `$${tier.price} launch` : `$${tier.price}`,
+    price: `$${tier.price}`,
     featured: tier.featured,
     badge: tier.badge,
   })),
@@ -52,7 +51,7 @@ export const CompareTable = () => (
     <GlassSurface variant="subtle" padded={false} className="compare hidden md:block">
       <div className="compare__clip">
         <table>
-          <caption className="sr-only">Comparison of the Starter, Plus, Pro, and Custom packages</caption>
+          <caption className="sr-only">Comparison of the Launch, Presence, Business, and Custom packages</caption>
           <thead>
             <tr>
               <td />
@@ -105,6 +104,5 @@ export const CompareTable = () => (
       </div>
     </details>
 
-    <p className="t-small">{compareFootnote}</p>
   </div>
 );

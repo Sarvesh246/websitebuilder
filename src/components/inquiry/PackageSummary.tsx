@@ -40,13 +40,13 @@ export const PackageSummary = ({ selected }: { selected: PackageId | "" }) => {
     );
   }
 
-  const launch = tier.regularPrice !== undefined;
+  const founding = tier.regularPrice !== undefined;
   return (
     <GlassSurface variant="default" className="summary" aria-label="Selected package">
       <p className="summary__eyebrow">Package</p>
       <p className="summary__name">{tier.name}</p>
       <p className="summary__price">
-        ${tier.price} {launch ? "launch price" : "flat, one-time"}
+        ${tier.price} {founding ? "Founding Client Pricing" : "flat, one-time"}
       </p>
       <div className="summary__more">
         <p className="summary__lead">{tier.includesLead}</p>

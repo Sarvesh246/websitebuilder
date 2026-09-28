@@ -6,7 +6,7 @@ const label = (list: readonly { id: string; label: string }[], id: string) => li
 
 const packageLine = (id: InquiryValues["package"]) => {
   const tier = packageTiers.find((t) => t.id === id);
-  if (tier) return `${tier.name}, $${tier.price}${tier.regularPrice !== undefined ? " launch price" : ""}`;
+  if (tier) return `${tier.name}, $${tier.price}${tier.regularPrice !== undefined ? " Founding Client Pricing" : ""}`;
   return id === "custom" ? `${customTier.name}, quoted by scope` : "";
 };
 
