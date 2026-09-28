@@ -1,5 +1,5 @@
 /*
- * Pricing section: package cards, Custom panel, comparison, ownership and scope notes.
+ * Pricing section: package cards, Custom panel, comparison, scope notes.
  * Everything sits on the Stage 1 glass system (.glass / .glass-feature / .glass-subtle);
  * this file only adds layout and the price / list typography. Tokens only, no raw colours.
  *
@@ -422,26 +422,10 @@
     color: var(--accent-ink);
   }
 
-  /* ---------- Ownership + scope notes ---------- */
+  /* ---------- Scope notes (ownership has its own section) ---------- */
   .pricing__notes {
     display: grid;
-    gap: var(--grid-gap);
-  }
-  @media (min-width: 1024px) {
-    .pricing__notes {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      align-items: stretch;
-    }
-  }
-  .ownership {
-    display: flex;
-    gap: 1.25rem;
-    align-items: flex-start;
-  }
-  .ownership > svg {
-    flex: none;
-    margin-top: 0.4rem;
-    color: var(--accent-ink);
+    max-width: 44rem;
   }
   .scope-notes {
     display: flex;

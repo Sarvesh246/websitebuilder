@@ -1,8 +1,11 @@
 import { About } from "@/components/sections/About";
-import { Expect } from "@/components/sections/Expect";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Hero } from "@/components/sections/Hero";
+import { Ownership } from "@/components/sections/Ownership";
 import { Pricing } from "@/components/sections/Pricing";
+import { Process } from "@/components/sections/Process";
+import { Services } from "@/components/sections/Services";
+import { Why } from "@/components/sections/Why";
 import { siteConfig } from "@/config/site";
 
 /** Organization data: only facts that exist. No address, ratings, founding date, or profiles. */
@@ -24,9 +27,12 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
       <Hero />
+      <Services />
+      <Why />
+      <Process />
       <Pricing />
+      <Ownership />
       <About />
-      <Expect />
       <FinalCta />
     </>
   );

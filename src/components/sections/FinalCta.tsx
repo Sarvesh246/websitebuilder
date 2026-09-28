@@ -4,23 +4,22 @@ import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Ambient } from "@/components/visual/Ambient";
-import { Horizon } from "@/components/visual/Horizon";
+import { Plinth, Scene } from "@/components/visual/environment/Scene";
 import { finalCta } from "@/config/about";
 
 /**
- * Last space on the page: a glass panel over a soft horizon. The ridge bottom colour is the
- * footer's background, so the page ends without a seam. Both buttons are real links (Start a
+ * Last space on the page: a glass slab standing on a stone platform in front of the shared
+ * mountains. The scene's mist resolves into the footer colour, so the page ends without a seam. Both buttons are real links (Start a
  * Project -> /start, View Pricing -> /#pricing).
  */
 export const FinalCta = () => (
   <Section aria-labelledby="final-cta-title" className="final-cta" spacing="none">
     <Ambient preset="horizon" />
-    <div aria-hidden className="final-cta__scene">
-      <Horizon />
-    </div>
+    <Scene variant="wide" seed={5} />
     <Container>
-      <Reveal>
-        <GlassSurface variant="feature" className="final-cta__panel">
+      <Reveal className="final-cta__stage">
+        <Plinth className="final-cta__plinth" />
+        <GlassSurface variant="feature" className="glass-slab final-cta__panel">
           <span className="t-label t-label--rule t-label--rule-both">{finalCta.eyebrow}</span>
           <h2 id="final-cta-title" className="t-h2 max-w-[16ch]">
             {finalCta.title}

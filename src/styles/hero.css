@@ -94,7 +94,7 @@
   @keyframes hero-layer-in {
     from {
       opacity: 0;
-      transform: translateY(28px) var(--tilt, none);
+      transform: translateY(28px) var(--pose, none);
     }
   }
 
@@ -133,37 +133,52 @@
     position: relative;
     aspect-ratio: 1 / 0.98;
     width: 100%;
+    perspective: 1800px;
   }
   @media (min-width: 640px) {
     .hero-stage {
       aspect-ratio: 1 / 0.9;
     }
   }
+  /* The whole composition turns slightly toward the light; layers sit at different depths inside it. */
+  .hero-scene3d {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+  @media (min-width: 768px) {
+    .hero-scene3d {
+      transform: rotateY(-11deg) rotateX(3deg);
+    }
+  }
+  .hero-plinth {
+    --plinth-w: 118%;
+    --plinth-h: 30%;
+    bottom: -9%;
+  }
 
   .hero-layer {
     position: absolute;
-    perspective: 1600px;
+    transform-style: preserve-3d;
   }
   .hero-layer__in {
-    transform: var(--tilt, none);
+    transform: var(--pose, none);
     transform-origin: 50% 60%;
+    transform-style: preserve-3d;
   }
 
   .hero-layer--main {
-    --tilt: rotateY(-5deg) rotateX(2deg);
+    --pose: none;
     left: 0;
     top: 10%;
     width: 90%;
   }
-  .hero-layer--back {
+  .hero-layer--back,
+  .hero-layer--panel {
     display: none;
-    --tilt: rotateY(-8deg) rotateX(3deg);
-    right: 0;
-    top: 0;
-    width: 47%;
   }
   .hero-layer--phone {
-    --tilt: rotateY(-6deg) rotateX(2deg);
+    --pose: none;
     right: 0;
     bottom: 0;
     width: 31%;
@@ -174,21 +189,71 @@
   }
   @media (min-width: 640px) {
     .hero-layer--main {
-      top: 14%;
-      width: 70%;
+      top: 15%;
+      width: 68%;
     }
     .hero-layer--back {
       display: block;
-      width: 44%;
+      right: 0;
+      top: 0;
+      width: 42%;
+    }
+    .hero-layer--panel {
+      display: block;
+      left: 2%;
+      top: 2%;
     }
     .hero-layer--phone {
-      right: 3%;
-      width: 23%;
+      right: 4%;
+      width: 22%;
     }
     .hero-layer--chip {
       left: 5%;
       bottom: 3%;
     }
+  }
+  @media (min-width: 768px) {
+    .hero-layer--main {
+      --pose: translateZ(0px);
+    }
+    .hero-layer--back {
+      --pose: translateZ(-170px);
+    }
+    .hero-layer--back .mock {
+      opacity: 0.88;
+      filter: saturate(0.9);
+    }
+    .hero-layer--panel {
+      --pose: translateZ(-60px);
+    }
+    .hero-layer--phone {
+      --pose: translateZ(110px);
+    }
+    .hero-layer--chip {
+      --pose: translateZ(150px);
+    }
+  }
+
+  .hero-panel {
+    --glass-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: clamp(6rem, 12vw, 8.5rem);
+    padding: 0.8rem;
+  }
+  .hero-panel__row {
+    height: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: var(--border-strong);
+  }
+  .hero-panel__row--on {
+    width: 70%;
+    background: var(--accent);
+    opacity: 0.85;
+  }
+  .hero-panel__row:nth-child(3) {
+    width: 45%;
   }
 
   .hero-chip {
@@ -229,7 +294,9 @@
   }
 
   .hero-visual__note {
-    margin-top: 1rem;
+    position: relative;
+    z-index: 2;
+    margin-top: 1.75rem;
     font-family: var(--font-rounded);
     font-size: var(--fs-small);
     font-weight: 600;

@@ -1,50 +1,33 @@
 /*
  * The end of the page: final CTA over a horizon scene, the footer, and the legal / 404 layout.
- * The near ridge colour (--ridge-near) equals --footer-bg, so CTA -> footer has no seam.
+ * The scene's mist resolves into --footer-bg, so CTA -> footer has no seam.
  */
 @layer components {
   /* ---------- Final CTA ---------- */
   .final-cta {
     padding-top: var(--section-y);
-    padding-bottom: clamp(9rem, 22vw, 17rem); /* room for the ridgelines below the panel */
+    padding-bottom: clamp(7rem, 16vw, 13rem); /* room for the platform and terrain below the panel */
   }
-  .final-cta__scene {
-    position: absolute;
-    inset: auto 0 0 0;
-    z-index: var(--z-base);
-    pointer-events: none;
+  .final-cta__stage {
+    position: relative;
+    max-width: 52rem;
+    margin-inline: auto;
+    padding-bottom: 2.5rem;
   }
-  .horizon {
-    display: block;
-    width: 100%;
-    height: clamp(11rem, 26vw, 20rem);
-    max-width: none;
+  .final-cta__plinth {
+    --plinth-w: 138%;
+    --plinth-h: 11rem;
+    bottom: 0;
   }
-  .horizon path {
-    stroke: var(--ridge-rim);
-    stroke-width: 1;
-    vector-effect: non-scaling-stroke;
-  }
-  .horizon__far {
-    fill: var(--ridge-far);
-  }
-  .horizon__mid {
-    fill: var(--ridge-mid);
-  }
-  .horizon__near {
-    fill: var(--ridge-near);
-    stroke: none;
-  }
-
   .final-cta__panel {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     gap: 1.25rem;
-    max-width: 48rem;
-    margin-inline: auto;
-    padding: clamp(2rem, 1rem + 4vw, 4.5rem) var(--card-pad);
+    position: relative;
+    z-index: 1;
+    padding: clamp(2.25rem, 1rem + 5vw, 5.5rem) var(--card-pad);
     --glass-radius: var(--radius-panel);
   }
   .final-cta__actions {

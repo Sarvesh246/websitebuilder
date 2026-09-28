@@ -1,5 +1,5 @@
 /*
- * About (editorial copy + framed concept composition) and "What you can expect" (numbered rows).
+ * About (editorial copy + framed concept composition).
  * Tokens only. Compositions are CSS-built placeholders that art can replace in the polish stage.
  */
 @layer components {
@@ -85,44 +85,45 @@
     bottom: 3%;
   }
 
-  /* ---------- What you can expect ---------- */
-  .expect {
-    display: grid;
-    gap: var(--section-header-gap);
+  /* Editorial scale: the About headline is one of the page's large typographic moments. */
+  .about .t-h2 {
+    font-size: var(--fs-display);
+    max-width: 11ch;
   }
-  @media (min-width: 1024px) {
-    .expect {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: var(--grid-gap);
-      align-items: start;
-    }
-    .expect__head {
-      position: sticky;
-      top: calc(var(--nav-h) + 2rem);
-    }
-  }
-  .expect__list {
+  .about-visual__chip,
+  .about-visual__code {
+    position: absolute;
     display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--border-strong);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.8rem;
+    --glass-radius: var(--radius-md);
   }
-  .expect__row {
-    display: grid;
-    grid-template-columns: 2.75rem minmax(0, 1fr);
-    gap: 0.5rem 1rem;
-    padding-block: clamp(1.25rem, 1rem + 1vw, 2rem);
-    border-bottom: 1px solid var(--border);
+  .about-visual__chip {
+    left: 0;
+    top: 6%;
   }
-  .expect__num {
-    padding-top: 0.2rem;
-    font-family: var(--font-rounded);
-    font-size: var(--fs-small);
-    font-weight: 700;
-    letter-spacing: 0.12em;
+  .about-visual__chip b {
+    font-size: 1.25rem;
+    letter-spacing: -0.04em;
+    color: var(--text-strong);
+  }
+  .about-visual__chip i {
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .about-visual__chip i:nth-of-type(2) {
+    background: var(--text-strong);
+  }
+  .about-visual__chip i:nth-of-type(3) {
+    background: var(--atmos-cool);
+  }
+  .about-visual__code {
+    right: 4%;
+    top: -4%;
+    font: 600 0.8125rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     color: var(--accent-ink);
-    font-variant-numeric: tabular-nums;
-  }
-  .expect__link {
-    align-self: flex-start;
   }
 }
