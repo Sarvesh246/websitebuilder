@@ -30,8 +30,8 @@ export default function Home() {
       <Services />
       <Why />
       <Process />
-      <Pricing />
       <Ownership />
+      <Pricing />
       <About />
       <FinalCta />
     </>

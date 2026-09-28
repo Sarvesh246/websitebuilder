@@ -170,13 +170,25 @@
   }
   .dusk::before {
     top: 0;
-    height: clamp(6rem, 16vw, 14rem);
-    background: linear-gradient(to bottom, var(--bg-outer), transparent);
+    height: clamp(9rem, 22vw, 20rem);
+    background: linear-gradient(
+      to bottom,
+      var(--bg-outer) 0%,
+      color-mix(in oklab, var(--bg-outer) 62%, transparent) 30%,
+      color-mix(in oklab, var(--bg-outer) 22%, transparent) 62%,
+      transparent 100%
+    );
   }
   .dusk::after {
     bottom: 0;
-    height: clamp(6rem, 16vw, 14rem);
-    background: linear-gradient(to top, var(--bg-outer), transparent);
+    height: clamp(9rem, 22vw, 20rem);
+    background: linear-gradient(
+      to top,
+      var(--bg-outer) 0%,
+      color-mix(in oklab, var(--bg-outer) 62%, transparent) 30%,
+      color-mix(in oklab, var(--bg-outer) 22%, transparent) 62%,
+      transparent 100%
+    );
   }
 
   /* ---------- Plinth: reflective stone platform ---------- */
