@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
+import { m, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
 import { type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { BrowserMockup, CafeScreen, CreatorScreen, PhoneMockup, PortfolioScreen } from "@/components/visual/mockup/Mockups";
 import { Plinth } from "@/components/visual/environment/Scene";
@@ -27,11 +27,11 @@ const Layer = ({ x, y, depth, index, className, children, floating }: LayerProps
   const tx = useTransform(x, (v) => v * depth);
   const ty = useTransform(y, (v) => v * depth);
   return (
-    <motion.div className={cn("hero-layer", className)} style={{ x: tx, y: ty }}>
+    <m.div className={cn("hero-layer", className)} style={{ x: tx, y: ty }}>
       <div className="hero-layer__in hero-enter" style={{ "--i": index } as CSSProperties}>
         <div className={floating ? "hero-float" : undefined}>{children}</div>
       </div>
-    </motion.div>
+    </m.div>
   );
 };
 
