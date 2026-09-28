@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
+import { m, useInView } from "motion/react";
 import { useRef, type ReactNode } from "react";
 import { fadeUp, revealDistance, revealTransition, revealViewport, staggerContainer } from "@/lib/motion";
 
@@ -17,7 +17,7 @@ type RevealProps = {
  * independently.
  */
 export const Reveal = ({ children, className, delay = 0, y = revealDistance }: RevealProps) => (
-  <motion.div
+  <m.div
     data-reveal
     className={className}
     initial={{ opacity: 0, y }}
@@ -26,7 +26,7 @@ export const Reveal = ({ children, className, delay = 0, y = revealDistance }: R
     transition={{ ...revealTransition, delay }}
   >
     {children}
-  </motion.div>
+  </m.div>
 );
 
 type RevealGroupProps = {
@@ -41,7 +41,7 @@ export const RevealGroup = ({ children, className, stagger, delay }: RevealGroup
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, revealViewport);
   return (
-    <motion.div
+    <m.div
       ref={ref}
       className={className}
       initial="hidden"
@@ -49,12 +49,12 @@ export const RevealGroup = ({ children, className, stagger, delay }: RevealGroup
       variants={staggerContainer(stagger, delay)}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 };
 
 export const RevealItem = ({ children, className, y }: Omit<RevealProps, "delay">) => (
-  <motion.div data-reveal className={className} variants={fadeUp(y)}>
+  <m.div data-reveal className={className} variants={fadeUp(y)}>
     {children}
-  </motion.div>
+  </m.div>
 );
