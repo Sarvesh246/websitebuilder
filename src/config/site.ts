@@ -5,5 +5,5 @@ export const siteConfig = {
   tagline: "Professional websites for students and small teams",
   description:
     "Custom-designed, mobile-ready websites for students, creators, student organizations, and small businesses. Clear pricing, and you own your site.",
-  cta: { label: "Start a Project", href: "#contact" },
+  cta: { label: "Start a Project", href: "/start" },
 } as const;

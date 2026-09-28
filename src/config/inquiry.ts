@@ -1,0 +1,119 @@
+/**
+ * Inquiry flow data: option lists, limits, and copy. Shared by the form (client) and the
+ * validator (server), so an option can never exist in one and not the other.
+ * Package names, prices and contents come from config/pricing.ts, never restated here.
+ */
+import { customTier, packageTiers, type PackageId } from "@/config/pricing";
+
+export const startPath = "/start";
+
+/** Where every "Start a Project" / package CTA goes. Pass a package to preselect it. */
+export const startHref = (pkg?: PackageId) => (pkg ? `${startPath}?package=${pkg}` : startPath);
+
+export const packageIds = ["starter", "plus", "pro", "custom"] as const satisfies readonly PackageId[];
+export const isPackageId = (value: unknown): value is PackageId =>
+  typeof value === "string" && (packageIds as readonly string[]).includes(value);
+
+/** One-line description per package for the picker. Prices are derived from pricing.ts. */
+export type PackageChoice = { id: PackageId; name: string; price: string; blurb: string };
+
+export const packageChoices: readonly PackageChoice[] = [
+  ...packageTiers.map((tier) => ({
+    id: tier.id,
+    name: tier.name,
+    price: tier.regularPrice !== undefined ? `$${tier.price} launch price` : `$${tier.price} flat`,
+    blurb: tier.audience.replace(/^Best for /, "For "),
+  })),
+  {
+    id: customTier.id,
+    name: customTier.name,
+    price: "Request a quote",
+    blurb: "For accounts, data, payments, or unusual requirements.",
+  },
+];
+
+export const projectTypes = [
+  { id: "portfolio", label: "Student portfolio or resume" },
+  { id: "creator", label: "Creator or freelancer" },
+  { id: "student-org", label: "Student organization" },
+  { id: "small-business", label: "Small business" },
+  { id: "organization", label: "Organization" },
+  { id: "personal-brand", label: "Personal brand" },
+  { id: "redesign", label: "Existing website redesign" },
+  { id: "web-app", label: "Custom web application" },
+  { id: "other", label: "Other" },
+] as const;
+
+/** `advanced` features are not part of Starter, Plus or Pro, so they trigger the quote note. */
+export const features = [
+  { id: "contact-form", label: "Contact form", advanced: false },
+  { id: "gallery", label: "Gallery or portfolio", advanced: false },
+  { id: "cms", label: "Blog or CMS", advanced: false },
+  { id: "analytics", label: "Analytics", advanced: false },
+  { id: "animations", label: "Custom animations", advanced: false },
+  { id: "newsletter", label: "Email or newsletter", advanced: false },
+  { id: "auth", label: "Authentication", advanced: true },
+  { id: "database", label: "Database", advanced: true },
+  { id: "payments", label: "Payments", advanced: true },
+  { id: "dashboard", label: "Dashboard", advanced: true },
+  { id: "api", label: "API integration", advanced: true },
+  { id: "other", label: "Something else", advanced: false },
+] as const;
+
+export const timelines = [
+  { id: "asap", label: "As soon as practical" },
+  { id: "2-4-weeks", label: "Within 2 to 4 weeks" },
+  { id: "1-2-months", label: "Within 1 to 2 months" },
+  { id: "flexible", label: "No hard deadline" },
+  { id: "other", label: "Other" },
+] as const;
+
+export const budgets = [
+  { id: "under-500", label: "Under $500" },
+  { id: "500-1000", label: "$500 to $1,000" },
+  { id: "1000-2500", label: "$1,000 to $2,500" },
+  { id: "2500-plus", label: "$2,500+" },
+  { id: "unsure", label: "Not sure yet" },
+] as const;
+
+export const siteAnswers = [
+  { id: "no", label: "No" },
+  { id: "yes", label: "Yes" },
+] as const;
+
+export const limits = {
+  name: 100,
+  email: 254,
+  phone: 30,
+  organization: 120,
+  descriptionMin: 20,
+  descriptionMax: 4000,
+  url: 300,
+  links: 3,
+  /** Hard cap on the request body, bytes. */
+  body: 24_000,
+} as const;
+
+export const steps = [
+  { id: "project", label: "Project", title: "What are you looking for?" },
+  { id: "details", label: "Details", title: "Tell me about the project" },
+  { id: "scope", label: "Scope", title: "Features and timing" },
+  { id: "contact", label: "Contact", title: "How can I reach you?" },
+  { id: "review", label: "Review", title: "Check and send" },
+] as const;
+
+export type StepId = (typeof steps)[number]["id"];
+
+export const copy = {
+  quoteNote: "This may require a custom quote depending on scope.",
+  consent: "By submitting, you're asking Northframe to contact you about this project.",
+  successTitle: "Project request received.",
+  successBody:
+    "Thanks for reaching out. I'll review the details and follow up using the email you provided.",
+  errorBody:
+    "Something went wrong while sending your request. Your answers are still here, so you can try again.",
+  unconfigured:
+    "Project requests can't be delivered right now. Your answers are still here, so you can try again later.",
+} as const;
+
+export const inquiryDraftKey = "nf-inquiry-draft";

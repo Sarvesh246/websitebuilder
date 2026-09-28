@@ -64,9 +64,9 @@ export const SiteNav = () => {
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <a href={link.href} className="site-nav__link">
+                  <Link href={link.href} className="site-nav__link">
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -97,9 +97,9 @@ export const SiteNav = () => {
               <ul>
                 {navLinks.map((link) => (
                   <li key={link.href}>
-                    <a href={link.href} className="site-nav__sheet-link" onClick={close}>
+                    <Link href={link.href} className="site-nav__sheet-link" onClick={close}>
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
