@@ -39,7 +39,8 @@ type RevealGroupProps = {
 /** Parent that staggers its <RevealItem/> children. */
 export const RevealGroup = ({ children, className, stagger, delay }: RevealGroupProps) => {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, revealViewport);
+  // A group can be taller than the viewport on phones, so a % threshold would never fire: trigger on first pixels instead.
+  const inView = useInView(ref, { once: true, amount: "some", margin: "0px 0px -12% 0px" });
   return (
     <m.div
       ref={ref}

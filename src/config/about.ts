@@ -100,7 +100,7 @@ export const ownershipScene = {
     { label: "Your data", body: "Whatever your site collects stays under your control." },
   ],
   visualLabel: "Illustration of a glass browser frame reading: Your website. Your ownership.",
-  statement: "No locked platform. No mystery credentials. No dependency on us to keep your website running.",
+  statement: "No locked platform. No mystery credentials. No dependency on Northframe to keep your website running.",
 } as const;
 
 export const finalCta = {
