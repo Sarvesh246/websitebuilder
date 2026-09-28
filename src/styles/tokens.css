@@ -100,6 +100,7 @@
 
   /* ---------- Typography: fluid scale (clamp) ---------- */
   --fs-display: clamp(2.6rem, 1.2rem + 5.2vw, 5.25rem);
+  --fs-hero: clamp(2.5rem, 1.55rem + 3.4vw, 4.5rem); /* hero h1: 3 lines max, so a step below display */
   --fs-h2: clamp(2.125rem, 1.3rem + 3.4vw, 4.5rem);
   --fs-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
   --fs-h4: clamp(1.25rem, 1.1rem + 0.5vw, 1.625rem);
