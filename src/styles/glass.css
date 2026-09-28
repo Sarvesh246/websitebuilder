@@ -1,0 +1,147 @@
+/*
+ * Glass system. A web approximation of frosted/liquid glass, built from layers rather
+ * than blur alone:
+ *   1. translucent fill        (--glass-bg*)      how much of the scene shows through
+ *   2. backdrop blur + saturate                   softens and enriches what is behind
+ *   3. hairline border         (--glass-border)   defines the edge on pale backgrounds
+ *   4. inner top highlight     (--glass-highlight) light catching the upper edge
+ *   5. rim light               (::before)         gradient border, bright at the top-left
+ *   6. diagonal sheen          (background)       soft light wash across the surface
+ *   7. tinted shadow           (--shadow-glass)   depth without pure-black drop shadows
+ *
+ * Glass only reads with contrast behind it. Place it over <Ambient/> lighting or artwork,
+ * never on a flat page colour with nothing to refract.
+ *
+ * Variants:  .glass-subtle      quiet groupings, no shadow, low blur
+ *            .glass             default card
+ *            .glass-elevated    nav, menus, anything floating above content
+ *            .glass-interactive adds hover lift + focus ring (combine with .glass)
+ *            .glass-feature     the one highlighted card in a set (accent-tinted)
+ *
+ * Fallbacks: no backdrop-filter support, or prefers-reduced-transparency, gets a solid surface.
+ */
+@layer components {
+  .glass,
+  .glass-subtle,
+  .glass-elevated,
+  .glass-feature {
+    --_bg: var(--glass-bg);
+    --_blur: var(--glass-blur);
+    --_shadow: var(--shadow-glass);
+    position: relative;
+    isolation: isolate;
+    border-radius: var(--glass-radius, var(--radius-card));
+    border: 1px solid var(--glass-border);
+    background:
+      linear-gradient(140deg, var(--glass-sheen), transparent 55%),
+      var(--_bg);
+    -webkit-backdrop-filter: blur(var(--_blur)) saturate(var(--glass-saturate));
+    backdrop-filter: blur(var(--_blur)) saturate(var(--glass-saturate));
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--_shadow);
+  }
+
+  /* Rim light: a 1px gradient border, brightest top-left, fading out, catching again bottom-right. */
+  .glass::before,
+  .glass-subtle::before,
+  .glass-elevated::before,
+  .glass-feature::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      150deg,
+      var(--glass-rim) 0%,
+      transparent 32%,
+      transparent 68%,
+      var(--glass-rim) 100%
+    );
+    opacity: 0.7;
+    pointer-events: none;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  .glass-subtle {
+    --_bg: var(--glass-bg-subtle);
+    --_blur: var(--glass-blur-sm);
+    --_shadow: none;
+  }
+  .glass-subtle::before {
+    opacity: 0.45;
+  }
+
+  .glass-elevated {
+    --_bg: var(--glass-bg-strong);
+    --_shadow: var(--shadow-lg);
+  }
+
+  .glass-feature {
+    --_bg: var(--glass-bg-strong);
+    --_shadow: var(--shadow-glass), var(--shadow-glow);
+    background:
+      linear-gradient(140deg, var(--glass-sheen), transparent 55%),
+      linear-gradient(180deg, var(--glass-tint-feature), transparent 70%),
+      var(--_bg);
+    border-color: color-mix(in oklab, var(--accent) 28%, var(--glass-border));
+  }
+  .glass-feature::before {
+    opacity: 1;
+  }
+
+  /* Interaction. Only transform / shadow / border colour move. */
+  .glass-interactive {
+    cursor: pointer;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .glass-interactive:hover {
+      transform: translateY(-4px);
+      --_shadow: var(--shadow-glass-hover);
+      border-color: var(--border-strong);
+    }
+  }
+  .glass-interactive:active {
+    transform: translateY(-1px) scale(0.995);
+  }
+  .glass-interactive:focus-within {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  .glass-pad {
+    padding: var(--card-pad);
+  }
+
+  /* Solid fallbacks: keep contrast when blur is unavailable or unwanted. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass,
+    .glass-subtle,
+    .glass-elevated,
+    .glass-feature {
+      background: var(--surface-solid);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-subtle,
+    .glass-elevated,
+    .glass-feature {
+      background: var(--surface-solid);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+}

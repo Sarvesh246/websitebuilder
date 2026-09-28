@@ -1,0 +1,117 @@
+/*
+ * Ambient lighting primitives. Everything here is static CSS gradients: no filter: blur()
+ * on large elements, no canvas, no per-frame JS. Glows are radial gradients, which the
+ * compositor handles cheaply, so the page can be atmospheric and still scroll smoothly.
+ */
+@layer components {
+  .ambient {
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-base);
+    overflow: hidden;
+    pointer-events: none;
+    contain: paint;
+  }
+
+  /* Radial glow. Position/size/intensity come from custom properties set by <Glow/>. */
+  .glow {
+    position: absolute;
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    width: min(var(--size, 50rem), 170vw);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--_c) 0%, transparent 100%);
+    opacity: var(--intensity, 1);
+  }
+  .glow--cool {
+    --_c: var(--atmos-cool);
+  }
+  .glow--warm {
+    --_c: var(--atmos-warm);
+  }
+  .glow--haze {
+    --_c: var(--atmos-haze);
+  }
+  .glow--shade {
+    --_c: var(--atmos-shade);
+  }
+
+  /* Slow drift for at most one or two hero glows. Off on phones and under reduced motion. */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .glow--drift {
+      animation: glow-drift var(--dur-ambient) var(--ease-in-out) infinite alternate;
+    }
+  }
+  @keyframes glow-drift {
+    from {
+      transform: translate3d(-2%, -1%, 0);
+    }
+    to {
+      transform: translate3d(2%, 2%, 0);
+    }
+  }
+
+  /* Hairline grid, masked so it fades out instead of ending in hard edges. */
+  .ambient-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 0%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 0%, transparent 100%);
+  }
+
+  /* Blends an ambient layer into the page colour so sections join without seams. */
+  .ambient-fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: min(14rem, 30%);
+  }
+  .ambient-fade--top {
+    top: 0;
+    background: linear-gradient(to bottom, var(--bg), transparent);
+  }
+  .ambient-fade--bottom {
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg), transparent);
+  }
+
+  /*
+   * Global grain. One fixed, static, pointer-events:none layer. Never on scrolling
+   * containers. Opacity is low enough to add tooth without dirtying text.
+   */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-grain);
+    pointer-events: none;
+    opacity: var(--noise-opacity);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+  }
+
+  /* Scene artwork (rendered glass panels, landscapes). Light/dark variants swap by theme. */
+  .scene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .scene img {
+    object-fit: cover;
+  }
+  .scene__dark {
+    display: none;
+  }
+  [data-theme="dark"] .scene__dark {
+    display: block;
+  }
+  [data-theme="dark"] .scene__light {
+    display: none;
+  }
+}

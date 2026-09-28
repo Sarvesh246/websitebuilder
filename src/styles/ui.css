@@ -1,0 +1,160 @@
+@layer components {
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: var(--touch-min);
+    padding: 0 1.25rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-sans);
+    font-size: var(--fs-button);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1;
+    white-space: nowrap; /* labels never wrap, keep them short instead */
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-standard),
+      border-color var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+  .btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+  @media (hover: hover) {
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+  }
+  .btn[disabled],
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  .btn-lg {
+    min-height: 3.25rem;
+    padding: 0 1.6rem;
+    font-size: 1rem;
+  }
+  .btn-block {
+    width: 100%;
+  }
+
+  .btn__icon {
+    flex: none;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .btn:hover .btn__icon--diag {
+      transform: translate(2px, -2px);
+    }
+    .btn:hover .btn__icon--right {
+      transform: translateX(3px);
+    }
+  }
+
+  .btn-primary {
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.14),
+      var(--shadow-md);
+  }
+  .btn-primary:hover {
+    background: var(--btn-primary-bg-hover);
+  }
+
+  .btn-secondary {
+    background: var(--btn-secondary-bg);
+    color: var(--text-strong);
+    border-color: var(--border-strong);
+  }
+  .btn-secondary:hover {
+    background: var(--btn-secondary-bg-hover);
+  }
+
+  /* Text-link button: "View project". Underline grows in on hover. */
+  .btn-link {
+    min-height: 0;
+    padding: 0.5rem 0; /* block padding keeps the tap area generous without visual weight */
+    border-radius: var(--radius-xs);
+    color: var(--text-strong);
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 calc(100% - 0.4rem);
+    background-size: 0% 1px;
+    transition: background-size var(--dur-base) var(--ease-out);
+  }
+  .btn-link:hover {
+    background-size: 100% 1px;
+    transform: none;
+  }
+
+  /* ---------- Icon button (theme toggle, menu) ---------- */
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: var(--touch-min);
+    height: var(--touch-min);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-strong);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color var(--dur-fast) var(--ease-standard),
+      border-color var(--dur-fast) var(--ease-standard),
+      transform var(--dur-base) var(--ease-out);
+  }
+  .icon-btn:hover {
+    background: var(--btn-secondary-bg-hover);
+    border-color: var(--border);
+  }
+  .icon-btn:active {
+    transform: scale(0.94);
+  }
+
+  /* ---------- Badge / pill ---------- */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.75rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .badge--neutral {
+    background: var(--glass-bg);
+    color: var(--text-muted);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .badge--outline {
+    background: transparent;
+    color: var(--text-muted);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+}
