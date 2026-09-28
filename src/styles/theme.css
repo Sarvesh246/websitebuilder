@@ -1,0 +1,41 @@
+/*
+ * Tailwind v4 bridge: exposes tokens as utilities (bg-bg, text-muted, rounded-card, ...).
+ * `inline` keeps utilities pointing at the live CSS variables so they follow the theme.
+ * Breakpoints are Tailwind defaults: sm 640, md 768, lg 1024, xl 1280, 2xl 1536.
+ *   < md   phone layout    md-lg  tablet    lg+  desktop (desktop nav starts at lg)
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-rounded: var(--font-nunito), var(--font-figtree), ui-rounded, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-bg-raised: var(--bg-raised);
+  --color-surface: var(--surface-solid);
+  --color-strong: var(--text-strong);
+  --color-body: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-card: var(--radius-card);
+  --radius-panel: var(--radius-panel);
+
+  --shadow-soft: var(--shadow-sm);
+  --shadow-mid: var(--shadow-md);
+  --shadow-deep: var(--shadow-lg);
+  --shadow-glass: var(--shadow-glass);
+
+  --ease-out: var(--ease-out);
+  --ease-standard: var(--ease-standard);
+}

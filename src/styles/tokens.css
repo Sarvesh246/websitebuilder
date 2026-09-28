@@ -1,0 +1,172 @@
+/*
+ * Design tokens. Single source of truth for the whole site.
+ *
+ * Theme strategy: every colour token is a `light-dark()` pair, so there is one
+ * declaration per token (no duplicated dark block). `color-scheme` is driven by
+ * `<html data-theme="light|dark">`, which an inline script in layout.tsx sets
+ * before first paint from localStorage or the system preference. With no
+ * data-theme attribute the browser follows the system (`light dark`).
+ *
+ * Light = "glacier": cool pale sky, near-black ink, glass over soft light.
+ * Dark  = the same world at dusk: near-black, cool rim light, low glow.
+ */
+
+:root {
+  color-scheme: light dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+:root {
+  /* ---------- Colour: backgrounds & surfaces ---------- */
+  --bg: light-dark(#edf1f6, #0b0e13);
+  --bg-deep: light-dark(#e2e9f1, #07090c);
+  --bg-raised: light-dark(#f7f9fc, #12161d);
+  --surface-solid: light-dark(#f8fafc, #141922); /* glass fallback, no transparency */
+
+  /* ---------- Colour: text ---------- */
+  --text-strong: light-dark(#0e1218, #f3f6fa);
+  --text: light-dark(#28313c, #cdd5df);
+  --text-muted: light-dark(#4f5a68, #97a2b0);
+  --text-subtle: light-dark(#5b6675, #838e9c); /* min 4.5:1 on --bg, verified in scripts/contrast.mjs */
+
+  /* ---------- Colour: borders ---------- */
+  --border: light-dark(rgb(15 23 42 / 0.1), rgb(255 255 255 / 0.1));
+  --border-strong: light-dark(rgb(15 23 42 / 0.2), rgb(255 255 255 / 0.22));
+
+  /* ---------- Colour: accent (one accent, glacier blue) ---------- */
+  --accent: light-dark(#2f62c8, #7ea6f5);
+  --accent-ink: light-dark(#1d479f, #b3ccfb); /* accent-coloured text on tinted surfaces */
+  --accent-soft: light-dark(rgb(47 98 200 / 0.11), rgb(126 166 245 / 0.16));
+  --accent-contrast: light-dark(#ffffff, #0b0e13); /* text on a filled accent */
+  --focus-ring: var(--accent);
+
+  /* ---------- Colour: buttons ---------- */
+  --btn-primary-bg: light-dark(#12161d, #f1f4f8);
+  --btn-primary-bg-hover: light-dark(#242b36, #ffffff);
+  --btn-primary-text: light-dark(#f4f7fb, #0b0e13);
+  --btn-secondary-bg: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.05));
+  --btn-secondary-bg-hover: light-dark(rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.1));
+
+  /* ---------- Colour: atmosphere (gradient stops) ---------- */
+  --atmos-sky-top: light-dark(#d9e3ee, #0b0e13);
+  --atmos-sky-mid: light-dark(#e9eef4, #10151d);
+  --atmos-sky-bottom: light-dark(#f5f7fa, #0b0e13);
+  --atmos-haze: light-dark(rgb(255 255 255 / 0.85), rgb(140 165 205 / 0.1));
+  --atmos-warm: light-dark(rgb(255 244 228 / 0.9), rgb(255 238 214 / 0.13));
+  --atmos-cool: light-dark(rgb(140 178 232 / 0.38), rgb(88 128 200 / 0.2));
+  --atmos-shade: light-dark(rgb(88 108 140 / 0.2), rgb(0 0 0 / 0.55));
+  --grid-line: light-dark(rgb(15 23 42 / 0.06), rgb(255 255 255 / 0.05));
+  --noise-opacity: light-dark(0.05, 0.07);
+
+  /* ---------- Glass (see styles/glass.css) ---------- */
+  --glass-bg-subtle: light-dark(rgb(255 255 255 / 0.36), rgb(255 255 255 / 0.035));
+  --glass-bg: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.06));
+  --glass-bg-strong: light-dark(rgb(255 255 255 / 0.74), rgb(255 255 255 / 0.1));
+  --glass-border: light-dark(rgb(20 36 68 / 0.09), rgb(255 255 255 / 0.1));
+  --glass-highlight: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.24)); /* top inner edge */
+  --glass-rim: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.4)); /* gradient rim light */
+  --glass-sheen: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.07)); /* diagonal light wash */
+  --glass-tint-feature: light-dark(rgb(120 165 235 / 0.16), rgb(126 166 245 / 0.1));
+  --glass-blur: 22px;
+  --glass-blur-sm: 12px;
+  --glass-saturate: 1.4;
+
+  --nav-bg: light-dark(rgb(237 241 246 / 0.72), rgb(11 14 19 / 0.7));
+  --nav-sheet-bg: light-dark(rgb(237 241 246 / 0.94), rgb(11 14 19 / 0.94));
+
+  /* ---------- Shadows (tinted to the background hue, never pure black on light) ---------- */
+  --shadow-ink-soft: light-dark(rgb(28 48 86 / 0.1), rgb(0 0 0 / 0.35));
+  --shadow-ink-mid: light-dark(rgb(28 48 86 / 0.16), rgb(0 0 0 / 0.5));
+  --shadow-ink-strong: light-dark(rgb(28 48 86 / 0.24), rgb(0 0 0 / 0.65));
+  --shadow-sm: 0 1px 2px var(--shadow-ink-soft);
+  --shadow-md: 0 8px 24px -8px var(--shadow-ink-mid);
+  --shadow-lg: 0 28px 64px -24px var(--shadow-ink-strong);
+  --shadow-glass: 0 1px 1px var(--shadow-ink-soft), 0 18px 44px -18px var(--shadow-ink-mid);
+  --shadow-glass-hover: 0 1px 1px var(--shadow-ink-soft), 0 30px 64px -20px var(--shadow-ink-strong);
+  --shadow-glow: 0 0 60px -12px var(--accent-soft);
+
+  /* ---------- Radii ---------- */
+  --radius-xs: 8px;
+  --radius-sm: 12px; /* buttons, inputs */
+  --radius-md: 16px;
+  --radius-card: 24px; /* glass cards */
+  --radius-panel: 32px; /* large feature panels, nav sheet */
+  --radius-pill: 999px; /* badges only */
+
+  /* ---------- Typography: fluid scale (clamp) ---------- */
+  --fs-display: clamp(2.6rem, 1.2rem + 5.2vw, 5.25rem);
+  --fs-h2: clamp(2.125rem, 1.3rem + 3.4vw, 4.5rem);
+  --fs-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --fs-h4: clamp(1.25rem, 1.1rem + 0.5vw, 1.625rem);
+  --fs-lead: clamp(1.0625rem, 0.98rem + 0.4vw, 1.375rem);
+  --fs-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --fs-small: 0.875rem;
+  --fs-label: 0.75rem;
+  --fs-button: 0.9375rem;
+  --fs-price: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
+
+  --lh-display: 0.98;
+  --lh-h2: 1.02;
+  --lh-h3: 1.1;
+  --lh-h4: 1.2;
+  --lh-lead: 1.5;
+  --lh-body: 1.65;
+  --lh-small: 1.55;
+
+  --tracking-display: -0.045em;
+  --tracking-h2: -0.04em;
+  --tracking-h3: -0.03em;
+  --tracking-h4: -0.02em;
+  --tracking-label: 0.2em;
+
+  /* ---------- Layout ---------- */
+  --container-page: 84rem; /* 1344px, main content */
+  --container-wide: 100rem; /* 1600px, full-bleed artwork */
+  --container-narrow: 62rem; /* 992px, focused blocks (pricing intro, CTA) */
+  --container-prose: 42rem; /* 672px, long-form text */
+  --gutter: clamp(1.25rem, 0.5rem + 3.4vw, 4.5rem);
+
+  --section-y: clamp(5rem, 3rem + 8vw, 10rem);
+  --section-y-tight: clamp(3rem, 2rem + 4vw, 6rem);
+  --section-header-gap: clamp(2.5rem, 1.5rem + 3vw, 4.5rem);
+  --card-pad: clamp(1.25rem, 1rem + 1vw, 2rem);
+  --grid-gap: clamp(1rem, 0.6rem + 1.4vw, 1.75rem);
+  --stack-gap: clamp(1rem, 0.8rem + 0.6vw, 1.5rem);
+
+  --nav-h: 4rem; /* mobile */
+  --touch-min: 2.75rem; /* 44px minimum touch target */
+
+  /* ---------- Motion ---------- */
+  --dur-fast: 150ms;
+  --dur-base: 260ms;
+  --dur-slow: 640ms;
+  --dur-ambient: 24s;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ---------- Stacking (only systemic layers, no ad-hoc z-index) ---------- */
+  --z-base: 0;
+  --z-raised: 1;
+  --z-nav: 50;
+  --z-grain: 60;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --nav-h: 4.5rem;
+  }
+}
+
+/* Smaller blur on phones: cheaper to composite, still reads as glass. */
+@media (max-width: 767px) {
+  :root {
+    --glass-blur: 14px;
+    --glass-blur-sm: 8px;
+  }
+}

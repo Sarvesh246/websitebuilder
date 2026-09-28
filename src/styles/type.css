@@ -1,0 +1,95 @@
+/*
+ * Type roles. Fluid via clamp() tokens, so there are no per-breakpoint font sizes.
+ * Figtree carries display/body. Nunito (rounded) is reserved for labels, badges and
+ * other small caps-style text, where a soft terminal reads friendlier than a sharp one.
+ */
+@layer components {
+  .t-display {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+    letter-spacing: var(--tracking-display);
+    font-weight: 600;
+  }
+  .t-h2 {
+    font-size: var(--fs-h2);
+    line-height: var(--lh-h2);
+    letter-spacing: var(--tracking-h2);
+    font-weight: 600;
+  }
+  .t-h3 {
+    font-size: var(--fs-h3);
+    line-height: var(--lh-h3);
+    letter-spacing: var(--tracking-h3);
+    font-weight: 600;
+  }
+  .t-h4 {
+    font-size: var(--fs-h4);
+    line-height: var(--lh-h4);
+    letter-spacing: var(--tracking-h4);
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .t-lead {
+    font-size: var(--fs-lead);
+    line-height: var(--lh-lead);
+    color: var(--text-muted);
+    letter-spacing: -0.01em;
+  }
+  .t-body {
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+  }
+  .t-small {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--text-muted);
+  }
+
+  /* Eyebrow / section label. Optional trailing hairline via .t-label--rule. */
+  .t-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .t-label--rule::after {
+    content: "";
+    width: 2.5rem;
+    height: 1px;
+    background: var(--border-strong);
+  }
+  .t-label--rule-both::before {
+    content: "";
+    width: 2.5rem;
+    height: 1px;
+    background: var(--border-strong);
+  }
+
+  .t-button {
+    font-size: var(--fs-button);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    line-height: 1;
+  }
+
+  .t-price {
+    font-size: var(--fs-price);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variant-numeric: lining-nums tabular-nums;
+    color: var(--text-strong);
+  }
+  .t-price-was {
+    font-weight: 500;
+    color: var(--text-subtle);
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+}
