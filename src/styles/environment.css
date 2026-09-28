@@ -1,0 +1,74 @@
+/*
+ * Shared environment: the landscape (Horizon.tsx), a stone platform, and one restrained arc.
+ * Static SVG/CSS only. Light comes from the upper right everywhere.
+ */
+@layer components {
+  .horizon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .horizon__far {
+    fill: var(--mtn-far);
+  }
+  .horizon__far-lit {
+    fill: var(--mtn-far-lit);
+  }
+  .horizon__mid {
+    fill: var(--mtn-mid);
+  }
+  .horizon__mid-lit {
+    fill: var(--mtn-mid-lit);
+  }
+
+  /* A landscape strip pinned to the bottom of a section, fading into the page colour. */
+  .horizon-band {
+    position: absolute;
+    inset: auto 0 0;
+    z-index: var(--z-base);
+    height: clamp(11rem, 26vw, 24rem);
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 96%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 96%);
+  }
+  .horizon-band--faint {
+    opacity: 0.55;
+  }
+
+  /* Stone platform: a lit top face and a darker front face. Objects sit on it. */
+  .stone {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5.5rem;
+    pointer-events: none;
+  }
+  .stone__top {
+    position: absolute;
+    inset: 0 0 1.6rem;
+    clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+    background:
+      linear-gradient(to bottom, transparent 40%, rgb(255 255 255 / 0.35)),
+      linear-gradient(100deg, var(--stone-top), color-mix(in oklab, var(--stone-top) 86%, var(--stone-face)));
+  }
+  .stone__face {
+    position: absolute;
+    inset: auto 0 0;
+    height: 1.6rem;
+    background: linear-gradient(to bottom, var(--stone-face), color-mix(in oklab, var(--stone-face) 70%, var(--bg-deep)));
+    box-shadow: inset 0 1px 0 var(--stone-edge);
+  }
+
+  /* One thin arc of light. Static, low opacity, no glow. */
+  .arc {
+    position: absolute;
+    aspect-ratio: 1;
+    border: 1px solid var(--slab-rim);
+    border-radius: 50%;
+    opacity: 0.55;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(200deg, #000 0%, transparent 46%);
+    mask-image: linear-gradient(200deg, #000 0%, transparent 46%);
+  }
+}

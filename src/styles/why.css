@@ -1,0 +1,285 @@
+/*
+ * Why Northframe. A soft depth band behind the section (a slightly deeper page tone that fades in
+ * and out, so there are no seams), copy on the left, an asymmetric scene on the right.
+ * Phones: everything flows in one column; the scene is the browser plus two small panels.
+ */
+@layer components {
+  .why {
+    overflow-x: clip;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in oklab, var(--bg-deep) 75%, transparent) 22%,
+      color-mix(in oklab, var(--bg-deep) 75%, transparent) 78%,
+      transparent
+    );
+  }
+
+  .why__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+  @media (min-width: 1024px) {
+    .why__grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: center;
+    }
+    /* Let the scene run past the container toward the viewport edge. */
+    .why__scene-wrap {
+      margin-right: calc(var(--gutter) * -0.9);
+    }
+  }
+
+  .why__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+  .why__copy .t-h2 {
+    max-width: 14ch;
+  }
+  .why__copy .t-lead {
+    max-width: 40ch;
+  }
+  .why__secondary {
+    max-width: 40ch;
+    font-family: var(--font-rounded);
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .why__points {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--border);
+    list-style: none;
+  }
+  @media (min-width: 640px) {
+    .why__points {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 2rem;
+    }
+  }
+  .why__points li {
+    display: grid;
+    grid-template-columns: 1.5rem 1fr;
+    gap: 0.5rem;
+  }
+  .why__points svg {
+    margin-top: 0.15rem;
+    color: var(--accent-ink);
+  }
+  .why__points .t-h4 {
+    font-size: 1.0625rem;
+    letter-spacing: -0.01em;
+  }
+  .why__points .t-small {
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Scene ---------- */
+  .why__scene {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .why__ridge,
+  .why__arc,
+  .stone,
+  .why__phone {
+    display: none;
+  }
+  .why__main {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Phones: two compact panels under the browser. */
+  .why__panel {
+    --slab-radius: var(--radius-card);
+    --glass-blur: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 1.25rem;
+    background-color: color-mix(in oklab, var(--surface-solid) 78%, transparent);
+    color: var(--text-strong);
+  }
+  .why__panel > * {
+    position: relative;
+    z-index: 1;
+  }
+  .why__scene > .why__panel {
+    width: 100%;
+  }
+  .why__cap {
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .why__aa {
+    font-size: 3rem;
+    font-weight: 600;
+    letter-spacing: -0.05em;
+    line-height: 1;
+  }
+  .why__swatches {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .why__swatches i {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+  }
+  .why__swatches i:nth-child(1) {
+    background: #121a2b;
+  }
+  .why__swatches i:nth-child(2) {
+    background: #2a4fa6;
+  }
+  .why__swatches i:nth-child(3) {
+    background: #9db6ea;
+  }
+  .why__swatches i:nth-child(4) {
+    background: #f3f5f9;
+  }
+  .why__panel--map ul {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .why__panel--map li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .why__panel--map li::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 2px;
+    background: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .why__scene {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .why__main {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* md+: the panels float over the browser and the environment appears. */
+  @media (min-width: 768px) {
+    .why__scene {
+      display: block;
+      aspect-ratio: 1.08;
+      min-height: 30rem;
+    }
+    .why__ridge,
+    .why__arc,
+    .stone,
+    .why__phone {
+      display: block;
+    }
+    .why__ridge {
+      position: absolute;
+      inset: auto -6% 3rem -6%;
+      width: auto;
+      height: 96%;
+      z-index: 0;
+      opacity: 0.9;
+      -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent);
+      mask-image: linear-gradient(to bottom, #000 45%, transparent);
+    }
+    .why__arc {
+      z-index: 1;
+      width: 78%;
+      right: -14%;
+      top: -12%;
+    }
+    .stone {
+      z-index: 1;
+      inset: auto -4% 0 -4%;
+    }
+    .why__main {
+      position: absolute;
+      z-index: 2;
+      left: 6%;
+      top: 14%;
+      width: 72%;
+      transform: perspective(1600px) rotateY(-5deg) rotateX(1.5deg);
+      transform-origin: 20% 50%;
+      filter: drop-shadow(0 36px 40px var(--shadow-ink-mid));
+    }
+    .why__scene > .why__panel {
+      --glass-blur: 16px;
+      position: absolute;
+      z-index: 3;
+      width: auto;
+    }
+    .why__panel--type {
+      left: -2%;
+      bottom: 16%;
+      min-width: 10.5rem;
+    }
+    .why__panel--map {
+      right: 2%;
+      top: 4%;
+      min-width: 9.5rem;
+    }
+    .why__phone {
+      position: absolute;
+      z-index: 3;
+      right: 3%;
+      bottom: 9%;
+      width: 22%;
+      filter: drop-shadow(0 24px 24px var(--shadow-ink-mid));
+    }
+  }
+
+  /* Restrained depth: floating panels drift a few px against the scroll. CSS scroll timeline only,
+     transform only, md+, and only where supported and motion is allowed. */
+  @media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .why__float {
+        animation: why-drift linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+      .why__panel--map {
+        --drift: -14px;
+      }
+      .why__panel--type {
+        --drift: 16px;
+      }
+      .why__phone {
+        --drift: -22px;
+      }
+    }
+  }
+  @keyframes why-drift {
+    from {
+      transform: translate3d(0, calc(var(--drift, 12px) * -1), 0);
+    }
+    to {
+      transform: translate3d(0, var(--drift, 12px), 0);
+    }
+  }
+}

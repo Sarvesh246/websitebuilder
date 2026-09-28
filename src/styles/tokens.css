@@ -76,6 +76,28 @@
   --glass-blur-sm: 12px;
   --glass-saturate: 1.4;
 
+  /* ---------- Slab glass (styles/glass.css .glass-slab): thick, edge-lit panels ---------- */
+  --slab-l1: light-dark(rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.13));
+  --slab-l2: light-dark(rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.02));
+  --slab-l3: light-dark(rgb(176 198 228 / 0.28), rgb(0 0 0 / 0.28));
+  --slab-edge: light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.2));
+  --slab-rim: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.5));
+  --slab-rim-dim: light-dark(rgb(80 112 168 / 0.28), rgb(255 255 255 / 0.05));
+  --slab-thick: light-dark(rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.05));
+  --slab-inner-shade: light-dark(rgb(70 100 150 / 0.32), rgb(0 0 0 / 0.55));
+  --slab-spec: light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.1));
+  --slab-shadow: 0 2px 3px var(--shadow-ink-soft), 0 36px 64px -30px var(--shadow-ink-strong);
+  --slab-shadow-hover: 0 2px 3px var(--shadow-ink-soft), 0 44px 72px -28px var(--shadow-ink-strong);
+
+  /* ---------- Landscape (components/visual/Horizon.tsx). Light comes from the upper right. ---------- */
+  --mtn-far: light-dark(#cbd8e8, #1a2331);
+  --mtn-far-lit: light-dark(#e8eff8, #2b3a52);
+  --mtn-mid: light-dark(#b1c2d9, #131a25);
+  --mtn-mid-lit: light-dark(#d6e1f0, #222f45);
+  --stone-top: light-dark(#f4f7fb, #232b38);
+  --stone-face: light-dark(#c3cfdf, #121820);
+  --stone-edge: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.28));
+
   --nav-bg: light-dark(rgb(237 241 246 / 0.72), rgb(11 14 19 / 0.7));
   --nav-sheet-bg: light-dark(rgb(237 241 246 / 0.94), rgb(11 14 19 / 0.94));
 

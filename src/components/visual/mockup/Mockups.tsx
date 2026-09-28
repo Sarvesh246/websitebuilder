@@ -98,3 +98,36 @@ export const CreatorScreen = () => (
     </div>
   </div>
 );
+
+/** Student organization: event-led home page. */
+export const OrgScreen = () => (
+  <div className="ms ms--org">
+    <div className="ms__nav">
+      <b>Circuit Society</b>
+      <span className="ms__links">
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+    <div className="ms__hero">
+      <div className="ms__copy">
+        <span className="ms__tag">Spring events</span>
+        <p className="ms__h">Build things together.</p>
+        <span className="ms__line" />
+        <span className="ms__line ms__line--short" />
+        <span className="ms__btn">Join the club</span>
+      </div>
+      <div className="ms__art">
+        <i />
+        <i />
+        <i />
+      </div>
+    </div>
+    <div className="ms__tiles">
+      <i />
+      <i />
+      <i />
+    </div>
+  </div>
+);

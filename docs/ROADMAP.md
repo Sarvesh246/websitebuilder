@@ -7,7 +7,7 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | 1 | Foundation: tokens, type, layout, glass, ambient, motion, buttons/badges, nav shell, style guide | Done |
 | 2 | Global shell and hero: page frame, real hero composition (desktop + purpose-built mobile), first artwork slot, hero motion | Done |
 | 3 | Packages + pricing (replaces Services): Starter/Plus/Pro/Custom cards, comparison, launch pricing, ownership + scope notes, CTAs to `#contact` | Done |
-| 4 | Portfolio ("Selected Work"), Process (four steps), value sections ("Why", "Ownership") | |
+| 4 | What we build, Why Northframe, Process, environment + slab glass. Selected Work deferred (no approved client work); Ownership final treatment deferred to polish | Done |
 | 5 | Conversion flow (pricing section already built in Stage 3): contact/start-a-project form (`#contact`), validation, submission approach (decision needed: email service / form backend) | |
 | 6 | Supporting sections and footer: About, FAQ (only real content), footer, legal stubs | |
 | 7 | Mobile-specific refinement: per-section small-screen compositions, touch targets, menu focus trap, performance on low-end phones | |
