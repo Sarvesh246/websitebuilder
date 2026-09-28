@@ -43,15 +43,35 @@ export const packageChoices: readonly PackageChoice[] = [
 
 export const projectTypes = [
   { id: "portfolio", label: "Student portfolio or resume" },
+  { id: "personal", label: "Personal website" },
   { id: "creator", label: "Creator or freelancer" },
+  { id: "professional", label: "Professional portfolio" },
   { id: "student-org", label: "Student organization" },
   { id: "small-business", label: "Small business" },
-  { id: "organization", label: "Organization" },
-  { id: "personal-brand", label: "Personal brand" },
-  { id: "redesign", label: "Existing website redesign" },
+  { id: "organization", label: "Organization or team" },
+  { id: "redesign", label: "Website redesign" },
   { id: "web-app", label: "Custom web application" },
   { id: "other", label: "Other" },
 ] as const;
+
+/** Sections or pages the visitor expects. On Launch (one page) these become sections, not pages. */
+export const pageOptions = [
+  { id: "home", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "portfolio", label: "Portfolio or projects" },
+  { id: "resume", label: "Resume or experience" },
+  { id: "services", label: "Services" },
+  { id: "contact", label: "Contact" },
+  { id: "gallery", label: "Gallery" },
+  { id: "pricing", label: "Pricing" },
+  { id: "faq", label: "FAQ" },
+  { id: "blog", label: "Blog" },
+  { id: "team", label: "Team" },
+  { id: "custom", label: "Custom page" },
+] as const;
+
+/** Page counts each fixed package covers (Launch is one page). Beyond it we only show a calm note. */
+export const packagePageLimit: Partial<Record<PackageId, number>> = { launch: 1, presence: 3, business: 5 };
 
 /** `advanced` features are not part of Launch, Presence or Business, so they trigger the quote note. */
 export const features = [
@@ -61,6 +81,7 @@ export const features = [
   { id: "analytics", label: "Analytics", advanced: false },
   { id: "animations", label: "Custom animations", advanced: false },
   { id: "newsletter", label: "Email or newsletter", advanced: false },
+  { id: "booking", label: "Booking or scheduling integration", advanced: false },
   { id: "auth", label: "Authentication", advanced: true },
   { id: "database", label: "Database", advanced: true },
   { id: "payments", label: "Payments", advanced: true },
@@ -74,6 +95,7 @@ export const timelines = [
   { id: "asap", label: "As soon as practical" },
   { id: "2-4-weeks", label: "Within 2 to 4 weeks" },
   { id: "1-2-months", label: "Within 1 to 2 months" },
+  { id: "3-months", label: "Within 3 months" },
   { id: "flexible", label: "No hard deadline" },
   { id: "other", label: "Other" },
 ] as const;
@@ -96,19 +118,20 @@ export const limits = {
   email: 254,
   phone: 30,
   organization: 120,
-  descriptionMin: 20,
-  descriptionMax: 4000,
+  descriptionMax: 5000,
+  other: 300,
   url: 300,
   links: 3,
   /** Hard cap on the request body, bytes. */
-  body: 24_000,
+  body: 32_000,
 } as const;
 
 export const steps = [
-  { id: "project", label: "Project", title: "What are you looking for?" },
-  { id: "details", label: "Details", title: "Tell me about the project" },
-  { id: "scope", label: "Scope", title: "Features and timing" },
-  { id: "contact", label: "Contact", title: "How can I reach you?" },
+  { id: "project", label: "Project", title: "What are you looking to build?" },
+  { id: "website", label: "Website", title: "Your website and pages" },
+  { id: "features", label: "Features", title: "What should it do?" },
+  { id: "direction", label: "Direction", title: "References and timing" },
+  { id: "details", label: "Details", title: "Last details" },
   { id: "review", label: "Review", title: "Check and send" },
 ] as const;
 
@@ -116,6 +139,12 @@ export type StepId = (typeof steps)[number]["id"];
 
 export const copy = {
   quoteNote: "This may require a custom quote depending on scope.",
+  pageScopeNote:
+    "This may go beyond the standard scope of this package. You can still send your request and I'll review the best fit.",
+  launchPagesNote: "Launch is one page, so these become sections on that page rather than separate pages.",
+  credentials:
+    "You won't need to share account passwords. Services can be connected through client-owned accounts and proper access permissions.",
+  timingNote: "Timing depends on project scope and availability.",
   consent: "By submitting, you're asking Northframe to contact you about this project.",
   successTitle: "Project request received.",
   successBody:

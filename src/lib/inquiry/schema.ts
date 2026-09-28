@@ -3,12 +3,15 @@
  * real gate). Plain TypeScript on purpose: no schema dependency for a handful of fields.
  * Never trust the client: the route calls `validateInquiry` on every request.
  */
-import { budgets, features, isPackageId, limits, projectTypes, siteAnswers, timelines } from "@/config/inquiry";
+import { budgets, features, isPackageId, limits, pageOptions, projectTypes, siteAnswers, timelines } from "@/config/inquiry";
 import type { PackageId } from "@/config/pricing";
 
 export type InquiryValues = {
   package: PackageId | "";
   projectType: string;
+  projectTypeOther: string;
+  pages: string[];
+  featuresOther: string;
   description: string;
   hasSite: "yes" | "no" | "";
   siteUrl: string;
@@ -28,6 +31,9 @@ export type FieldErrors = Partial<Record<FieldName | `links.${number}`, string>>
 export const emptyValues: InquiryValues = {
   package: "",
   projectType: "",
+  projectTypeOther: "",
+  pages: [],
+  featuresOther: "",
   description: "",
   hasSite: "",
   siteUrl: "",
@@ -43,6 +49,7 @@ export const emptyValues: InquiryValues = {
 
 const ids = (list: readonly { id: string }[]) => list.map((item) => item.id);
 const featureIds = ids(features);
+const pageIds = ids(pageOptions);
 const oneOf = (list: readonly { id: string }[], value: string) => ids(list).includes(value);
 
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
@@ -75,11 +82,12 @@ export const normalizeUrl = (raw: string): string | null => {
 };
 
 /** Which fields belong to which step, so the form can validate one step at a time. */
-export const stepFields: Record<"project" | "details" | "scope" | "contact", readonly FieldName[]> = {
-  project: ["package", "projectType"],
-  details: ["description", "hasSite", "siteUrl", "links"],
-  scope: ["features", "timeline", "budget"],
-  contact: ["name", "email", "phone", "organization"],
+export const stepFields: Record<"project" | "website" | "features" | "direction" | "details", readonly FieldName[]> = {
+  project: ["package", "projectType", "projectTypeOther"],
+  website: ["hasSite", "siteUrl", "pages"],
+  features: ["features", "featuresOther"],
+  direction: ["links", "timeline", "budget"],
+  details: ["description", "name", "email", "phone", "organization"],
 };
 
 type Result = { ok: true; data: InquiryValues } | { ok: false; errors: FieldErrors };
@@ -94,10 +102,11 @@ export const validateInquiry = (input: unknown): Result => {
   const projectType = clean(raw.projectType, 40);
   if (!oneOf(projectTypes, projectType)) errors.projectType = "Pick what the site is for.";
 
+  const projectTypeOther = oneOf(projectTypes, projectType) && projectType === "other" ? line(raw.projectTypeOther, limits.other) : "";
+  if (projectTypeOther.length > limits.other) errors.projectTypeOther = `Please keep this under ${limits.other} characters.`;
+
   const description = clean(raw.description, limits.descriptionMax);
-  if (description.length < limits.descriptionMin) {
-    errors.description = `Add a little more detail (at least ${limits.descriptionMin} characters).`;
-  } else if (description.length > limits.descriptionMax) {
+  if (description.length > limits.descriptionMax) {
     errors.description = `Please keep this under ${limits.descriptionMax.toLocaleString("en-US")} characters.`;
   }
 
@@ -128,6 +137,13 @@ export const validateInquiry = (input: unknown): Result => {
   if (selected.some((id) => !featureIds.includes(id)) || selected.length > featureIds.length) {
     errors.features = "One of the selected features isn't recognised. Please reselect.";
   }
+
+  const pageList = Array.isArray(raw.pages) ? raw.pages : [];
+  const pages = [...new Set(pageList.filter((p): p is string => typeof p === "string"))];
+  if (pages.some((id) => !pageIds.includes(id))) errors.pages = "One of the selected pages isn't recognised. Please reselect.";
+
+  const featuresOther = selected.includes("other") ? line(raw.featuresOther, limits.other) : "";
+  if (featuresOther.length > limits.other) errors.featuresOther = `Please keep this under ${limits.other} characters.`;
 
   const timeline = clean(raw.timeline, 20);
   if (timeline && !oneOf(timelines, timeline)) errors.timeline = "Pick one of the timing options.";
@@ -164,6 +180,9 @@ export const validateInquiry = (input: unknown): Result => {
     data: {
       package: pkg as PackageId,
       projectType,
+      projectTypeOther,
+      pages,
+      featuresOther,
       description,
       hasSite: hasSite as "yes" | "no",
       siteUrl,

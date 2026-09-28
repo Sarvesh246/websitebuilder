@@ -3,7 +3,7 @@ import { steps } from "@/config/inquiry";
 import { cn } from "@/lib/cn";
 
 /**
- * Accessible step list. Below lg it collapses to a segmented bar plus "Step 2 of 5"; from lg it is
+ * Accessible step list. Below lg it collapses to a segmented bar plus "Step 2 of 6"; from lg it is
  * a vertical list in the sidebar. Steps already reached are buttons, so people can jump back.
  */
 export const StepProgress = ({ current, reached, onGo }: { current: number; reached: number; onGo: (index: number) => void }) => (

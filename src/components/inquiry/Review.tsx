@@ -1,4 +1,4 @@
-import { budgets, features, projectTypes, steps, timelines } from "@/config/inquiry";
+import { budgets, features, pageOptions, projectTypes, steps, timelines } from "@/config/inquiry";
 import { customTier, packageTiers } from "@/config/pricing";
 import type { InquiryValues } from "@/lib/inquiry/schema";
 
@@ -12,33 +12,38 @@ const packageLine = (id: InquiryValues["package"]) => {
 
 /** Read-only recap grouped by step, each with an Edit action that jumps back to that step. */
 export const Review = ({ values, onEdit }: { values: InquiryValues; onEdit: (step: number) => void }) => {
+  const other = (base: string, extra: string) => (extra ? `${base}: ${extra}` : base);
+  const featureText = values.features
+    .map((id) => (id === "other" ? other(label(features, id), values.featuresOther) : label(features, id)))
+    .join(", ");
   const groups: { step: number; rows: [string, string][] }[] = [
     {
       step: 0,
       rows: [
         ["Package", packageLine(values.package)],
-        ["Project type", label(projectTypes, values.projectType)],
+        ["Project type", other(label(projectTypes, values.projectType), values.projectTypeOther)],
       ],
     },
     {
       step: 1,
       rows: [
-        ["Details", values.description],
         ["Current website", values.hasSite === "yes" ? values.siteUrl || "Yes" : "None"],
-        ...(values.links.some(Boolean) ? [["Links", values.links.filter(Boolean).join("\n")] as [string, string]] : []),
+        ["Pages", values.pages.map((id) => label(pageOptions, id)).join(", ") || "None selected"],
       ],
     },
+    { step: 2, rows: [["Features", featureText || "None selected"]] },
     {
-      step: 2,
+      step: 3,
       rows: [
-        ["Features", values.features.map((id) => label(features, id)).join(", ") || "None selected"],
+        ["References", values.links.filter(Boolean).join("\n") || "None"],
         ["Timeline", label(timelines, values.timeline) || "Not specified"],
         ...(values.package === "custom" ? [["Budget", label(budgets, values.budget) || "Not specified"] as [string, string]] : []),
       ],
     },
     {
-      step: 3,
+      step: 4,
       rows: [
+        ...(values.description ? [["Details", values.description] as [string, string]] : []),
         ["Name", values.name],
         ["Email", values.email],
         ...(values.phone ? [["Phone", values.phone] as [string, string]] : []),
