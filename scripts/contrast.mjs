@@ -20,13 +20,13 @@ const themes = {
     bg: "#edf1f6", strong: "#0e1218", text: "#28313c", muted: "#4f5a68", subtle: "#5b6675",
     accentInk: "#1d479f", accent: "#2f62c8", accentSoftBase: [47, 98, 200, 0.11],
     btnBg: "#12161d", btnText: "#f4f7fb", glassWhite: 0.55,
-    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92,
+    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92, footerBg: "#c8d4e4",
   },
   dark: {
     bg: "#0b0e13", strong: "#f3f6fa", text: "#cdd5df", muted: "#97a2b0", subtle: "#838e9c",
     accentInk: "#b3ccfb", accent: "#7ea6f5", accentSoftBase: [126, 166, 245, 0.16],
     btnBg: "#f1f4f8", btnText: "#0b0e13", glassWhite: 0.06,
-    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08,
+    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08, footerBg: "#0c1119",
   },
 };
 
@@ -48,6 +48,9 @@ for (const [name, t] of Object.entries(themes)) {
     ["danger text on glass", t.danger, glass, 4.5],
     ["field border on field", t.fieldBorder, field, 3],
     ["text-strong on field", t.strong, field, 4.5],
+    ["accent-ink on bg (legal links)", t.accentInk, bg, 4.5],
+    ["text on footer", t.text, t.footerBg, 4.5],
+    ["text-muted on footer", t.muted, t.footerBg, 4.5],
   ].map(([label, fg, back, min]) => [label, ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back), min]);
 
   console.log(`\n${name}`);
