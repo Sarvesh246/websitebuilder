@@ -1,0 +1,364 @@
+<!doctype html>
+<!--
+  Northframe art renderer. Offline only (never shipped): scripts/art/render.mjs loads this page in
+  headless Chromium, calls window.renderScene(cfg) and saves the canvas.
+  Scene = sky + haze + ridged-noise snow mountains + mirror lake + matte concrete boxes/cylinder.
+-->
+<html>
+<head><meta charset="utf-8"><style>html,body{margin:0;background:#000}</style></head>
+<body>
+<canvas id="c"></canvas>
+<script id="fs" type="x-shader/x-fragment">#version 300 es
+precision highp float;
+out vec4 outColor;
+uniform vec2 uRes, uJitter;
+uniform vec3 uCam, uTarget, uSun, uTint;
+uniform float uMist, uAmb, uFov, uDusk, uHaze, uMtnDist, uMtnH, uMtnScale, uSnow, uExposure, uSeed, uWaterOn, uRoom, uSat, uGloss;
+uniform vec4 uPeak, uPeak2;   // x, z, height, radius
+uniform int uNB;
+uniform vec4 uBoxC[12];       // center xyz, rotY
+uniform vec4 uBoxS[12];       // half size xyz, rounding
+uniform vec4 uCyl;            // cx, cz, radius, topY
+uniform float uCylOn;
+
+vec2 hash2(vec2 p){ p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3))); return -1.0 + 2.0*fract(sin(p + uSeed)*43758.5453); }
+float gnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+  return mix(mix(dot(hash2(i), f), dot(hash2(i+vec2(1,0)), f-vec2(1,0)), u.x),
+             mix(dot(hash2(i+vec2(0,1)), f-vec2(0,1)), dot(hash2(i+vec2(1,1)), f-vec2(1,1)), u.x), u.y);
+}
+float hash1(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)))*43758.5453); }
+const mat2 M2 = mat2(0.8,-0.6,0.6,0.8);
+float fbm(vec2 p){ float s=0.0,a=0.5; for(int i=0;i<6;i++){ s+=a*gnoise(p); p=M2*p*2.02; a*=0.5; } return s; }
+
+float ridged(vec2 p, int oct){
+  float s = 0.0, a = 0.55, w = 1.0;
+  for (int i = 0; i < 12; i++) {
+    if (i >= oct) break;
+    float n = 1.0 - abs(gnoise(p));
+    n = n*n;
+    s += n*a*w;
+    w = clamp(n*1.9, 0.0, 1.0);
+    p = M2*p*2.07;
+    a *= 0.5;
+  }
+  return s;
+}
+
+float terrainH(vec2 p, int oct){
+  float d = length(p - uCam.xz);
+  float mask = smoothstep(uMtnDist, uMtnDist*1.7, d);
+  float n = ridged(p*uMtnScale, oct);
+  float h = pow(n, 1.7) * uMtnH * mask;
+  vec2 q = p - uPeak.xy;
+  h += uPeak.z * exp(-dot(q,q)/(uPeak.w*uPeak.w)) * (0.45 + 0.8*n);
+  vec2 q2 = p - uPeak2.xy;
+  h += uPeak2.z * exp(-dot(q2,q2)/(uPeak2.w*uPeak2.w)) * (0.45 + 0.8*n);
+  return h - 4.0*(1.0 - mask) - 0.5;
+}
+vec3 terrainNormal(vec2 p, float t){
+  float e = max(0.004*t, 0.02);
+  int oct = 11;
+  return normalize(vec3(terrainH(p-vec2(e,0),oct)-terrainH(p+vec2(e,0),oct), 2.0*e, terrainH(p-vec2(0,e),oct)-terrainH(p+vec2(0,e),oct)));
+}
+
+float sdRoundBox(vec3 p, vec3 b, float r){ vec3 q = abs(p) - b + r; return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r; }
+float archSDF(vec3 p){
+  float d = 1e5;
+  for (int i = 0; i < 12; i++) {
+    if (i >= uNB) break;
+    vec3 q = p - uBoxC[i].xyz;
+    float c = cos(uBoxC[i].w), s = sin(uBoxC[i].w);
+    q.xz = mat2(c,-s,s,c)*q.xz;
+    d = min(d, sdRoundBox(q, uBoxS[i].xyz, uBoxS[i].w));
+  }
+  if (uCylOn > 0.5) {
+    vec3 q = p - vec3(uCyl.x, (uCyl.w - 20.0)*0.5, uCyl.y);
+    float r = 0.12;
+    vec2 dd = vec2(length(q.xz) - uCyl.z + r, abs(q.y) - (uCyl.w + 20.0)*0.5 + r);
+    d = min(d, min(max(dd.x,dd.y),0.0) + length(max(dd,0.0)) - r);
+  }
+  return d;
+}
+vec3 archNormal(vec3 p){ vec2 e = vec2(0.0015,0); return normalize(vec3(archSDF(p+e.xyy)-archSDF(p-e.xyy), archSDF(p+e.yxy)-archSDF(p-e.yxy), archSDF(p+e.yyx)-archSDF(p-e.yyx))); }
+
+float traceArch(vec3 ro, vec3 rd, float tmax){
+  if (uNB == 0 && uCylOn < 0.5) return -1.0;
+  float t = 0.02;
+  for (int i = 0; i < 260; i++) {
+    float d = archSDF(ro + rd*t);
+    if (d < 0.0006*t) return t;
+    t += d*0.9;
+    if (t > tmax) break;
+  }
+  return -1.0;
+}
+float traceTerrain(vec3 ro, vec3 rd, float tmax){
+  float t = 1.0, lt = 1.0, ld = 0.0;
+  for (int i = 0; i < 400; i++) {
+    vec3 p = ro + rd*t;
+    float d = p.y - terrainH(p.xz, 8);
+    if (d < 0.0) return lt + (t - lt)*ld/(ld - d);
+    lt = t; ld = d;
+    t += max(0.004*t, 0.45*d);
+    if (t > tmax) break;
+  }
+  return -1.0;
+}
+float archShadow(vec3 ro, vec3 rd){
+  float res = 1.0, t = 0.03;
+  for (int i = 0; i < 90; i++) {
+    float h = archSDF(ro + rd*t);
+    res = min(res, 10.0*h/t);
+    t += clamp(h, 0.02, 1.5);
+    if (res < 0.001 || t > 80.0) break;
+  }
+  return clamp(res, 0.0, 1.0);
+}
+float terrainShadow(vec3 ro, vec3 rd){
+  float res = 1.0, t = 0.5;
+  for (int i = 0; i < 70; i++) {
+    vec3 p = ro + rd*t;
+    float d = p.y - terrainH(p.xz, 7);
+    res = min(res, 14.0*d/t);
+    t += max(0.5, d*0.5);
+    if (res < 0.001 || t > 900.0) break;
+  }
+  return clamp(res, 0.0, 1.0);
+}
+float archAO(vec3 p, vec3 n){
+  float o = 0.0, s = 1.0;
+  for (int i = 1; i <= 6; i++) { float h = 0.12*float(i)*float(i); o += (h - archSDF(p + n*h))*s/h; s *= 0.75; }
+  return clamp(1.0 - 0.28*o, 0.0, 1.0);
+}
+
+// ---------- lighting palette ----------
+vec3 sunCol(){ return mix(vec3(1.0,0.96,0.9)*4.2, vec3(0.92,0.9,0.9)*1.6, uDusk); }
+vec3 skyAmb(){ return mix(vec3(0.50,0.56,0.64), vec3(0.10,0.115,0.14), uDusk)*uAmb; }
+vec3 sky(vec3 rd){
+  float y = clamp(rd.y, 0.0, 1.0);
+  vec3 hor = mix(vec3(0.93,0.93,0.92), vec3(0.17,0.18,0.20), uDusk);
+  vec3 zen = mix(vec3(0.58,0.635,0.71), vec3(0.035,0.04,0.05), uDusk);
+  vec3 col = mix(hor, zen, pow(y, 0.55));
+  float s = max(dot(rd, uSun), 0.0);
+  vec3 glow = mix(vec3(1.0,0.96,0.9), vec3(0.9,0.8,0.72), uDusk);
+  col += glow*(mix(0.22,0.05,uDusk)*pow(s,3.0) + mix(0.5,0.1,uDusk)*pow(s,24.0) + mix(2.5,0.35,uDusk)*pow(s,900.0));
+  // soft high cloud veils
+  vec2 cp = rd.xz/(rd.y + 0.12)*1.6;
+  float c = smoothstep(0.0, 0.7, fbm(cp + vec2(3.1, 1.7)) + 0.25);
+  col = mix(col, mix(vec3(0.97,0.97,0.97), vec3(0.2,0.21,0.24), uDusk), c*0.35*smoothstep(0.02, 0.35, y));
+  return col;
+}
+vec3 fogCol(vec3 rd){
+  float s = max(dot(rd, uSun), 0.0);
+  vec3 base = mix(vec3(0.90,0.915,0.93), vec3(0.13,0.14,0.16), uDusk);
+  return base + mix(vec3(1.0,0.96,0.9), vec3(0.6,0.52,0.46), uDusk)*(mix(0.28,0.12,uDusk)*pow(s, 6.0));
+}
+vec3 applyFog(vec3 col, vec3 ro, vec3 rd, float t){
+  // exponential haze that thickens near the water
+  float a = uHaze*exp(-max(ro.y, 0.0)*0.012);
+  float b = 0.035;
+  float f = a*exp(-ro.y*b)*(1.0 - exp(-t*rd.y*b))/max(rd.y*b, 1e-4);
+  if (abs(rd.y) < 1e-3) f = a*exp(-ro.y*b)*t;
+  // low mist that hugs the water and swallows shorelines
+  float hy = ro.y + rd.y*min(t, 3000.0);
+  f += uMist*(1.0 - exp(-t*0.006))*exp(-max(hy, 0.0)/12.0);
+  f = 1.0 - exp(-max(f, 0.0));
+  return mix(col, fogCol(rd), f);
+}
+
+vec3 shadeTerrain(vec3 p, vec3 rd, float t){
+  vec3 n = terrainNormal(p.xz, t);
+  float slope = n.y;
+  float nz = fbm(p.xz*0.35);
+  float snow = smoothstep(0.50, 0.70, slope + nz*0.25 + uSnow*0.25) * smoothstep(-6.0, 2.0, p.y + nz*6.0);
+  vec3 rock = mix(vec3(0.07,0.075,0.085), vec3(0.16,0.165,0.175), smoothstep(-0.4,0.4,nz));
+  vec3 alb = mix(rock, vec3(0.93,0.95,0.98), snow);
+  float dif = max(dot(n, uSun), 0.0);
+  float sh = dif > 0.0 ? terrainShadow(p + n*0.3, uSun) : 0.0;
+  float amb = 0.5 + 0.5*n.y;
+  vec3 col = alb*(sunCol()*dif*sh + skyAmb()*amb*0.9 + vec3(0.25,0.24,0.22)*0.15*(1.0 - n.y));
+  // snow sparkle / glint
+  col += snow*sunCol()*0.08*pow(max(dot(reflect(rd,n), uSun),0.0), 16.0)*sh;
+  return col;
+}
+vec3 shadeArch(vec3 p, vec3 rd){
+  vec3 n = archNormal(p);
+  // fine concrete grain + faint large-scale mottling
+  float g = fbm(p.xz*3.0 + p.y*2.0)*0.5 + fbm(p.xy*0.4 + p.zx*0.3)*0.5;
+  float speck = hash1(floor(p.xz*140.0) + floor(p.y*140.0));
+  // weathering: vertical streaks on walls, broad mottling everywhere
+  float streak = fbm(vec2(p.x*1.3 + p.z*1.3, p.y*0.12))*abs(n.x + n.z);
+  float mott = fbm(p.xz*0.18 + p.y*0.1);
+  vec3 alb = mix(vec3(0.60,0.60,0.59), vec3(0.14,0.145,0.155), uRoom)
+    * (0.9 + 0.16*g) * (0.96 + 0.06*speck) * (1.0 - 0.12*smoothstep(0.0, 0.6, streak)) * (0.94 + 0.12*mott);
+  float dif = max(dot(n, uSun), 0.0);
+  float sh = dif > 0.0 ? archShadow(p + n*0.004, uSun) : 0.0;
+  float ao = archAO(p, n);
+  float hgrad = mix(0.7, 1.12, smoothstep(0.0, 9.0, p.y));   // walls brighten toward the sky
+  vec3 col = alb*(sunCol()*dif*sh + skyAmb()*(0.55 + 0.45*n.y)*ao*hgrad + vec3(0.9,0.88,0.84)*mix(0.12,0.03,uDusk)*max(-n.y,0.0));
+  // bounce from the bright haze and water onto vertical faces
+  col += alb*fogCol(normalize(vec3(n.x, 0.05, n.z)))*mix(0.3, 0.2, uDusk)*(1.0 - abs(n.y))*ao*(1.0 - uRoom*0.8);
+  // polished top surfaces: glossy sky + sun reflection
+  float top = smoothstep(0.85, 0.99, n.y);
+  vec3 r = reflect(rd, n);
+  float fr = 0.04 + 0.96*pow(1.0 - max(dot(-rd, n), 0.0), 5.0);
+  vec3 refl = sky(r)*0.9 + sunCol()*pow(max(dot(r, uSun),0.0), 60.0)*1.5*sh;
+  col = mix(col, refl, top*fr*uGloss);
+  col += top*sunCol()*0.05*pow(max(dot(r, uSun),0.0), 6.0)*sh*uGloss;
+  // edge highlight (bevel catches light)
+  return col;
+}
+
+// Nearest hit: id 0 sky, 1 architecture, 2 terrain, 3 water.
+int hitScene(vec3 ro, vec3 rd, bool allowWater, out float tHit){
+  float ta = traceArch(ro, rd, 400.0);
+  float tt = uMtnH > 0.0 || uPeak.z > 0.0 ? traceTerrain(ro, rd, 1600.0) : -1.0;
+  float tw = (uWaterOn > 0.5 && rd.y < 0.0) ? -ro.y/rd.y : -1.0;
+  float best = 1e9; int id = 0;
+  if (ta > 0.0 && ta < best) { best = ta; id = 1; }
+  if (tt > 0.0 && tt < best) { best = tt; id = 2; }
+  if (allowWater && tw > 0.0 && tw < best) { best = tw; id = 3; }
+  tHit = best;
+  return id;
+}
+vec3 shadeSolid(int id, vec3 ro, vec3 rd, float t){
+  if (id == 0) return sky(rd);
+  vec3 p = ro + rd*t;
+  vec3 col = id == 1 ? shadeArch(p, rd) : shadeTerrain(p, rd, t);
+  return applyFog(col, ro, rd, t);
+}
+vec3 render(vec3 ro, vec3 rd){
+  float t;
+  int id = hitScene(ro, rd, true, t);
+  if (id != 3) return shadeSolid(id, ro, rd, t);
+  vec3 p = ro + rd*t;
+  vec2 w = vec2(fbm(p.xz*0.6), fbm(p.xz*0.6 + 7.3))*0.012;
+  vec3 n = normalize(vec3(w.x, 1.0, w.y));
+  vec3 r = reflect(rd, n);
+  float t2;
+  int id2 = hitScene(p + n*0.01, r, false, t2);
+  vec3 rc = shadeSolid(id2, p, r, t2);
+  float fr = 0.25 + 0.75*pow(1.0 - max(dot(-rd, n), 0.0), 5.0);
+  vec3 deep = mix(vec3(0.30,0.34,0.38), vec3(0.03,0.035,0.045), uDusk);
+  vec3 col = mix(deep, rc, clamp(fr + 0.35, 0.0, 1.0));
+  return applyFog(col, ro, rd, t);
+}
+
+vec3 aces(vec3 x){ return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14), 0.0, 1.0); }
+
+void main(){
+  vec2 frag = gl_FragCoord.xy + uJitter;
+  vec2 uv = (2.0*frag - uRes)/uRes.y;
+  vec3 fw = normalize(uTarget - uCam);
+  vec3 rt = normalize(cross(fw, vec3(0,1,0)));
+  vec3 up = cross(rt, fw);
+  vec3 rd = normalize(uv.x*rt + uv.y*up + uFov*fw);
+  vec3 col = render(uCam, rd);
+  col *= uExposure;
+  col = aces(col);
+  col = pow(col, vec3(1.0/2.2));
+  float l = dot(col, vec3(0.299,0.587,0.114));
+  col = mix(vec3(l), col, uSat) * uTint;
+  outColor = vec4(col, 1.0);
+}
+</script>
+<script>
+const canvas = document.getElementById("c");
+const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true, antialias: false });
+const vs = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p,0,1); }`;
+function sh(type, src){ const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, document.getElementById("fs").textContent));
+gl.linkProgram(prog);
+if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+const loc = gl.getAttribLocation(prog, "p");
+gl.enableVertexAttribArray(loc);
+gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+const U = (n) => gl.getUniformLocation(prog, n);
+
+const defaults = {
+  cam: [0,3,0], target: [0,3,-20], sun: [0.4,0.35,-0.8], fov: 1.8, dusk: 0, haze: 0.004,
+  mist: 1.2, amb: 1, mtnDist: 60, mtnH: 60, mtnScale: 0.012, snow: 0.3, exposure: 1.0, seed: 0, water: 1, room: 0,
+  sat: 0.75, gloss: 1, tint: [1,1,1], peak: [0,-300,0,50], peak2: [0,-300,0,50], boxes: [], cyl: null,
+};
+
+window.renderScene = (input) => {
+  const c = { ...defaults, ...input };
+  canvas.width = c.width; canvas.height = c.height;
+  const s = c.sun; const sl = Math.hypot(...s);
+  gl.uniform2f(U("uRes"), c.width, c.height);
+  gl.uniform3fv(U("uCam"), c.cam); gl.uniform3fv(U("uTarget"), c.target);
+  gl.uniform3f(U("uSun"), s[0]/sl, s[1]/sl, s[2]/sl);
+  gl.uniform3fv(U("uTint"), c.tint);
+  for (const [k, v] of Object.entries({ uFov: c.fov, uDusk: c.dusk, uHaze: c.haze, uMtnDist: c.mtnDist, uMtnH: c.mtnH, uMtnScale: c.mtnScale, uSnow: c.snow, uExposure: c.exposure, uSeed: c.seed, uWaterOn: c.water, uRoom: c.room, uSat: c.sat, uGloss: c.gloss, uMist: c.mist, uAmb: c.amb }))
+    gl.uniform1f(U(k), v);
+  gl.uniform4fv(U("uPeak"), c.peak); gl.uniform4fv(U("uPeak2"), c.peak2);
+  const bc = new Float32Array(48), bs = new Float32Array(48);
+  c.boxes.forEach((b, i) => { bc.set([...b.c, b.rot ?? 0], i*4); bs.set([...b.s, b.r ?? 0.05], i*4); });
+  gl.uniform1i(U("uNB"), c.boxes.length);
+  gl.uniform4fv(U("uBoxC"), bc); gl.uniform4fv(U("uBoxS"), bs);
+  gl.uniform1f(U("uCylOn"), c.cyl ? 1 : 0);
+  gl.uniform4fv(U("uCyl"), c.cyl ?? [0,0,0,0]);
+  // Tiled rendering keeps each draw short (avoids GPU watchdog resets). Supersampling happens via
+  // accumulation of jittered passes on the JS side.
+  gl.viewport(0, 0, c.width, c.height);
+  gl.enable(gl.SCISSOR_TEST);
+  const T = c.tile ?? 256;
+  const out = new Float32Array(c.width*c.height*4);
+  const px = new Uint8Array(c.width*c.height*4);
+  const passes = c.spp ?? 1;
+  for (let k = 0; k < passes; k++) {
+    const j = passes === 1 ? [0,0] : [((k % 2) - 0.5)*0.5, (Math.floor(k/2) % 2 - 0.5)*0.5];
+    gl.uniform2f(U("uJitter"), j[0], j[1]);
+    for (let y = 0; y < c.height; y += T) for (let x = 0; x < c.width; x += T) {
+      gl.scissor(x, y, T, T);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.finish();
+    }
+    gl.readPixels(0, 0, c.width, c.height, gl.RGBA, gl.UNSIGNED_BYTE, px);
+    for (let i = 0; i < px.length; i++) out[i] += px[i];
+  }
+  // flip Y, average, dither
+  const img = new ImageData(c.width, c.height);
+  for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) {
+    const si = ((c.height - 1 - y)*c.width + x)*4, di = (y*c.width + x)*4;
+    for (let ch = 0; ch < 3; ch++) img.data[di+ch] = Math.max(0, Math.min(255, out[si+ch]/passes + (Math.random() - 0.5)));
+    img.data[di+3] = 255;
+  }
+  const oc = document.createElement("canvas"); oc.width = c.width; oc.height = c.height;
+  const ctx = oc.getContext("2d");
+  ctx.putImageData(img, 0, 0);
+  if ((c.bloom ?? 0.35) > 0) {
+    // bright pass -> wide blur -> screen blend: the soft sun bloom of the references
+    const hi = new ImageData(c.width, c.height);
+    const thr = c.bloomThreshold ?? 0.82;
+    for (let i = 0; i < img.data.length; i += 4) {
+      const l = (0.3*img.data[i] + 0.59*img.data[i+1] + 0.11*img.data[i+2])/255;
+      const k = Math.max(0, (l - thr)/(1 - thr));
+      for (let ch = 0; ch < 3; ch++) hi.data[i+ch] = img.data[i+ch]*k;
+      hi.data[i+3] = 255;
+    }
+    const hc = document.createElement("canvas"); hc.width = c.width; hc.height = c.height;
+    hc.getContext("2d").putImageData(hi, 0, 0);
+    ctx.globalCompositeOperation = "screen";
+    for (const [r, a] of [[0.012, 0.5], [0.04, 0.6], [0.1, 0.7]]) {
+      ctx.globalAlpha = a*(c.bloom ?? 0.35);
+      ctx.filter = `blur(${Math.round(r*c.width)}px)`;
+      ctx.drawImage(hc, 0, 0);
+    }
+    ctx.filter = "none"; ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+  }
+  return oc.toDataURL("image/png");
+};
+window.ready = true;
+</script>
+</body>
+</html>

@@ -44,3 +44,8 @@ next-env.d.ts
 /.playwright-mcp/
 /*.png
 !.env.example
+# Skipper — machine-local artifacts (hook scratch + derived index), never commit
+.claude/.skipper-*
+.skipper/*
+!.skipper/receipts/
+/scripts/art/out/

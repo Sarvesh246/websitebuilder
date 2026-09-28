@@ -7,10 +7,8 @@
 
   body {
     min-height: 100dvh;
-    /* Page atmosphere: a static sky wash at the top that settles into --bg. Sections inherit it. */
+    /* Atmosphere comes from each section's rendered plate (styles/pane.css .plate). */
     background-color: var(--bg);
-    background-image: linear-gradient(to bottom, var(--atmos-sky-top), var(--bg) 60rem);
-    background-repeat: no-repeat;
     color: var(--text);
     font-family: var(--font-sans);
     font-size: var(--fs-body);

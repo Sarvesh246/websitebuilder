@@ -14,7 +14,6 @@ export const SiteFooter = () => (
       <div className="site-footer__top">
         <div className="site-footer__brand">
           <Link href="/" className="site-nav__logo" aria-label={`${siteConfig.name} home`}>
-            <span aria-hidden className="site-nav__mark" />
             {siteConfig.name}
           </Link>
           <p className="t-small">{siteConfig.descriptor}</p>

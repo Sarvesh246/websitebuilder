@@ -1,36 +1,28 @@
-import { KeyRound, Smartphone, Tag } from "lucide-react";
+import { Mouse } from "lucide-react";
 import type { CSSProperties } from "react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { HeroVisual } from "@/components/sections/HeroVisual";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Ambient } from "@/components/visual/Ambient";
-import { Scene } from "@/components/visual/environment/Scene";
+import { Plate } from "@/components/visual/Plate";
 import { siteConfig } from "@/config/site";
 
-const valuePoints = [
-  { icon: Tag, label: "Clear pricing" },
-  { icon: Smartphone, label: "Mobile-ready" },
-  { icon: KeyRound, label: "You own your site" },
-] as const;
+const valuePoints = ["Clear pricing", "Mobile-ready", "You own your site"] as const;
 
 const step = (i: number) => ({ "--i": i }) as CSSProperties;
 
 /**
- * Above-the-fold hero. Left: badge, h1, one supporting line, CTAs, value points.
- * Right (below the copy on phones): the layered mockup composition.
- * Copy uses a CSS entrance (not a JS reveal) so the h1 paints immediately, which keeps LCP fast.
+ * Above-the-fold hero, composed like reference 1: copy left, glass panes floating over the
+ * rendered plinth right. Copy uses a CSS entrance (not a JS reveal) so the h1 paints immediately.
  */
 export const Hero = () => (
   <Section id="top" spacing="none" className="hero">
-    <Ambient preset="hero" />
-    <Scene variant="hero" seed={7} />
+    <Plate name="hero" />
     <Container className="hero__grid">
       <div className="hero__copy">
-        <Badge tone="neutral" className="hero-enter" style={step(0)}>
+        <p className="t-label t-label--rule hero-enter" style={step(0)}>
           Web design for students and small teams
-        </Badge>
+        </p>
         <h1 className="t-hero hero-enter" style={step(1)}>
           Professional websites without agency prices.
         </h1>
@@ -46,15 +38,15 @@ export const Hero = () => (
           </Button>
         </div>
         <ul className="hero__values hero-enter" style={step(4)}>
-          {valuePoints.map(({ icon: Icon, label }) => (
-            <li key={label}>
-              <Icon aria-hidden size={16} strokeWidth={1.8} />
-              {label}
-            </li>
+          {valuePoints.map((label) => (
+            <li key={label}>{label}</li>
           ))}
         </ul>
       </div>
       <HeroVisual />
     </Container>
+    <a href="#why" className="hero__scroll" aria-label="Scroll to the next section">
+      <Mouse aria-hidden size={26} strokeWidth={1.3} />
+    </a>
   </Section>
 );
