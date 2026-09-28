@@ -99,8 +99,8 @@ export const ownershipScene = {
     { label: "Your accounts", body: "Hosting, analytics, and email live under your login." },
     { label: "Your data", body: "Whatever your site collects stays under your control." },
   ],
-  visualLabel: "Concept of an account overview showing domain, code, accounts, and data all owned by you",
-  note: "Concept interface, not a live product.",
+  visualLabel: "Illustration of a glass browser frame reading: Your website. Your ownership.",
+  statement: "No locked platform. No mystery credentials. No dependency on us to keep your website running.",
 } as const;
 
 export const finalCta = {
