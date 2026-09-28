@@ -11,7 +11,7 @@
     border-radius: var(--radius-sm);
     font-family: var(--font-sans);
     font-size: var(--fs-button);
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: -0.005em;
     line-height: 1;
     white-space: nowrap; /* labels never wrap, keep them short instead */
@@ -48,9 +48,9 @@
   }
 
   .btn-lg {
-    min-height: 3.25rem;
-    padding: 0 1.6rem;
-    font-size: 1rem;
+    min-height: 3.5rem;
+    padding: 0 1.85rem;
+    font-size: 1.03rem;
   }
   .btn-block {
     width: 100%;
@@ -73,8 +73,9 @@
     background: var(--btn-primary-bg);
     color: var(--btn-primary-text);
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.14),
-      var(--shadow-md);
+      inset 0 1px 0 rgb(255 255 255 / 0.1),
+      0 1px 2px var(--shadow-ink-soft),
+      0 10px 24px -12px var(--shadow-ink-strong);
   }
   .btn-primary:hover {
     background: var(--btn-primary-bg-hover);
@@ -83,7 +84,8 @@
   .btn-secondary {
     background: var(--btn-secondary-bg);
     color: var(--text-strong);
-    border-color: var(--border-strong);
+    border-color: var(--border);
+    box-shadow: 0 1px 2px var(--shadow-ink-soft);
   }
   .btn-secondary:hover {
     background: var(--btn-secondary-bg-hover);

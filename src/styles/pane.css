@@ -1,0 +1,472 @@
+/*
+ * Reference art direction: rendered environment plates behind each section, thick acrylic glass
+ * panes floating in front of them, and concept website screens inside the panes.
+ * Plates are rendered offline (scripts/art/) and swapped per theme with custom properties, so only
+ * the active theme's image downloads.
+ */
+@layer components {
+  /* ---------- Environment plate ---------- */
+  .plate {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--bg);
+    background-image: var(--plate);
+    background-size: cover;
+    background-position: var(--plate-pos, 60% 50%);
+    background-repeat: no-repeat;
+    /* dissolve into the page colour at the top and bottom so sections join without seams */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 7rem), #000 calc(100% - var(--plate-fade-bottom, 9rem)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 7rem), #000 calc(100% - var(--plate-fade-bottom, 9rem)), transparent 100%);
+  }
+  /* soft veil behind the copy column so text always sits on calm haze */
+  .plate::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--plate-veil, linear-gradient(90deg, var(--plate-veil-color) 0%, transparent 58%));
+  }
+  .plate {
+    --plate-veil-color: light-dark(rgb(243 243 241 / 0.55), rgb(12 14 17 / 0.55));
+  }
+
+  .plate--hero { --plate: url("/images/scenes/hero-light.webp"); --plate-pos: 62% 58%; }
+  .plate--why { --plate: url("/images/scenes/why-light.webp"); --plate-pos: 58% 60%; }
+  .plate--services { --plate: url("/images/scenes/services-light.webp"); --plate-pos: 55% 62%; }
+  .plate--process { --plate: url("/images/scenes/process-light.webp"); --plate-pos: 50% 62%; --plate-veil: none; }
+  .plate--pricing { --plate: url("/images/scenes/pricing-light.webp"); --plate-pos: 50% 40%; --plate-veil: none; }
+  .plate--ownership { --plate: url("/images/scenes/ownership.webp"); --plate-pos: 60% 55%; }
+
+  :root[data-theme="dark"] {
+    .plate--hero { --plate: url("/images/scenes/hero-dark.webp"); }
+    .plate--why { --plate: url("/images/scenes/why-dark.webp"); }
+    .plate--services { --plate: url("/images/scenes/services-dark.webp"); }
+    .plate--process { --plate: url("/images/scenes/process-dark.webp"); }
+    .plate--pricing { --plate: url("/images/scenes/pricing-dark.webp"); }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      .plate--hero { --plate: url("/images/scenes/hero-dark.webp"); }
+      .plate--why { --plate: url("/images/scenes/why-dark.webp"); }
+      .plate--services { --plate: url("/images/scenes/services-dark.webp"); }
+      .plate--process { --plate: url("/images/scenes/process-dark.webp"); }
+      .plate--pricing { --plate: url("/images/scenes/pricing-dark.webp"); }
+    }
+  }
+  /* Phones and small tablets get the 1280px renders. */
+  @media (max-width: 900px) {
+    .plate--hero { --plate: url("/images/scenes/hero-light-1280.webp"); }
+    .plate--why { --plate: url("/images/scenes/why-light-1280.webp"); }
+    .plate--services { --plate: url("/images/scenes/services-light-1280.webp"); }
+    .plate--process { --plate: url("/images/scenes/process-light-1280.webp"); }
+    .plate--pricing { --plate: url("/images/scenes/pricing-light-1280.webp"); }
+    .plate--ownership { --plate: url("/images/scenes/ownership-1280.webp"); }
+    :root[data-theme="dark"] {
+      .plate--hero { --plate: url("/images/scenes/hero-dark-1280.webp"); }
+      .plate--why { --plate: url("/images/scenes/why-dark-1280.webp"); }
+      .plate--services { --plate: url("/images/scenes/services-dark-1280.webp"); }
+      .plate--process { --plate: url("/images/scenes/process-dark-1280.webp"); }
+      .plate--pricing { --plate: url("/images/scenes/pricing-dark-1280.webp"); }
+    }
+  }
+
+  /* ---------- Glass pane: a thick, bevelled acrylic slab ---------- */
+  .pane {
+    --pane-r: 1.7rem;
+    --pane-edge: 0.8rem;
+    position: relative;
+    border-radius: var(--pane-r);
+    padding: var(--pane-edge);
+    background: linear-gradient(140deg, var(--pane-fill-a) 0%, var(--pane-fill-b) 26%, var(--pane-fill-b) 62%, var(--pane-fill-c) 100%);
+    -webkit-backdrop-filter: blur(4px) saturate(1.15) brightness(1.06);
+    backdrop-filter: blur(4px) saturate(1.15) brightness(1.06);
+    box-shadow:
+      inset 0 0 0 1px var(--pane-rim),
+      inset 2px 2px 0 var(--pane-rim),
+      inset -2px -2.5px 1px var(--pane-bevel-shade),
+      inset 0 0 1.4rem var(--pane-glow),
+      /* extrusion: the slab's thickness, seen toward the lower right */
+      1px 1.5px 0 var(--pane-ext-1),
+      2px 3px 0 var(--pane-ext-1),
+      3px 4.5px 0 var(--pane-ext-2),
+      4px 6px 0 var(--pane-ext-3),
+      5px 7.5px 1px var(--pane-ext-4),
+      /* contact + ambient shadow */
+      0 2.5rem 4.5rem -2rem var(--pane-drop),
+      0 0.8rem 2rem -1rem var(--pane-drop-soft);
+    transition:
+      transform var(--dur-slow) var(--ease-out),
+      box-shadow var(--dur-slow) var(--ease-out);
+  }
+  /* refraction rim: a bright edge that thins and catches again around the slab */
+  .pane::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(from 210deg at 40% 45%, var(--pane-rim) 0deg, var(--pane-rim-soft) 50deg, var(--pane-rim) 110deg, var(--pane-rim-cool) 170deg, var(--pane-rim) 235deg, var(--pane-rim-soft) 290deg, var(--pane-rim) 360deg);
+    -webkit-mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+  }
+  /* glare sweeping across the front face */
+  .pane::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    background: linear-gradient(118deg, transparent 28%, var(--pane-glare) 40%, transparent 47%, transparent 72%, var(--pane-glare) 79%, transparent 83%);
+    pointer-events: none;
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .pane {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--surface-solid);
+    }
+  }
+
+  /* screen inset into the slab */
+  .pane__screen {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--pane-r) - var(--pane-edge) + 0.1rem);
+    background: var(--scr-bg);
+    color: var(--scr-ink);
+    container-type: inline-size;
+    box-shadow:
+      0 0 0 1px var(--pane-rim-soft),
+      0 1px 3px var(--pane-drop-soft);
+  }
+  .pane__screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(165deg, var(--pane-glare) 0%, transparent 32%);
+    pointer-events: none;
+  }
+
+  /* ---------- Concept screens (sized from the screen width, so they scale with the pane) ---------- */
+  .scr {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 2.1cqw;
+    line-height: 1.25;
+  }
+  .scr__nav {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    padding: 1.8em 2.4em 0;
+    font-size: 0.8em;
+    color: var(--scr-ink);
+  }
+  .scr__nav b {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .scr__nav span {
+    margin-left: auto;
+    display: flex;
+    gap: 2.2em;
+    color: var(--scr-muted);
+    font-size: 0.85em;
+  }
+  .scr__nav span em {
+    font-style: normal;
+  }
+  .scr__burger {
+    width: 1.3em;
+    height: 0.7em;
+    border-block: 1px solid currentColor;
+    position: relative;
+  }
+  .scr__burger::after {
+    content: "";
+    position: absolute;
+    inset: 50% 0 auto;
+    border-top: 1px solid currentColor;
+  }
+  .scr__h {
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.06;
+    color: var(--scr-ink);
+  }
+  .scr__p {
+    color: var(--scr-muted);
+    font-size: 0.72em;
+    line-height: 1.35;
+  }
+  .scr__link {
+    display: inline-flex;
+    gap: 0.8em;
+    align-items: center;
+    font-size: 0.7em;
+    color: var(--scr-muted);
+  }
+  .scr__rule {
+    display: block;
+    width: 2.4em;
+    border-top: 1px solid currentColor;
+    opacity: 0.6;
+  }
+  .scr__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    align-self: flex-start;
+    padding: 0.75em 1.2em;
+    border-radius: 0.35em;
+    background: var(--scr-ink);
+    color: var(--scr-bg);
+    font-size: 0.62em;
+  }
+  .scr__img {
+    position: relative;
+    overflow: hidden;
+  }
+  .scr__img img {
+    object-fit: cover;
+    filter: contrast(1.18) brightness(0.9) saturate(0.85);
+  }
+
+  /* split: copy left, photo right (hero main, process design) */
+  .scr--split .scr__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 0.78fr 1.22fr;
+    gap: 2em;
+    padding: 2.2em 0 0 2.4em;
+    min-height: 0;
+  }
+  .scr--split .scr__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2em;
+    padding-top: 3.5em;
+  }
+  .scr--split .scr__h {
+    font-size: 3.3em;
+  }
+  .scr--split .scr__img {
+    border-top-left-radius: 0.3em;
+  }
+
+  /* full-bleed photo with a headline (cleaner, launch, ownership) */
+  .scr--photo .scr__img {
+    position: absolute;
+    inset: 0;
+  }
+  .scr--photo .scr__img::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, var(--scr-veil, rgb(20 24 30 / 0.55)) 0%, transparent 60%);
+  }
+  .scr--photo .scr__nav,
+  .scr--photo .scr__copy {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+  }
+  .scr--photo .scr__nav span {
+    color: rgb(255 255 255 / 0.8);
+  }
+  .scr--photo .scr__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4em;
+    padding: 4.5em 2.4em 0;
+    max-width: 62%;
+  }
+  .scr--photo .scr__h {
+    font-size: 3.4em;
+    font-weight: 400;
+    color: #fff;
+  }
+
+  /* portrait: headline top, photo bottom right (hero right pane) */
+  .scr--tall {
+    font-size: 3.4cqw;
+  }
+  .scr--tall .scr__copy {
+    padding: 4em 2.4em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4em;
+  }
+  .scr--tall .scr__h {
+    font-size: 2.9em;
+    font-weight: 400;
+  }
+  .scr--tall .scr__img {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 58%;
+    height: 58%;
+    border-top-left-radius: 0.4em;
+  }
+
+  /* why: fuller page with a service strip at the foot */
+  .scr--page .scr__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 2em;
+    padding: 2.4em 0 0 2.4em;
+    min-height: 0;
+  }
+  .scr--page .scr__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3em;
+    padding-top: 3em;
+  }
+  .scr--page .scr__h {
+    font-size: 2.6em;
+  }
+  .scr__strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 1.8em 2.4em 2em;
+    border-top: 1px solid var(--scr-line);
+    font-size: 0.72em;
+  }
+  .scr__strip div + div {
+    padding-left: 1.4em;
+    border-left: 1px solid var(--scr-line);
+  }
+  .scr__strip small {
+    display: block;
+    color: var(--scr-muted);
+    font-size: 0.82em;
+  }
+
+  /* wireframe (process: define) */
+  .scr--wire .scr__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    gap: 2.4em 3em;
+    padding: 3em 2.4em 2.4em;
+  }
+  .scr__bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-top: 1em;
+  }
+  .scr__bars i {
+    display: block;
+    height: 1.5em;
+    background: var(--scr-block);
+    border-radius: 0.15em;
+  }
+  .scr__bars i:nth-child(1) { width: 80%; }
+  .scr__bars i:nth-child(2) { width: 100%; }
+  .scr__bars i:nth-child(3) { width: 64%; }
+  .scr__bars i:nth-child(4) { width: 34%; height: 1em; margin-top: 1em; }
+  .scr__x {
+    border: 1px solid var(--scr-block);
+    background:
+      linear-gradient(to top right, transparent calc(50% - 0.5px), var(--scr-block) 50%, transparent calc(50% + 0.5px)),
+      linear-gradient(to top left, transparent calc(50% - 0.5px), var(--scr-block) 50%, transparent calc(50% + 0.5px));
+  }
+  .scr__tiles {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.4em;
+  }
+  .scr__tiles i {
+    height: 4.5em;
+    background: var(--scr-block);
+  }
+  .scr__navbars {
+    margin-left: auto;
+    display: flex;
+    gap: 1.2em;
+  }
+  .scr__navbars i {
+    width: 3em;
+    height: 0.9em;
+    background: var(--scr-block);
+  }
+  .scr__navbars i:last-child {
+    width: 5em;
+  }
+
+  /* code editor (process: build). Always dark, like a real editor. */
+  .scr--code {
+    background: #16181d;
+    color: #c9ced6;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .scr--code .scr__dots {
+    display: flex;
+    gap: 0.6em;
+    padding: 1.5em 1.8em;
+  }
+  .scr--code .scr__dots i {
+    width: 0.9em;
+    height: 0.9em;
+    border-radius: 50%;
+    background: #ef6a5e;
+  }
+  .scr--code .scr__dots i:nth-child(2) { background: #f4bf4f; }
+  .scr--code .scr__dots i:nth-child(3) { background: #61c554; }
+  .scr--code .scr__body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 0.72fr 1.4fr;
+    font-size: 0.72em;
+    line-height: 1.9;
+  }
+  .scr__tree {
+    padding: 0.5em 1.8em;
+    border-right: 1px solid rgb(255 255 255 / 0.08);
+    color: #9aa1ac;
+    white-space: nowrap;
+  }
+  .scr__tree b {
+    color: #e6e9ee;
+    font-weight: 500;
+  }
+  .scr__src {
+    padding: 0.5em 1.4em;
+    white-space: pre;
+    color: #aeb6c2;
+  }
+  .scr__src .k { color: #c792ea; }
+  .scr__src .f { color: #82aaff; }
+  .scr__src .t { color: #7fdbca; }
+  .scr__src .n { color: #4b5261; }
+
+  /* dark ownership screen */
+  .scr--own {
+    --scr-veil: rgb(8 10 13 / 0.75);
+  }
+
+  /* ---------- Staging: a pane stood in 3D space ---------- */
+  .stage3d {
+    position: relative;
+    perspective: 1800px;
+    perspective-origin: 30% 40%;
+  }
+  .stage3d__item {
+    position: absolute;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+}

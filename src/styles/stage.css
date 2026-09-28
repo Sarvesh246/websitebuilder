@@ -1,0 +1,47 @@
+/*
+ * Floating pane stages (PaneStage). Each layer is positioned in % of the stage box and posed in 3D
+ * by its own class; the stage supplies perspective. Entrance + float are CSS, transform/opacity only.
+ */
+@layer components {
+  .stage {
+    position: relative;
+    perspective: 1600px;
+    perspective-origin: 40% 45%;
+  }
+  .stage__layer {
+    position: absolute;
+    transform-style: preserve-3d;
+  }
+  .stage__pose {
+    transform: var(--pose, none);
+    transform-style: preserve-3d;
+  }
+  .stage__pose .pane {
+    aspect-ratio: var(--ratio, 16 / 10.5);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .stage-enter {
+      animation: stage-in 1100ms var(--ease-out) both;
+      animation-delay: calc(220ms + var(--i, 0) * 140ms);
+    }
+  }
+  @keyframes stage-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 2.2rem, 0) var(--pose, none);
+    }
+  }
+
+  /* one slow breath on the lead pane; nothing else loops */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .stage__float {
+      animation: stage-float 9s var(--ease-in-out) infinite alternate;
+    }
+  }
+  @keyframes stage-float {
+    to {
+      transform: translate3d(0, -0.6rem, 0);
+    }
+  }
+}

@@ -60,7 +60,6 @@ export const SiteNav = () => {
       <header className="site-nav" data-scrolled={scrolled || open}>
         <Container className="site-nav__inner">
           <Link href="/" className="site-nav__logo" onClick={close}>
-            <span aria-hidden className="site-nav__mark" />
             {siteConfig.name}
           </Link>
 

@@ -26,26 +26,26 @@
   /* .dusk re-declares every token so light-dark() resolves against the dusk subtree's own color-scheme
      (custom properties resolve at the element that declares them, not where they are used). */
   /* ---------- Colour: backgrounds & surfaces ---------- */
-  --bg: light-dark(#edf1f6, #0b0e13);
-  --bg-deep: light-dark(#e2e9f1, #07090c);
-  --bg-raised: light-dark(#f7f9fc, #12161d);
-  --surface-solid: light-dark(#f8fafc, #141922); /* glass fallback, no transparency */
+  --bg: light-dark(#f3f3f1, #0c0e11);
+  --bg-deep: light-dark(#e9e9e6, #08090b);
+  --bg-raised: light-dark(#fafaf8, #14171b);
+  --surface-solid: light-dark(#f8f8f6, #15181d); /* glass fallback, no transparency */
 
   /* ---------- Colour: text ---------- */
-  --text-strong: light-dark(#0e1218, #f3f6fa);
-  --text: light-dark(#28313c, #cdd5df);
-  --text-muted: light-dark(#4f5a68, #97a2b0);
-  --text-subtle: light-dark(#5b6675, #838e9c); /* min 4.5:1 on --bg, verified in scripts/contrast.mjs */
+  --text-strong: light-dark(#0f1115, #f3f4f6);
+  --text: light-dark(#2b2f36, #c9cdd3);
+  --text-muted: light-dark(#5d646e, #a0a6ae);
+  --text-subtle: light-dark(#646b75, #8d939b); /* min 4.5:1 on --bg, verified in scripts/contrast.mjs */
 
   /* ---------- Colour: borders ---------- */
-  --border: light-dark(rgb(15 23 42 / 0.1), rgb(255 255 255 / 0.1));
-  --border-strong: light-dark(rgb(15 23 42 / 0.2), rgb(255 255 255 / 0.22));
+  --border: light-dark(rgb(20 20 20 / 0.1), rgb(255 255 255 / 0.1));
+  --border-strong: light-dark(rgb(20 20 20 / 0.18), rgb(255 255 255 / 0.2));
 
   /* ---------- Colour: accent (one accent, glacier blue) ---------- */
-  --accent: light-dark(#2f62c8, #7ea6f5);
-  --accent-ink: light-dark(#1d479f, #b3ccfb); /* accent-coloured text on tinted surfaces */
-  --accent-soft: light-dark(rgb(47 98 200 / 0.11), rgb(126 166 245 / 0.16));
-  --accent-contrast: light-dark(#ffffff, #0b0e13); /* text on a filled accent */
+  --accent: light-dark(#3b5f9e, #a9c0ea);
+  --accent-ink: light-dark(#2a4a82, #c3d4f3); /* accent-coloured text on tinted surfaces */
+  --accent-soft: light-dark(rgb(92 132 200 / 0.14), rgb(169 192 234 / 0.14));
+  --accent-contrast: light-dark(#ffffff, #0c0e11); /* text on a filled accent */
   --focus-ring: var(--accent);
 
   /* ---------- Colour: forms (inputs stay near-opaque so they read clearly over glass) ---------- */
@@ -56,16 +56,16 @@
   --danger-soft: light-dark(rgb(180 35 24 / 0.08), rgb(255 154 143 / 0.12));
 
   /* ---------- Colour: buttons ---------- */
-  --btn-primary-bg: light-dark(#12161d, #f1f4f8);
-  --btn-primary-bg-hover: light-dark(#242b36, #ffffff);
-  --btn-primary-text: light-dark(#f4f7fb, #0b0e13);
-  --btn-secondary-bg: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.05));
-  --btn-secondary-bg-hover: light-dark(rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.1));
+  --btn-primary-bg: light-dark(#17191d, #f3f4f6);
+  --btn-primary-bg-hover: light-dark(#2a2d33, #ffffff);
+  --btn-primary-text: light-dark(#f7f7f5, #0c0e11);
+  --btn-secondary-bg: light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.04));
+  --btn-secondary-bg-hover: light-dark(rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.1));
 
   /* ---------- Colour: atmosphere (gradient stops) ---------- */
-  --atmos-sky-top: light-dark(#d9e3ee, #0b0e13);
-  --atmos-sky-mid: light-dark(#e9eef4, #10151d);
-  --atmos-sky-bottom: light-dark(#f5f7fa, #0b0e13);
+  --atmos-sky-top: light-dark(#e4e6e8, #0c0e11);
+  --atmos-sky-mid: light-dark(#eeeeec, #111418);
+  --atmos-sky-bottom: light-dark(#f5f5f3, #0c0e11);
   --atmos-haze: light-dark(rgb(255 255 255 / 0.85), rgb(140 165 205 / 0.1));
   --atmos-warm: light-dark(rgb(255 244 228 / 0.9), rgb(255 238 214 / 0.13));
   --atmos-cool: light-dark(rgb(140 178 232 / 0.38), rgb(88 128 200 / 0.2));
@@ -78,7 +78,7 @@
   --ridge-mid: light-dark(#cfdaea, #121923);
   --ridge-near: light-dark(#c8d4e4, #0c1119);
   --ridge-rim: light-dark(rgb(255 255 255 / 0.9), rgb(150 180 230 / 0.35));
-  --footer-bg: var(--ridge-near);
+  --footer-bg: var(--bg);
 
   /* ---------- Environment: one light source (upper left, slightly behind), one cool palette ---------- */
   --light-x: 16%; /* where the key light sits, used by glass specular + terrain sun */
@@ -103,6 +103,30 @@
   --glass-specular: light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.16));
   --glass-refract: light-dark(rgb(150 190 255 / 0.22), rgb(130 170 240 / 0.14)); /* faint cool lip inside the far edge */
 
+  /* ---------- Glass panes (styles/pane.css): thick acrylic slabs from the references ---------- */
+  --pane-fill-a: light-dark(rgb(255 255 255 / 0.78), rgb(255 255 255 / 0.16));
+  --pane-fill-b: light-dark(rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02));
+  --pane-fill-c: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.1));
+  --pane-rim: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.42));
+  --pane-rim-soft: light-dark(rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.1));
+  --pane-rim-cool: light-dark(rgb(168 184 206 / 0.55), rgb(120 140 170 / 0.35));
+  --pane-bevel-shade: light-dark(rgb(120 132 150 / 0.32), rgb(0 0 0 / 0.5));
+  --pane-glow: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.07));
+  --pane-ext-1: light-dark(rgb(250 251 252 / 0.98), rgb(150 158 170 / 0.6));
+  --pane-ext-2: light-dark(rgb(236 239 243 / 0.92), rgb(110 118 130 / 0.55));
+  --pane-ext-3: light-dark(rgb(220 225 232 / 0.8), rgb(78 85 96 / 0.5));
+  --pane-ext-4: light-dark(rgb(200 207 217 / 0.6), rgb(50 55 63 / 0.45));
+  --pane-drop: light-dark(rgb(40 46 58 / 0.3), rgb(0 0 0 / 0.6));
+  --pane-drop-soft: light-dark(rgb(40 46 58 / 0.14), rgb(0 0 0 / 0.4));
+  --pane-glare: light-dark(rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.07));
+  /* concept screens inside the panes */
+  --scr-bg: light-dark(#f5f5f3, #16191e);
+  --scr-bg-2: light-dark(#e9eaea, #1e2228);
+  --scr-ink: light-dark(#121418, #eef0f3);
+  --scr-muted: light-dark(#6a7079, #9197a0);
+  --scr-line: light-dark(rgb(20 20 20 / 0.1), rgb(255 255 255 / 0.1));
+  --scr-block: light-dark(#dfe1e3, #2a2f36);
+
   /* ---------- Glass (see styles/glass.css) ---------- */
   --glass-bg-subtle: light-dark(rgb(255 255 255 / 0.36), rgb(255 255 255 / 0.035));
   --glass-bg: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.06));
@@ -116,13 +140,13 @@
   --glass-blur-sm: 12px;
   --glass-saturate: 1.4;
 
-  --nav-bg: light-dark(rgb(237 241 246 / 0.72), rgb(11 14 19 / 0.7));
-  --nav-sheet-bg: light-dark(rgb(237 241 246 / 0.94), rgb(11 14 19 / 0.94));
+  --nav-bg: light-dark(rgb(243 243 241 / 0.72), rgb(12 14 17 / 0.72));
+  --nav-sheet-bg: light-dark(rgb(243 243 241 / 0.96), rgb(12 14 17 / 0.96));
 
   /* ---------- Shadows (tinted to the background hue, never pure black on light) ---------- */
-  --shadow-ink-soft: light-dark(rgb(28 48 86 / 0.1), rgb(0 0 0 / 0.35));
-  --shadow-ink-mid: light-dark(rgb(28 48 86 / 0.16), rgb(0 0 0 / 0.5));
-  --shadow-ink-strong: light-dark(rgb(28 48 86 / 0.24), rgb(0 0 0 / 0.65));
+  --shadow-ink-soft: light-dark(rgb(30 34 42 / 0.08), rgb(0 0 0 / 0.35));
+  --shadow-ink-mid: light-dark(rgb(30 34 42 / 0.13), rgb(0 0 0 / 0.5));
+  --shadow-ink-strong: light-dark(rgb(30 34 42 / 0.2), rgb(0 0 0 / 0.65));
   --shadow-sm: 0 1px 2px var(--shadow-ink-soft);
   --shadow-md: 0 8px 24px -8px var(--shadow-ink-mid);
   --shadow-lg: 0 28px 64px -24px var(--shadow-ink-strong);
@@ -132,7 +156,7 @@
 
   /* ---------- Radii ---------- */
   --radius-xs: 8px;
-  --radius-sm: 12px; /* buttons, inputs */
+  --radius-sm: 8px; /* buttons, inputs (the references use a tight 6-8px corner) */
   --radius-md: 16px;
   --radius-card: 24px; /* glass cards */
   --radius-panel: 32px; /* large feature panels, nav sheet */
@@ -140,37 +164,37 @@
 
   /* ---------- Typography: fluid scale (clamp) ---------- */
   --fs-display: clamp(2.6rem, 1.2rem + 5.2vw, 5.25rem);
-  --fs-hero: clamp(2.5rem, 1.55rem + 3.4vw, 4.5rem); /* hero h1: 3 lines max, so a step below display */
-  --fs-h2: clamp(2.125rem, 1.3rem + 3.4vw, 4.5rem);
+  --fs-hero: clamp(2.6rem, 1.5rem + 3.2vw, 4.5rem); /* hero h1: 3 lines max, so a step below display */
+  --fs-h2: clamp(2.25rem, 1.35rem + 3.5vw, 4.6rem);
   --fs-h3: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
   --fs-h4: clamp(1.25rem, 1.1rem + 0.5vw, 1.625rem);
-  --fs-lead: clamp(1.0625rem, 0.98rem + 0.4vw, 1.375rem);
+  --fs-lead: clamp(1.0625rem, 0.95rem + 0.5vw, 1.4rem);
   --fs-body: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
   --fs-small: 0.875rem;
-  --fs-label: 0.75rem;
+  --fs-label: 0.78rem;
   --fs-button: 0.9375rem;
   --fs-price: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
 
-  --lh-display: 0.98;
-  --lh-h2: 1.02;
+  --lh-display: 1.0;
+  --lh-h2: 1.03;
   --lh-h3: 1.1;
   --lh-h4: 1.2;
   --lh-lead: 1.5;
   --lh-body: 1.65;
   --lh-small: 1.55;
 
-  --tracking-display: -0.045em;
-  --tracking-h2: -0.04em;
+  --tracking-display: -0.035em;
+  --tracking-h2: -0.035em;
   --tracking-h3: -0.03em;
   --tracking-h4: -0.02em;
-  --tracking-label: 0.2em;
+  --tracking-label: 0.26em;
 
   /* ---------- Layout ---------- */
-  --container-page: 84rem; /* 1344px, main content */
+  --container-page: 86rem; /* 1344px, main content */
   --container-wide: 100rem; /* 1600px, full-bleed artwork */
   --container-narrow: 62rem; /* 992px, focused blocks (pricing intro, CTA) */
   --container-prose: 42rem; /* 672px, long-form text */
-  --gutter: max(clamp(1.25rem, 0.5rem + 3.4vw, 4.5rem), env(safe-area-inset-left), env(safe-area-inset-right));
+  --gutter: max(clamp(1.25rem, 0.3rem + 4.2vw, 5rem), env(safe-area-inset-left), env(safe-area-inset-right));
 
   --section-y: clamp(3.75rem, 2.25rem + 9vw, 10rem);
   --section-y-tight: clamp(2.5rem, 1.75rem + 4.5vw, 6rem);
@@ -200,7 +224,7 @@
 
 @media (min-width: 1024px) {
   :root {
-    --nav-h: calc(4.5rem + env(safe-area-inset-top));
+    --nav-h: calc(5.25rem + env(safe-area-inset-top));
   }
 }
 
@@ -216,10 +240,10 @@
 @property --bg-outer {
   syntax: "<color>";
   inherits: true;
-  initial-value: #edf1f6;
+  initial-value: #f3f3f1;
 }
 :root {
-  --bg-outer: light-dark(#edf1f6, #0b0e13);
+  --bg-outer: light-dark(#f3f3f1, #0c0e11);
 }
 
 /* Ownership scene: same world, forced to dusk, a step darker than the dark theme. Unlayered so it beats the re-declared tokens above. */

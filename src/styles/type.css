@@ -56,24 +56,26 @@
     display: inline-flex;
     align-items: center;
     gap: 0.9rem;
-    font-family: var(--font-rounded);
     font-size: var(--fs-label);
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: var(--tracking-label);
     text-transform: uppercase;
     color: var(--text-muted);
   }
+  /* Thin trailing hairline, as in the references ("WEB DESIGN STUDIO ——"). */
   .t-label--rule::after {
     content: "";
-    width: 2.5rem;
+    width: 2.25rem;
     height: 1px;
-    background: var(--border-strong);
+    background: currentColor;
+    opacity: 0.55;
   }
   .t-label--rule-both::before {
     content: "";
-    width: 2.5rem;
+    width: 2.25rem;
     height: 1px;
-    background: var(--border-strong);
+    background: currentColor;
+    opacity: 0.55;
   }
 
   @media (max-width: 479px) {

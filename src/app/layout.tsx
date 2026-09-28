@@ -26,8 +26,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
   interactiveWidget: "resizes-content", // keeps the sticky form bar above the virtual keyboard
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#edf1f6" },
-    { media: "(prefers-color-scheme: dark)", color: "#0b0e13" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f3f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0e11" },
   ],
 };
 
