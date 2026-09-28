@@ -273,6 +273,12 @@
   .flow__actions .btn-link {
     min-width: 0;
   }
+  /* Landscape phones (and any short viewport): a pinned bar would eat a fifth of the screen. */
+  @media (max-height: 520px) {
+    .flow__actions {
+      position: static;
+    }
+  }
   @media (min-width: 1024px) {
     .flow__actions {
       position: static;
