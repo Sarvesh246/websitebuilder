@@ -90,7 +90,7 @@ export default function DesignSystemPage() {
             <div className="grid gap-2 lg:grid-cols-[9rem_1fr] lg:gap-8">
               <code className="pt-2 text-xs text-muted">.t-label / .t-price</code>
               <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
-                <span className="t-label t-label--rule">Our process</span>
+                <span className="t-label t-label--rule">The process</span>
                 <span className="flex items-baseline gap-3">
                   <span className="t-price">$200</span>
                   <span className="t-price-was text-2xl">$350</span>
