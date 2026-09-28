@@ -91,8 +91,8 @@
 
   /* Text-link button: "View project". Underline grows in on hover. */
   .btn-link {
-    min-height: 0;
-    padding: 0.5rem 0; /* block padding keeps the tap area generous without visual weight */
+    min-height: var(--touch-min);
+    padding: 0.5rem 0;
     border-radius: var(--radius-xs);
     color: var(--text-strong);
     background-image: linear-gradient(currentColor, currentColor);

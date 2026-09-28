@@ -24,7 +24,7 @@ export const Pricing = () => (
         <SectionHeader
           titleId="pricing-title"
           eyebrow="Pricing"
-          title="Simple packages. No agency-sized price tag."
+          title={<>Simple packages. No <span className="whitespace-nowrap">agency-sized</span> price tag.</>}
           lead="Fixed prices, listed up front. Pick the size of site you need, and you own it once it's live."
         />
         <GlassSurface variant="subtle" className="launch-note">

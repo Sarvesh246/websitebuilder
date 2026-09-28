@@ -30,6 +30,9 @@ export const SiteNav = () => {
   useEffect(() => {
     if (!open) return;
     sheetRef.current?.querySelector<HTMLElement>("a")?.focus();
+    // Everything outside the header is inert while the sheet is open (focus trap + no screen reader leakage).
+    const behind = Array.from(document.querySelectorAll<HTMLElement>("main, footer"));
+    behind.forEach((el) => el.setAttribute("inert", ""));
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
@@ -43,6 +46,7 @@ export const SiteNav = () => {
     document.addEventListener("keydown", onKey);
     desktop.addEventListener("change", onChange);
     return () => {
+      behind.forEach((el) => el.removeAttribute("inert"));
       document.removeEventListener("keydown", onKey);
       desktop.removeEventListener("change", onChange);
     };

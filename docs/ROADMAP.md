@@ -10,7 +10,7 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | 4 | Portfolio ("Selected Work"), Process (four steps), value sections ("Why", "Ownership") | |
 | 5 | Conversion flow: `/start` multi-step inquiry, validation, `/api/inquiry` + Resend email delivery, spam protection | Done |
 | 6 | Supporting sections and footer: About, principles, final CTA, footer, Privacy + Terms, 404, metadata/SEO (FAQ skipped: no real content) | Done |
-| 7 | Mobile-specific refinement: per-section small-screen compositions, touch targets, menu focus trap, performance on low-end phones | |
+| 7 | Responsive + mobile pass: safe areas, nav focus trap, section rhythm, compact mobile pricing, touch targets, overflow audit (Stage 4 sections still missing) | Done |
 | 8 | Motion and visual polish: hero choreography, scroll depth, hover refinement, real artwork integration, both themes | |
 | 9 | Accessibility, performance, testing: keyboard/screen-reader pass, contrast, Lighthouse (LCP/CLS/INP), Playwright smoke tests, SEO/OG, analytics decision | |
 | 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | |
