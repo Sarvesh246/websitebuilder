@@ -6,6 +6,8 @@ type SectionHeaderProps = {
   title: ReactNode;
   lead?: ReactNode;
   align?: "start" | "center";
+  /** id on the heading, for the parent section's aria-labelledby. */
+  titleId?: string;
   /** Use "h1" only for the page's single primary heading. */
   as?: "h1" | "h2";
   className?: string;
@@ -15,6 +17,7 @@ export const SectionHeader = ({
   eyebrow,
   title,
   lead,
+  titleId,
   align = "start",
   as: Heading = "h2",
   className,
@@ -33,7 +36,7 @@ export const SectionHeader = ({
           {eyebrow}
         </span>
       )}
-      <Heading className="t-h2 max-w-[18ch]">{title}</Heading>
+      <Heading id={titleId} className="t-h2 max-w-[18ch]">{title}</Heading>
       {lead && <p className="t-lead max-w-[46ch]">{lead}</p>}
     </header>
   );

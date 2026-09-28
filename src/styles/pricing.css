@@ -1,0 +1,453 @@
+/*
+ * Pricing section: package cards, Custom panel, comparison, ownership and scope notes.
+ * Everything sits on the Stage 1 glass system (.glass / .glass-feature / .glass-subtle);
+ * this file only adds layout and the price / list typography. Tokens only, no raw colours.
+ *
+ * Package card layout, one grid with three areas (head, body, foot):
+ *   < md   stacked
+ *   md-lg  two columns: head + foot on the left, feature list on the right (each card is a
+ *          wide horizontal card, so tablet gets a real layout instead of squeezed thirds)
+ *   lg+    stacked again, three cards side by side, foot pinned to the bottom
+ */
+@layer components {
+  /* ---------- Intro row ---------- */
+  .pricing__intro {
+    display: grid;
+    gap: var(--stack-gap);
+    align-items: end;
+  }
+  @media (min-width: 1024px) {
+    .pricing__intro {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--grid-gap);
+    }
+  }
+  .launch-note {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .launch-note > svg {
+    flex: none;
+    margin-top: 0.15rem;
+    color: var(--accent-ink);
+  }
+  .launch-note .t-small {
+    margin-top: 0.4rem;
+  }
+
+  /* ---------- Package card ---------- */
+  .pkg {
+    display: grid;
+    height: 100%;
+    gap: 1.75rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "head" "body" "foot";
+    grid-template-rows: auto 1fr auto;
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .pkg {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-areas: "head body" "foot body";
+      grid-template-rows: auto 1fr;
+      column-gap: 0;
+    }
+    .pkg__head,
+    .pkg__foot {
+      padding-right: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .pkg__foot {
+      align-self: end;
+    }
+    .pkg__body {
+      padding-left: clamp(1.5rem, 4vw, 2.5rem);
+      border-left: 1px solid var(--border);
+    }
+  }
+  .pkg__head {
+    grid-area: head;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .pkg__body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .pkg__foot {
+    grid-area: foot;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .pkg__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 1.75rem;
+  }
+  .pkg__blurb {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+  @media (min-width: 1024px) {
+    /* Keeps the price block aligned across the three cards whatever the blurb length. */
+    .pkg__head .pkg__blurb {
+      min-height: calc(var(--lh-small) * 3em);
+    }
+  }
+
+  /* Price: label / number / sub. Every package has all three lines so cards align. */
+  .pkg__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-top: 0.25rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--border);
+  }
+  .pkg__price-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .pkg__price-label--launch {
+    color: var(--accent-ink);
+  }
+  .pkg__price-sub {
+    font-size: var(--fs-small);
+    color: var(--text-muted);
+  }
+
+  .pkg__for {
+    font-family: var(--font-rounded);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text-strong);
+  }
+  @media (min-width: 1024px) {
+    /* Two lines reserved so the feature lists start at the same height in all three cards. */
+    .pkg__for {
+      min-height: 2.8em;
+    }
+  }
+  .pkg__lead-in {
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .pkg__list {
+    display: grid;
+    gap: 0.7rem;
+  }
+  .pkg__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .pkg__list svg {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--accent);
+  }
+  .pkg__note {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* Card hover: a small lift and a firmer edge. The card is not a link, so no pointer cursor. */
+  .pkg {
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .pkg:hover {
+      transform: translateY(-3px);
+      --_shadow: var(--shadow-glass-hover);
+      border-color: var(--border-strong);
+    }
+  }
+  .pkg:focus-within {
+    border-color: var(--border-strong);
+  }
+
+  /* ---------- Custom panel ---------- */
+  .pkg-custom {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .pkg-custom__intro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .pkg-custom__scope {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .pkg-custom__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  @media (min-width: 768px) {
+    .pkg-custom {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      column-gap: clamp(2rem, 4vw, 3rem);
+    }
+    .pkg-custom__cta {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .pkg-custom__cta .btn {
+      width: auto;
+      flex: none;
+    }
+    .pkg-custom__cta .pkg__note {
+      text-align: left;
+    }
+  }
+  @media (min-width: 1024px) {
+    .pkg-custom {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr);
+    }
+    .pkg-custom__cta {
+      grid-column: auto;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .pkg-custom__cta .btn {
+      width: 100%;
+    }
+    .pkg-custom__cta .pkg__note {
+      text-align: center;
+    }
+  }
+
+  .chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* ---------- Comparison (md and up: table) ---------- */
+  .compare {
+    --_clip: calc(var(--radius-card) - 1px);
+  }
+  .compare__clip {
+    overflow: hidden;
+    border-radius: var(--_clip);
+  }
+  .compare table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+  }
+  .compare thead td:first-child,
+  .compare tbody th {
+    width: 24%;
+  }
+  .compare th,
+  .compare td {
+    padding: 0.85rem clamp(0.75rem, 1.6vw, 1.5rem);
+    text-align: left;
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .compare tbody tr {
+    border-top: 1px solid var(--border);
+  }
+  .compare tbody th {
+    font-family: var(--font-rounded);
+    font-weight: 700;
+    color: var(--text-strong);
+  }
+  .compare thead th {
+    padding-block: 1.4rem 1.1rem;
+    vertical-align: bottom;
+  }
+  .compare__name {
+    display: block;
+    font-size: var(--fs-h4);
+    font-weight: 600;
+    letter-spacing: var(--tracking-h4);
+    line-height: var(--lh-h4);
+    color: var(--text-strong);
+  }
+  .compare__price {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .compare__badge {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .compare [data-featured] {
+    background: var(--glass-tint-feature);
+  }
+  .compare__yes {
+    color: var(--accent);
+  }
+  .compare__no {
+    color: var(--text-subtle);
+  }
+
+  /* ---------- Comparison (phones: collapsible rows) ---------- */
+  .compare-m summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+    padding: 0.75rem var(--card-pad);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    list-style: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .compare-m summary::-webkit-details-marker {
+    display: none;
+  }
+  .compare-m summary:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 3px;
+  }
+  .compare-m__chevron {
+    flex: none;
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  .compare-m[open] .compare-m__chevron {
+    transform: rotate(180deg);
+  }
+  .compare-m__rows {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .compare-m__row {
+    padding: 1rem var(--card-pad);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--glass-bg-subtle);
+  }
+  .compare-m__label {
+    margin-bottom: 0.75rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-label);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .compare-m__values {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+  }
+  .compare-m__values dt {
+    font-size: var(--fs-label);
+    font-weight: 600;
+    color: var(--text-subtle);
+  }
+  .compare-m__values dd {
+    display: flex;
+    align-items: center;
+    min-height: 1.5rem;
+    margin-top: 0.15rem;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    color: var(--text-strong);
+  }
+  .compare-m__values .is-featured dt {
+    color: var(--accent-ink);
+  }
+
+  /* ---------- Ownership + scope notes ---------- */
+  .pricing__notes {
+    display: grid;
+    gap: var(--grid-gap);
+  }
+  @media (min-width: 1024px) {
+    .pricing__notes {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: stretch;
+    }
+  }
+  .ownership {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+  }
+  .ownership > svg {
+    flex: none;
+    margin-top: 0.4rem;
+    color: var(--accent-ink);
+  }
+  .scope-notes {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+  @media (min-width: 1024px) {
+    .scope-notes {
+      padding-inline: 1rem;
+    }
+  }
+  .scope-notes ul {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .scope-notes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+  .scope-notes svg {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--text-subtle);
+  }
+}
