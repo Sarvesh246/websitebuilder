@@ -8,7 +8,7 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | 2 | Global shell and hero: page frame, real hero composition (desktop + purpose-built mobile), first artwork slot, hero motion | Done |
 | 3 | Packages + pricing (replaces Services): Starter/Plus/Pro/Custom cards, comparison, launch pricing, ownership + scope notes, CTAs to `#contact` | Done |
 | 4 | Portfolio ("Selected Work"), Process (four steps), value sections ("Why", "Ownership") | |
-| 5 | Conversion flow (pricing section already built in Stage 3): contact/start-a-project form (`#contact`), validation, submission approach (decision needed: email service / form backend) | |
+| 5 | Conversion flow: `/start` multi-step inquiry, validation, `/api/inquiry` + Resend email delivery, spam protection | Done |
 | 6 | Supporting sections and footer: About, FAQ (only real content), footer, legal stubs | |
 | 7 | Mobile-specific refinement: per-section small-screen compositions, touch targets, menu focus trap, performance on low-end phones | |
 | 8 | Motion and visual polish: hero choreography, scroll depth, hover refinement, real artwork integration, both themes | |

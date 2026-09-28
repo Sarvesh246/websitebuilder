@@ -20,11 +20,13 @@ const themes = {
     bg: "#edf1f6", strong: "#0e1218", text: "#28313c", muted: "#4f5a68", subtle: "#5b6675",
     accentInk: "#1d479f", accent: "#2f62c8", accentSoftBase: [47, 98, 200, 0.11],
     btnBg: "#12161d", btnText: "#f4f7fb", glassWhite: 0.55,
+    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92,
   },
   dark: {
     bg: "#0b0e13", strong: "#f3f6fa", text: "#cdd5df", muted: "#97a2b0", subtle: "#838e9c",
     accentInk: "#b3ccfb", accent: "#7ea6f5", accentSoftBase: [126, 166, 245, 0.16],
     btnBg: "#f1f4f8", btnText: "#0b0e13", glassWhite: 0.06,
+    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08,
   },
 };
 
@@ -33,6 +35,7 @@ for (const [name, t] of Object.entries(themes)) {
   const bg = hex(t.bg);
   const glass = mix([255, 255, 255], bg, t.glassWhite);
   const badgeBg = mix(t.accentSoftBase.slice(0, 3), bg, t.accentSoftBase[3]);
+  const field = mix([255, 255, 255], glass, t.fieldWhite);
   const checks = [
     ["text-strong on bg", t.strong, bg, 4.5],
     ["text on bg", t.text, bg, 4.5],
@@ -42,6 +45,9 @@ for (const [name, t] of Object.entries(themes)) {
     ["accent-ink on badge", t.accentInk, badgeBg, 4.5],
     ["accent (focus ring) on bg", t.accent, bg, 3],
     ["primary button text", t.btnText, t.btnBg, 4.5],
+    ["danger text on glass", t.danger, glass, 4.5],
+    ["field border on field", t.fieldBorder, field, 3],
+    ["text-strong on field", t.strong, field, 4.5],
   ].map(([label, fg, back, min]) => [label, ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back), min]);
 
   console.log(`\n${name}`);

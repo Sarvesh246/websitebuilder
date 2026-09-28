@@ -45,6 +45,13 @@
   --accent-contrast: light-dark(#ffffff, #0b0e13); /* text on a filled accent */
   --focus-ring: var(--accent);
 
+  /* ---------- Colour: forms (inputs stay near-opaque so they read clearly over glass) ---------- */
+  --field-bg: light-dark(rgb(255 255 255 / 0.92), rgb(255 255 255 / 0.08));
+  --field-border: light-dark(#7d8794, #6f7a89); /* 3:1 against the field, WCAG 1.4.11 */
+  --field-border-hover: light-dark(#5b6675, #97a2b0);
+  --danger: light-dark(#b42318, #ff9a8f);
+  --danger-soft: light-dark(rgb(180 35 24 / 0.08), rgb(255 154 143 / 0.12));
+
   /* ---------- Colour: buttons ---------- */
   --btn-primary-bg: light-dark(#12161d, #f1f4f8);
   --btn-primary-bg-hover: light-dark(#242b36, #ffffff);

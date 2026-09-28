@@ -2,7 +2,8 @@ import { Check, Sparkles, Tag } from "lucide-react";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { packageCtaHref, type PackageTier } from "@/config/pricing";
+import { startHref } from "@/config/inquiry";
+import type { PackageTier } from "@/config/pricing";
 
 /**
  * One core package. Reads top to bottom as: name, what it is, price, who it is for,
@@ -64,7 +65,7 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
 
       <div className="pkg__foot">
         <Button
-          href={packageCtaHref}
+          href={startHref(tier.id)}
           variant={tier.featured ? "primary" : "secondary"}
           icon="right"
           block
