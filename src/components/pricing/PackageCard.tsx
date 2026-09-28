@@ -3,7 +3,7 @@ import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { startHref } from "@/config/inquiry";
-import type { PackageTier } from "@/config/pricing";
+import { foundingLabel, type PackageTier } from "@/config/pricing";
 
 /**
  * One core package. Reads top to bottom as: name, what it is, price, who it is for,
@@ -11,7 +11,7 @@ import type { PackageTier } from "@/config/pricing";
  * lives in styles/pricing.css so this stays a thin wrapper.
  */
 export const PackageCard = ({ tier }: { tier: PackageTier }) => {
-  const launch = tier.regularPrice !== undefined;
+  const founding = tier.regularPrice !== undefined;
   return (
     <GlassSurface
       as="article"
@@ -33,18 +33,18 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
         </div>
         <p className="pkg__blurb">{tier.blurb}</p>
         <div className="pkg__price">
-          <span className={launch ? "pkg__price-label pkg__price-label--launch" : "pkg__price-label"}>
-            {launch && <Tag aria-hidden size={13} strokeWidth={2} />}
-            {launch ? "Launch price" : "Flat price"}
+          <span className={founding ? "pkg__price-label pkg__price-label--launch" : "pkg__price-label"}>
+            {founding && <Tag aria-hidden size={13} strokeWidth={2} />}
+            {founding ? foundingLabel : "One-time price"}
           </span>
           <span className="t-price">${tier.price}</span>
           <span className="pkg__price-sub">
-            {launch ? (
+            {founding ? (
               <>
-                Regularly <del className="t-price-was">${tier.regularPrice}</del>
+                <del className="t-price-was">${tier.regularPrice}</del> regular
               </>
             ) : (
-              "One-time price"
+              "Fixed fee"
             )}
           </span>
         </div>
@@ -70,7 +70,7 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
           icon="right"
           block
           data-package={tier.id}
-          aria-label={`${tier.ctaLabel} package, ${launch ? `launch price $${tier.price}` : `$${tier.price}`}`}
+          aria-label={`${tier.ctaLabel} package, $${tier.price}${founding ? ` ${foundingLabel}` : ""}`}
         >
           {tier.ctaLabel}
         </Button>

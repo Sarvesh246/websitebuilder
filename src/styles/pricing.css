@@ -217,6 +217,50 @@
     border-color: var(--border-strong);
   }
 
+  /* ---------- Shared inclusions (said once, not on every card) ---------- */
+  .pkg-common {
+    display: grid;
+    gap: 1rem 2.5rem;
+    align-items: center;
+    padding: 0.25rem 0.25rem 0;
+  }
+  .pkg-common__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .pkg-common__list ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .pkg-common__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--text);
+  }
+  .pkg-common__list svg {
+    flex: none;
+    color: var(--accent);
+  }
+  .pkg-common__own {
+    font-size: var(--fs-small);
+    line-height: var(--lh-small);
+    color: var(--text-muted);
+    text-wrap: pretty;
+  }
+  .pkg-common__own strong {
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  @media (min-width: 1024px) {
+    .pkg-common {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+  }
+
   /* ---------- Custom panel ---------- */
   .pkg-custom {
     display: grid;

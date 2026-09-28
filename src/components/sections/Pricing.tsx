@@ -1,4 +1,4 @@
-import { Info, Tag } from "lucide-react";
+import { Check, Info, Tag } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Grid } from "@/components/layout/Grid";
 import { Section } from "@/components/layout/Section";
@@ -10,12 +10,12 @@ import { PackageCard } from "@/components/pricing/PackageCard";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Ambient } from "@/components/visual/Ambient";
 import { Plinth, Scene } from "@/components/visual/environment/Scene";
-import { customTier, launchPricing, packageTiers, scopeNotes } from "@/config/pricing";
+import { commonInclusions, customTier, foundingPricing, packageTiers, scopeNotes } from "@/config/pricing";
 
 /**
  * Packages and pricing. Serves the single `#pricing` nav anchor (there is no separate Services
- * section: the packages are the services). Order: intro + launch note, three core packages,
- * Custom panel, comparison, scope notes. Ownership has its own dark section. All content comes from config/pricing.ts.
+ * section: the packages are the services). Order: intro + Founding Client Pricing note, three core packages,
+ * shared inclusions, Custom panel, comparison, scope notes. Ownership has its own dark section. All content comes from config/pricing.ts.
  */
 export const Pricing = () => (
   <Section id="pricing" aria-labelledby="pricing-title">
@@ -27,13 +27,13 @@ export const Pricing = () => (
           titleId="pricing-title"
           eyebrow="Pricing"
           title={<>Simple packages. No <span className="whitespace-nowrap">agency-sized</span> price tag.</>}
-          lead="Fixed prices, listed up front. Pick the size of site you need, and you own it once it's live."
+          lead="Fixed one-time prices, listed up front. Pick the size of site you need. Accounts, databases, and payments are Custom."
         />
         <GlassSurface variant="subtle" className="launch-note">
           <Tag aria-hidden size={18} strokeWidth={1.8} />
           <div>
-            <h3 className="t-h4">{launchPricing.title}</h3>
-            <p className="t-small">{launchPricing.body}</p>
+            <h3 className="t-h4">{foundingPricing.title}</h3>
+            <p className="t-small">{foundingPricing.body}</p>
           </div>
         </GlassSurface>
       </Reveal>
@@ -49,6 +49,24 @@ export const Pricing = () => (
             ))}
           </Grid>
         </div>
+        <RevealItem>
+          <div className="pkg-common">
+            <div className="pkg-common__list">
+              <h3 className="t-label">{commonInclusions.title}</h3>
+              <ul>
+                {commonInclusions.items.map((item) => (
+                  <li key={item}>
+                    <Check aria-hidden size={16} strokeWidth={2} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="pkg-common__own">
+              <strong>{commonInclusions.ownership}</strong> {commonInclusions.flow}
+            </p>
+          </div>
+        </RevealItem>
         <RevealItem>
           <CustomPackage tier={customTier} />
         </RevealItem>

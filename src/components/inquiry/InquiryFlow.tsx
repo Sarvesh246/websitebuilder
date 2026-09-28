@@ -14,7 +14,7 @@ import {
   copy,
   features,
   inquiryDraftKey,
-  isPackageId,
+  parsePackageId,
   limits,
   packageChoices,
   projectTypes,
@@ -61,7 +61,7 @@ export const InquiryFlow = ({ initialPackage }: { initialPackage: PackageId | nu
 const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageId | null; draft: Draft | null; live: boolean }) => {
   const [values, setValues] = useState<InquiryValues>(() => {
     if (!draft) return { ...emptyValues, package: initialPackage ?? "" };
-    const saved = isPackageId(draft.values.package) ? draft.values.package : "";
+    const saved = parsePackageId(draft.values.package) ?? "";
     return { ...emptyValues, ...draft.values, package: initialPackage ?? saved, links: draft.values.links?.length ? draft.values.links : [""] };
   });
   const [step, setStep] = useState(() => (draft ? Math.min(Math.max(draft.step, 0), lastEditable + 1) : 0));
@@ -345,11 +345,11 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
 
           {step === 2 && (
             <div className="flow__body">
-              {pkg === "starter" && !showAllFeatures ? (
+              {pkg === "launch" && !showAllFeatures ? (
                 <div className="note">
                   <Info aria-hidden size={18} strokeWidth={1.75} />
                   <p>
-                    Starter is a single custom page, so there is nothing to configure here.{" "}
+                    Launch is a single custom page, so there is nothing to configure here.{" "}
                     <button type="button" className="note__link" onClick={() => setShowAllFeatures(true)}>
                       Need something more? Tell me what
                     </button>

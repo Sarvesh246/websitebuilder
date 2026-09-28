@@ -17,7 +17,7 @@ export default function TermsPage() {
       <LegalSection title="About this website">
         <p>
           The information on this site is general and may change. Packages, prices, and included items describe what
-          Northframe currently offers. Launch pricing is introductory, and regular prices apply once it ends.
+          Northframe currently offers. Founding Client Pricing is introductory, and regular prices apply once it ends.
         </p>
       </LegalSection>
 

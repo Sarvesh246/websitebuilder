@@ -116,7 +116,7 @@ export default function DesignSystemPage() {
             <Button size="lg" variant="secondary" icon="right">Large secondary</Button>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Badge><Sparkles aria-hidden size={12} strokeWidth={2} />Most Popular</Badge>
+            <Badge><Sparkles aria-hidden size={12} strokeWidth={2} />Best value</Badge>
             <Badge>Founding Client Pricing</Badge>
             <Badge tone="neutral">Neutral</Badge>
             <Badge tone="outline">Outline</Badge>
