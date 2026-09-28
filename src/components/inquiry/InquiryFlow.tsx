@@ -16,6 +16,8 @@ import {
   inquiryDraftKey,
   parsePackageId,
   limits,
+  pageOptions,
+  packagePageLimit,
   packageChoices,
   projectTypes,
   siteAnswers,
@@ -28,7 +30,7 @@ import { emptyValues, stepFields, validateInquiry, type FieldErrors, type Inquir
 type Status = "idle" | "sending" | "success" | "error";
 type Draft = { values: InquiryValues; step: number; reached: number };
 
-const lastEditable = steps.length - 2; // index of the contact step; review is the last
+const lastEditable = steps.length - 2; // index of the details step; review is the last
 
 /** Keep only the errors that belong to the given step's fields. */
 const errorsForStep = (all: FieldErrors, index: number): FieldErrors => {
@@ -214,6 +216,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
     });
   };
   const sending = status === "sending";
+  const pageLimit = pkg ? packagePageLimit[pkg] : undefined;
 
   return (
     <div className="inquiry">
@@ -258,22 +261,22 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
                 selected={values.projectType ? [values.projectType] : []}
                 onToggle={(id) => set("projectType", id)}
               />
+              {values.projectType === "other" && (
+                <TextField
+                  label="Tell me a bit more"
+                  optional
+                  name="projectTypeOther"
+                  maxLength={limits.other + 50}
+                  value={values.projectTypeOther}
+                  onValueChange={(v) => set("projectTypeOther", v)}
+                  error={errors.projectTypeOther}
+                />
+              )}
             </div>
           )}
 
           {step === 1 && (
             <div className="flow__body">
-              <TextAreaField
-                label="Tell me a little about what you want to build"
-                hint="What the site is for, the pages you need, anything it should do, sites you like, or anything unusual."
-                name="description"
-                rows={7}
-                value={values.description}
-                onValueChange={(v) => set("description", v)}
-                error={errors.description}
-                counter={limits.descriptionMax}
-                maxLength={limits.descriptionMax + 200}
-              />
               <ChoiceGroup
                 legend="Do you already have a website?"
                 name="hasSite"
@@ -299,11 +302,100 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
                   error={errors.siteUrl}
                 />
               )}
+              <ChoiceGroup
+                legend="Which pages or sections do you expect?"
+                hint="Pick any that apply. A rough idea is fine, we can adjust later."
+                name="pages"
+                type="checkbox"
+                optional
+                error={errors.pages}
+                choices={pageOptions}
+                selected={values.pages}
+                onToggle={(id) => set("pages", values.pages.includes(id) ? values.pages.filter((p) => p !== id) : [...values.pages, id])}
+              />
+              <div aria-live="polite">
+                {pkg === "launch" && values.pages.length > 1 && (
+                  <div className="note">
+                    <Info aria-hidden size={18} strokeWidth={1.75} />
+                    <p>{copy.launchPagesNote}</p>
+                  </div>
+                )}
+                {pkg !== "launch" && pageLimit !== undefined && values.pages.length > pageLimit && (
+                  <div className="note note--accent">
+                    <Info aria-hidden size={18} strokeWidth={1.75} />
+                    <p>{copy.pageScopeNote}</p>
+                  </div>
+                )}
+                {pkg === "launch" && values.pages.length > 3 && (
+                  <div className="note note--accent">
+                    <Info aria-hidden size={18} strokeWidth={1.75} />
+                    <p>{copy.pageScopeNote}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="flow__body">
+              {pkg === "launch" && !showAllFeatures ? (
+                <div className="note">
+                  <Info aria-hidden size={18} strokeWidth={1.75} />
+                  <p>
+                    Launch is a single custom page, so there is nothing to configure here.{" "}
+                    <button type="button" className="note__link" onClick={() => setShowAllFeatures(true)}>
+                      Need something more? Tell me what
+                    </button>
+                  </p>
+                </div>
+              ) : (
+                <ChoiceGroup
+                  legend="Features you have in mind"
+                  hint="Pick any that apply. This helps me scope the project."
+                  name="features"
+                  type="checkbox"
+                  optional
+                  error={errors.features}
+                  choices={featureChoices}
+                  selected={values.features}
+                  onToggle={toggleFeature}
+                />
+              )}
+              {values.features.includes("other") && (
+                <TextField
+                  label="What functionality do you need?"
+                  optional
+                  name="featuresOther"
+                  maxLength={limits.other + 50}
+                  value={values.featuresOther}
+                  onValueChange={(v) => set("featuresOther", v)}
+                  error={errors.featuresOther}
+                />
+              )}
+              <div aria-live="polite">
+                {advancedPicked && pkg !== "custom" && (
+                  <div className="note note--accent">
+                    <Info aria-hidden size={18} strokeWidth={1.75} />
+                    <p>
+                      {copy.quoteNote}{" "}
+                      <button type="button" className="note__link" onClick={() => set("package", "custom")}>
+                        Switch to Custom
+                      </button>{" "}
+                      or keep {packageChoices.find((c) => c.id === pkg)?.name ?? "this package"} and I&rsquo;ll follow up.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="flow__body">
               <fieldset className="field">
                 <legend className="field__label">
-                  Reference links<span className="field__optional"> (optional)</span>
+                  Websites or visual references you like<span className="field__optional"> (optional)</span>
                 </legend>
-                <p className="field__hint">Inspiration sites, design files, social profiles, or brand assets.</p>
+                <p className="field__hint">Share any websites whose style, layout, or functionality you like. Links only, never passwords.</p>
                 <div className="links">
                   {values.links.map((link, i) => (
                     <div key={i} className="links__row">
@@ -340,50 +432,9 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
                   </button>
                 )}
               </fieldset>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="flow__body">
-              {pkg === "launch" && !showAllFeatures ? (
-                <div className="note">
-                  <Info aria-hidden size={18} strokeWidth={1.75} />
-                  <p>
-                    Launch is a single custom page, so there is nothing to configure here.{" "}
-                    <button type="button" className="note__link" onClick={() => setShowAllFeatures(true)}>
-                      Need something more? Tell me what
-                    </button>
-                  </p>
-                </div>
-              ) : (
-                <ChoiceGroup
-                  legend="Features you have in mind"
-                  hint="Pick any that apply. This helps me scope the project."
-                  name="features"
-                  type="checkbox"
-                  optional
-                  error={errors.features}
-                  choices={featureChoices}
-                  selected={values.features}
-                  onToggle={toggleFeature}
-                />
-              )}
-              <div aria-live="polite">
-                {advancedPicked && pkg !== "custom" && (
-                  <div className="note note--accent">
-                    <Info aria-hidden size={18} strokeWidth={1.75} />
-                    <p>
-                      {copy.quoteNote}{" "}
-                      <button type="button" className="note__link" onClick={() => set("package", "custom")}>
-                        Switch to Custom
-                      </button>{" "}
-                      or keep {packageChoices.find((c) => c.id === pkg)?.name ?? "this package"} and I&rsquo;ll follow up.
-                    </p>
-                  </div>
-                )}
-              </div>
               <ChoiceGroup
                 legend="When would you like this live?"
+                hint={copy.timingNote}
                 name="timeline"
                 type="radio"
                 optional
@@ -407,8 +458,20 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div className="flow__body">
+              <TextAreaField
+                label="Anything else I should know?"
+                optional
+                hint="Tell me about your goals, audience, content, functionality, or anything unusual about the project."
+                name="description"
+                rows={6}
+                value={values.description}
+                onValueChange={(v) => set("description", v)}
+                error={errors.description}
+                counter={limits.descriptionMax}
+                maxLength={limits.descriptionMax + 200}
+              />
               <TextField label="Name" name="name" autoComplete="name" value={values.name} onValueChange={(v) => set("name", v)} error={errors.name} />
               <TextField
                 label="Email"
@@ -442,6 +505,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
                 onValueChange={(v) => set("organization", v)}
                 error={errors.organization}
               />
+              <p className="flow__consent">{copy.credentials}</p>
               {/* Honeypot: hidden from people and assistive tech; bots that fill it are dropped server-side. */}
               <div aria-hidden className="hp">
                 <label>
@@ -452,7 +516,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="flow__body">
               <Review values={values} onEdit={go} />
               <p className="flow__consent">{copy.consent}</p>
@@ -485,7 +549,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
                 {sending ? (
                   <>
                     <Loader2 aria-hidden size={16} className="spin" />
-                    Sending
+                    Sending&hellip;
                   </>
                 ) : (
                   <>

@@ -1,5 +1,5 @@
 import "server-only";
-import { budgets, features, projectTypes, timelines } from "@/config/inquiry";
+import { budgets, features, pageOptions, projectTypes, timelines } from "@/config/inquiry";
 import { customTier, packageTiers } from "@/config/pricing";
 import { siteConfig } from "@/config/site";
 import type { InquiryValues } from "@/lib/inquiry/schema";
@@ -33,14 +33,19 @@ const packageLabel = (id: InquiryValues["package"]) => {
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-const rows = (d: InquiryValues): [string, string][] => [
+const rows = (d: InquiryValues, sentAt: string): [string, string][] => [
+  ["Received", sentAt],
   ["Name", d.name],
   ["Email", d.email],
   ["Phone", d.phone || "-"],
   ["Organization", d.organization || "-"],
   ["Package", packageLabel(d.package)],
-  ["Project type", label(projectTypes, d.projectType)],
-  ["Features", d.features.map((id) => label(features, id)).join(", ") || "-"],
+  ["Project type", label(projectTypes, d.projectType) + (d.projectTypeOther ? `: ${d.projectTypeOther}` : "")],
+  ["Pages", d.pages.map((id) => label(pageOptions, id)).join(", ") || "-"],
+  [
+    "Features",
+    d.features.map((id) => (id === "other" && d.featuresOther ? `Something else: ${d.featuresOther}` : label(features, id))).join(", ") || "-",
+  ],
   ["Timeline", label(timelines, d.timeline) || "-"],
   ["Budget", d.package === "custom" ? label(budgets, d.budget) || "-" : "n/a"],
   ["Current website", d.hasSite === "yes" ? d.siteUrl || "Yes (no URL given)" : "None"],
@@ -48,15 +53,16 @@ const rows = (d: InquiryValues): [string, string][] => [
 ];
 
 const inquiryMail = (d: InquiryValues, to: string): Mail => {
+  const sentAt = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
   const text = [
-    ...rows(d).map(([k, v]) => `${k}: ${v}`),
+    ...rows(d, sentAt).map(([k, v]) => `${k}: ${v}`),
     "",
-    "Project details:",
-    d.description,
+    "Additional information:",
+    d.description || "-",
   ].join("\n");
-  const html = `<div style="font:15px/1.6 system-ui,sans-serif;color:#111"><table cellpadding="6" style="border-collapse:collapse">${rows(d)
+  const html = `<div style="font:15px/1.6 system-ui,sans-serif;color:#111"><table cellpadding="6" style="border-collapse:collapse">${rows(d, sentAt)
     .map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><b>${escapeHtml(k)}</b></td><td>${escapeHtml(v).replace(/\n/g, "<br>")}</td></tr>`)
-    .join("")}</table><p><b>Project details</b></p><p style="white-space:pre-wrap">${escapeHtml(d.description)}</p></div>`;
+    .join("")}</table><p><b>Additional information</b></p><p style="white-space:pre-wrap">${escapeHtml(d.description || "-")}</p></div>`;
   // Subject is static apart from the package name: no user text in headers.
   return { to, subject: `New project request: ${d.package}`, text, html, replyTo: d.email };
 };
@@ -67,7 +73,7 @@ const autoReplyMail = (d: InquiryValues): Mail => ({
   text: [
     `Hi ${d.name.split(/\s+/)[0]},`,
     "",
-    `Thanks for reaching out to ${siteConfig.name}. I received your project details and will review the scope before getting back to you.`,
+    `Thanks for reaching out to ${siteConfig.name}. I received your project details and will review the scope before following up using this email address.`,
     "",
     `If you didn't send this request, you can ignore this email.`,
     "",

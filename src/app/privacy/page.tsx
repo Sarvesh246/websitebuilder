@@ -23,12 +23,12 @@ export default function PrivacyPage() {
         <ul>
           <li>Your name and email address (required).</li>
           <li>Your phone number and organization or business name, if you add them.</li>
-          <li>Your project description, project type, and the package you are interested in.</li>
-          <li>Your timeline, requested features, and a budget range if you choose the Custom package.</li>
+          <li>The package you are interested in, your project type, and any extra details you choose to write.</li>
+          <li>The pages and features you want, your preferred timing, and a budget range if you choose the Custom package.</li>
           <li>Your existing website address and up to three reference links, if you add them.</li>
         </ul>
         <p>
-          Nothing is sent until you press Send on the last step. While you fill in the form, a draft is kept in your
+          Nothing is sent until you press Send on the review step. While you fill in the form, a draft is kept in your
           browser&apos;s session storage so a refresh does not lose your work. It stays on your device and is cleared once
           you send the form or close the tab.
         </p>

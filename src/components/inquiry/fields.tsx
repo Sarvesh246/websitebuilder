@@ -62,13 +62,14 @@ type TextAreaProps = Omit<ComponentPropsWithoutRef<"textarea">, "onChange" | "va
   label: string;
   hint?: string;
   error?: string;
+  optional?: boolean;
   value: string;
   onValueChange: (value: string) => void;
   counter?: number;
 };
 
-export const TextAreaField = ({ label, hint, error, value, onValueChange, counter, ...area }: TextAreaProps) => (
-  <Field label={label} hint={hint} error={error}>
+export const TextAreaField = ({ label, hint, error, optional, value, onValueChange, counter, ...area }: TextAreaProps) => (
+  <Field label={label} hint={hint} error={error} optional={optional}>
     {(aria) => (
       <>
         <textarea {...area} {...aria} className="field__control field__control--area" value={value} onChange={(e) => onValueChange(e.target.value)} />
