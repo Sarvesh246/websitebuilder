@@ -44,6 +44,9 @@
   }
 
   .site-nav__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     justify-self: start;
     font-size: 1.5rem;
     font-weight: 600;
@@ -51,6 +54,31 @@
     color: var(--text-strong);
     /* generous tap area without changing the visual size */
     padding-block: 0.5rem;
+  }
+
+  /* Frame mark: a rounded outline with a solid corner block. */
+  .site-nav__mark {
+    position: relative;
+    flex: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    border: 2px solid var(--text-strong);
+    border-radius: 0.4rem;
+  }
+  .site-nav__mark::after {
+    content: "";
+    position: absolute;
+    inset: 3px auto auto 3px;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 0.15rem;
+    background: var(--accent);
+    transition: transform var(--dur-base) var(--ease-out);
+  }
+  @media (hover: hover) {
+    .site-nav__logo:hover .site-nav__mark::after {
+      transform: translate(0.32rem, 0.32rem);
+    }
   }
 
   .site-nav__links {

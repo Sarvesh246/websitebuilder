@@ -10,6 +10,12 @@
     letter-spacing: var(--tracking-display);
     font-weight: 600;
   }
+  .t-hero {
+    font-size: var(--fs-hero);
+    line-height: var(--lh-display);
+    letter-spacing: var(--tracking-display);
+    font-weight: 600;
+  }
   .t-h2 {
     font-size: var(--fs-h2);
     line-height: var(--lh-h2);

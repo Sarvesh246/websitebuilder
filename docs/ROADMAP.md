@@ -5,7 +5,7 @@ Each stage: read `CLAUDE.md` first, update it last. Do not start the next stage 
 | Stage | Scope | Status |
 | --- | --- | --- |
 | 1 | Foundation: tokens, type, layout, glass, ambient, motion, buttons/badges, nav shell, style guide | Done |
-| 2 | Global shell and hero: page frame, real hero composition (desktop + purpose-built mobile), first artwork slot, hero motion | Next |
+| 2 | Global shell and hero: page frame, real hero composition (desktop + purpose-built mobile), first artwork slot, hero motion | Done |
 | 3 | Services / "What we build": four offering cards (Personal, Professional, Business, Custom), desktop layout and mobile pattern (snap rail or stacked) | |
 | 4 | Portfolio ("Selected Work"), Process (four steps), value sections ("Why", "Ownership") | |
 | 5 | Pricing section from `config/pricing.ts` and the conversion flow: contact/start-a-project form (`#contact`), validation, submission approach (decision needed: email service / form backend) | |

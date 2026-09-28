@@ -1,0 +1,240 @@
+/*
+ * Hero layout and motion. Entrance is CSS (no JS gate, so the h1 paints at once); the only JS
+ * motion is the desktop pointer parallax in HeroVisual. Everything animates transform/opacity.
+ */
+@layer components {
+  .hero {
+    display: flex;
+    align-items: center;
+    min-height: 100dvh;
+    padding-top: calc(var(--nav-h) + clamp(1.5rem, 3vw, 2.5rem));
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  .hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 4rem);
+  }
+  @media (min-width: 1024px) {
+    .hero__grid {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(2rem, 4vw, 5rem);
+    }
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hero__copy > h1 {
+    margin-top: 1.25rem;
+    max-width: 13ch;
+  }
+  .hero__lead {
+    margin-top: 1.25rem;
+    max-width: 30rem;
+  }
+  .hero__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 2rem;
+  }
+  @media (min-width: 640px) {
+    .hero__cta {
+      flex-direction: row;
+      width: auto;
+    }
+  }
+
+  .hero__values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin-top: 1.75rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .hero__values li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hero__values svg {
+    color: var(--accent);
+  }
+
+  /* ---------- Entrance (CSS only) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-enter {
+      animation: hero-in 720ms var(--ease-out) both;
+      animation-delay: calc(60ms + var(--i, 0) * 90ms);
+    }
+    .hero-layer__in.hero-enter {
+      animation-name: hero-layer-in;
+      animation-duration: 900ms;
+    }
+  }
+  @keyframes hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+  @keyframes hero-layer-in {
+    from {
+      opacity: 0;
+      transform: translateY(28px) var(--tilt, none);
+    }
+  }
+
+  /* Two slow floats only (phone and chip). Off on phones. */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    .hero-float {
+      animation: hero-float 7s var(--ease-in-out) infinite alternate;
+    }
+    .hero-layer--chip .hero-float {
+      animation-duration: 9s;
+      animation-delay: -3s;
+    }
+  }
+  @keyframes hero-float {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-9px);
+    }
+  }
+
+  /* ---------- Visual stage ---------- */
+  .hero-visual {
+    width: 100%;
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+  @media (min-width: 1024px) {
+    .hero-visual {
+      margin-inline: auto 0;
+    }
+  }
+
+  .hero-stage {
+    position: relative;
+    aspect-ratio: 1 / 0.98;
+    width: 100%;
+  }
+  @media (min-width: 640px) {
+    .hero-stage {
+      aspect-ratio: 1 / 0.9;
+    }
+  }
+
+  .hero-layer {
+    position: absolute;
+    perspective: 1600px;
+  }
+  .hero-layer__in {
+    transform: var(--tilt, none);
+    transform-origin: 50% 60%;
+  }
+
+  .hero-layer--main {
+    --tilt: rotateY(-5deg) rotateX(2deg);
+    left: 0;
+    top: 10%;
+    width: 90%;
+  }
+  .hero-layer--back {
+    display: none;
+    --tilt: rotateY(-8deg) rotateX(3deg);
+    right: 0;
+    top: 0;
+    width: 47%;
+  }
+  .hero-layer--phone {
+    --tilt: rotateY(-6deg) rotateX(2deg);
+    right: 0;
+    bottom: 0;
+    width: 31%;
+  }
+  .hero-layer--chip {
+    left: 3%;
+    bottom: 4%;
+  }
+  @media (min-width: 640px) {
+    .hero-layer--main {
+      top: 14%;
+      width: 70%;
+    }
+    .hero-layer--back {
+      display: block;
+      width: 44%;
+    }
+    .hero-layer--phone {
+      right: 3%;
+      width: 23%;
+    }
+    .hero-layer--chip {
+      left: 5%;
+      bottom: 3%;
+    }
+  }
+
+  .hero-chip {
+    --glass-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+  }
+  .hero-chip__aa {
+    font-size: 1.375rem;
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text-strong);
+  }
+  .hero-chip__swatches {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .hero-chip__swatches i {
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+  .hero-chip__swatches i:nth-child(1) {
+    background: var(--accent);
+  }
+  .hero-chip__swatches i:nth-child(2) {
+    background: var(--text-strong);
+  }
+  .hero-chip__swatches i:nth-child(3) {
+    background: var(--atmos-cool);
+  }
+  .hero-chip__swatches i:nth-child(4) {
+    background: var(--bg-raised);
+  }
+
+  .hero-visual__note {
+    margin-top: 1rem;
+    font-family: var(--font-rounded);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-subtle);
+  }
+  @media (min-width: 1024px) {
+    .hero-visual__note {
+      text-align: right;
+    }
+  }
+}

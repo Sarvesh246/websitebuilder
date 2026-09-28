@@ -33,7 +33,7 @@ src/components/ui/      Button, Badge, GlassSurface
 src/components/visual/  Ambient (+Glow, GridOverlay, Fade, Grain), SceneImage
 src/components/motion/  MotionProvider, Reveal, RevealGroup, RevealItem
 src/components/nav/     SiteNav (client), ThemeToggle
-src/components/sections/ and pricing/ : created as later stages need them
+src/components/sections/ (Hero, HeroVisual) and visual/mockup/ (device frames + concept screens); pricing/ later
 src/config/         site.ts, nav.ts, pricing.ts (pricing is data; single source of truth)
 src/lib/            cn.ts, motion.ts     src/hooks/  useLockBodyScroll, useScrolledPast
 public/images/      scenes/ work/ og/  (see public/images/README.md for asset rules)
@@ -71,7 +71,8 @@ Goal: same code quality, fewer tokens. Skills are loaded **once per stage, only 
 2. Browser check at 1440 / 768 / 390, light and dark, plus reduced motion once. Zero console errors. Delete screenshots afterwards.
 3. Run that stage's *post* skills from the table (simplify always). Apply fixes, don't just report them.
 4. Update this file: replace the "Stage N" status block (do not accumulate history), list files/conventions/notes for the next stage, and tick `docs/ROADMAP.md`.
-5. Final response follows the Stage 1 format (summary, files, decisions, concerns, roadmap, build status, exact next prompt). Then STOP. Do not commit or push unless asked; offer a commit message.
+5. **Commit and push to `main`** (standing authorization from the user, see Git section), only after steps 1-4 are complete and green.
+6. Final response follows the Stage 1 format (summary, files, decisions, concerns, roadmap, build status, commit hash, exact next prompt). Then STOP. Do not start the next stage.
 
 | Stage | Pre skills | Post skills |
 | --- | --- | --- |
@@ -86,16 +87,39 @@ Goal: same code quality, fewer tokens. Skills are loaded **once per stage, only 
 | 10 Final cohesion | `sarvesh-ui-style` | `simplify`, `design:design-critique`, `code-review` (high), `pwp:pwp-deploy` (launch checklist) |
 
 ## Git
-Remote `origin` = https://github.com/Sarvesh246/websitebuilder.git (branch `main`). Commit/push only when the user asks. Commit messages: conventional style, one commit per stage (`feat(stage-N): ...`), end with the Co-Authored-By line from the session attribution reminder.
+Remote `origin` = https://github.com/Sarvesh246/websitebuilder.git (branch `main`). **Standing authorization (given by the user 2026-09-28):** at the end of every stage, after all work, validation, and skills have finished and passed, commit and push directly to `main` without asking. This covers stage-completion commits only; any other commit/push (mid-stage, other branches, force-push, history rewrites) still needs an explicit request. Never push if lint/typecheck/build fail. Before committing run `git status` and confirm no `.env*`, secrets, `node_modules`, `.next`, or screenshots are staged. One commit per stage: `feat(stage-N): <summary>`, ending with the Co-Authored-By line from the session attribution reminder. Push with `git push origin main`.
 
 ## Stage 1 (Foundation): DONE 2026-09-28
 Repo was empty (only `skills-lock.json`). Scaffolded Next 16 app, built the token, type, layout, glass, ambient, motion, button/badge, and nav foundation described above, plus `/design-system` living style guide and Stage 1 placeholder home. Validated: lint, typecheck, contrast script, production build all pass; verified in browser at 1440 and 390 widths, light and dark, mobile menu, reduced motion, zero console errors.
 
-**Notes for Stage 2**
-- `src/app/page.tsx` is a placeholder hero. Replace it. Reference hero: display headline "Websites built to make an impression.", lead, primary "Start a Project" + secondary "Explore Work", 3 rendered glass panels artwork on the right (artwork TBD; use CSS lighting + `SceneImage` slot meanwhile).
+Stage 1 carry-overs still true:
 - Nav links are in-page anchors (`#work #services #process #pricing #about`, CTA `#contact`); sections must use matching `id`s. Nav is fixed; `scroll-padding-top` accounts for it.
 - Mobile menu has no focus trap yet (Escape closes, focus moves in, aria-modal set). Do a proper trap or `inert` on `<main>` in Stage 9.
-- Scroll reveals start hidden (`data-reveal`); a `<noscript>` style makes them visible without JS.
-- Home has no footer yet (Stage 6). No `#contact` target yet (Stage 5).
+- Scroll reveals (`Reveal`) start hidden (`data-reveal`); a `<noscript>` style makes them visible without JS.
 - `/design-system` is noindex. Keep it as the regression reference; remove or gate before launch if desired.
 - Tooling gotcha: user's global PostToolUse hook `lint_edit.py` errors on Windows (`$env:USERPROFILE` not expanded). Harmless, files still write. Not a project issue.
+
+## Stage 2 (Shell + hero): DONE 2026-09-28
+Validated: lint, typecheck, production build pass. Browser checked at 1920/1440/1024/768/430/390/375/320: no horizontal overflow (only clipped glow layers exceed viewport, by design), zero console errors, mobile menu opens/closes with Escape, one h1. Light and dark checked at 1440; mobile checked in light only. Reduced motion is verified by CSS gating only (all hero animation is inside `prefers-reduced-motion: no-preference`; the global block in base.css also applies); not emulated in a browser. `contrast` script not re-run (no colour tokens changed).
+
+**Hero copy (in `Hero.tsx`)**: badge "Web design for students and small teams"; h1 "Professional websites without agency prices."; lead "Custom-designed sites for creators, student orgs, and small businesses, with the polish of a product studio."; CTAs "Start a Project" (`#contact`) + "Explore Work" (`#work`); value points "Clear pricing", "Mobile-ready", "You own your site". Note: this exceeds taste-skill's hero cap (badge + value row), deliberately, per the Stage 2 brief. Caption under the visual: "Concept designs, not client work."
+
+**Architecture**
+- `components/sections/Hero.tsx` (server): Section id `top` (class `hero`) + `Ambient preset="hero"` + an extra `.hero-stagelight` ambient (two glows behind the visual) + `.hero__grid` (1 col; 0.9fr/1.1fr from lg). Copy uses CSS entrance (`.hero-enter`, stagger via `--i`), NOT the JS `Reveal`, so the h1 paints immediately (LCP).
+- `components/sections/HeroVisual.tsx` (client): `.hero-stage` (role="img" + aria-label; contents decorative). Four `Layer`s: back cafe browser, main portfolio browser, creator phone, glass Aa/swatch chip. Desktop-mouse-only pointer parallax via `useMotionValue`/`useSpring`/`useTransform` (no state, no re-render); disabled under reduced motion and for touch/pen. Layer structure: motion div (parallax translate) > `.hero-layer__in.hero-enter` (CSS tilt via `--tilt` + entrance) > optional `.hero-float`.
+- `components/visual/mockup/Mockups.tsx` (server): `BrowserMockup`, `PhoneMockup`, and screens `PortfolioScreen`, `CafeScreen`, `CreatorScreen`. Add new concept screens here for Stage 4 work cards if wanted.
+- Styles: `styles/hero.css` (layout, entrance, float, stage positions), `styles/mockup.css` (device chrome + screens). Screens use a scoped palette `--m-bg/--m-ink/--m-a...` on `.ms` (artwork colours, intentionally not theme-aware). Screens are designed on a 40em x 30em canvas; font-size is `cqw`, so they scale with the frame.
+- Tokens/type added: `--fs-hero` and `.t-hero` (hero h1, one step below display). Body now has a static top sky wash (`--atmos-sky-top` to `--bg` over 60rem) that all sections inherit.
+- Nav: unchanged structure; added frame logo mark (`.site-nav__mark`, accent corner nudges on hover). Nav config unchanged (Work, Services, Process, Pricing, About; CTA "Start a Project").
+- Metadata: `siteConfig.tagline` + new description; title `Northframe | Professional websites for students and small teams`.
+
+**Responsive**: below 640px the stage shows only main browser (90%) + phone (31%) + chip (back browser hidden; stage aspect 1/0.98); CTAs stack full width. 640+ shows all four layers. Floats only at 768+ and no reduced motion.
+
+**Motion**: entrance (CSS, once), pointer parallax (desktop mouse), two slow floats (phone, chip). Nothing else loops.
+
+**Known limitations / next stages must know**
+- `#work`, `#services`, `#process`, `#pricing`, `#about`, `#contact` have no targets yet; nav and CTAs are correct but inert until Stages 3-6. Section ids must match.
+- Mockups are CSS-built concept screens (no images). Real artwork (Stage 8) can replace them via `SceneImage`; the hero-stage box does not change.
+- Container caps at 1344px, so at 1920 the hero sits centred with wide side margins (fine, consistent).
+- Mobile menu focus trap still Stage 7/9. Dev launch config at `.claude/launch.json`.
+- Stage 3 must keep: `Section`/`Container`/`Ambient` pattern, `id`s, one label per CTA intent, no fake proof, no em dashes.

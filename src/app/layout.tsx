@@ -12,7 +12,7 @@ const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"], display: 
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `${siteConfig.name} | Web design studio`, template: `%s | ${siteConfig.name}` },
+  title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
 };
 
