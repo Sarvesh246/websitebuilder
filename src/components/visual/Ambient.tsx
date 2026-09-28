@@ -34,8 +34,9 @@ export const Fade = ({ edge }: { edge: "top" | "bottom" }) => (
  *   section  one soft cool glow off-centre, edges faded into the page colour
  *   pricing  centred glow behind the featured card, haze either side
  *   quiet    a single faint glow, for text-heavy sections
+ *   start    cool key light behind the form panel, warm horizon glow low, faint grid (inquiry page)
  */
-type Preset = "hero" | "section" | "pricing" | "quiet";
+type Preset = "hero" | "section" | "pricing" | "quiet" | "start";
 
 export const Ambient = ({ preset = "section", className }: { preset?: Preset; className?: string }) => (
   <div aria-hidden className={cn("ambient", className)}>
@@ -62,6 +63,15 @@ export const Ambient = ({ preset = "section", className }: { preset?: Preset; cl
         <Glow tone="haze" x="8%" y="30%" size="36rem" intensity={0.7} />
         <Glow tone="haze" x="92%" y="70%" size="36rem" intensity={0.7} />
         <Fade edge="top" />
+        <Fade edge="bottom" />
+      </>
+    )}
+    {preset === "start" && (
+      <>
+        <Glow tone="cool" x="72%" y="30%" size="58rem" intensity={0.85} />
+        <Glow tone="haze" x="8%" y="20%" size="40rem" intensity={0.75} />
+        <Glow tone="warm" x="50%" y="108%" size="64rem" intensity={0.7} />
+        <GridOverlay />
         <Fade edge="bottom" />
       </>
     )}

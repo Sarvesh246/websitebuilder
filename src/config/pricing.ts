@@ -38,9 +38,6 @@ export type CustomTier = {
   ctaLabel: string;
 };
 
-/** All package CTAs land on the project-start section (built in the conversion stage). */
-export const packageCtaHref = "#contact";
-
 export const packageTiers: readonly PackageTier[] = [
   {
     id: "starter",

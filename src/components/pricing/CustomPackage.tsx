@@ -1,6 +1,7 @@
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Button } from "@/components/ui/Button";
-import { packageCtaHref, type CustomTier } from "@/config/pricing";
+import { startHref } from "@/config/inquiry";
+import type { CustomTier } from "@/config/pricing";
 
 /**
  * The Custom tier. Deliberately not a fourth card: it is a wide, quieter panel under the three
@@ -25,7 +26,7 @@ export const CustomPackage = ({ tier }: { tier: CustomTier }) => (
       </ul>
     </div>
     <div className="pkg-custom__cta">
-      <Button href={packageCtaHref} variant="secondary" icon="diag" block data-package={tier.id}>
+      <Button href={startHref(tier.id)} variant="secondary" icon="diag" block data-package={tier.id}>
         {tier.ctaLabel}
       </Button>
       <p className="pkg__note">{tier.note}</p>

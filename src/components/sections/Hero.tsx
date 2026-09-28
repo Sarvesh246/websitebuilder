@@ -44,7 +44,7 @@ export const Hero = () => (
           <Button href={siteConfig.cta.href} size="lg" icon="diag" className="w-full sm:w-auto">
             {siteConfig.cta.label}
           </Button>
-          <Button href="#work" variant="secondary" size="lg" icon="right" className="w-full sm:w-auto">
+          <Button href="/#work" variant="secondary" size="lg" icon="right" className="w-full sm:w-auto">
             Explore Work
           </Button>
         </div>
