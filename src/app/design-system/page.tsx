@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Check, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Grid } from "@/components/layout/Grid";
 import { Section } from "@/components/layout/Section";
@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Ambient } from "@/components/visual/Ambient";
-import { pricingTiers } from "@/config/pricing";
+import { CustomPackage } from "@/components/pricing/CustomPackage";
+import { PackageCard } from "@/components/pricing/PackageCard";
+import { customTier, packageTiers } from "@/config/pricing";
 
 export const metadata: Metadata = {
   title: "Design system",
@@ -169,55 +171,15 @@ export default function DesignSystemPage() {
             align="center"
             eyebrow="Pricing"
             title="Choose what fits."
-            lead="Real data from config/pricing.ts, rendered with the glass and grid primitives."
+            lead="Real data from config/pricing.ts, rendered by the PackageCard and CustomPackage components."
             className="mx-auto"
           />
-          <Grid cols="four" className="items-stretch">
-            {pricingTiers.map((tier) => (
-              <GlassSurface
-                key={tier.id}
-                variant={tier.featured ? "feature" : "default"}
-                className="flex flex-col gap-6"
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="t-h4">{tier.name}</h3>
-                    {tier.featured && (
-                      <Badge><Sparkles aria-hidden size={12} strokeWidth={2} />Most Popular</Badge>
-                    )}
-                  </div>
-                  <p className="t-small">{tier.audience}</p>
-                </div>
-                <div className="flex flex-col items-start gap-3">
-                  {tier.price === null ? (
-                    <span className="t-h3 text-strong">Request a Quote</span>
-                  ) : (
-                    <span className="flex items-baseline gap-3">
-                      <span className="t-price">${tier.price}</span>
-                      {tier.regularPrice && <span className="t-price-was text-xl">${tier.regularPrice}</span>}
-                    </span>
-                  )}
-                  {tier.priceNote && <Badge>{tier.priceNote}</Badge>}
-                </div>
-                <ul className="flex flex-1 flex-col gap-3 border-t border-line pt-6">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 text-[0.9375rem] text-body">
-                      <Check aria-hidden size={16} strokeWidth={2} className="mt-1 flex-none text-muted" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <Button
-                  href={tier.cta.href}
-                  variant={tier.featured ? "primary" : "secondary"}
-                  icon="right"
-                  block
-                >
-                  {tier.cta.label}
-                </Button>
-              </GlassSurface>
+          <Grid cols="packages">
+            {packageTiers.map((tier) => (
+              <PackageCard key={tier.id} tier={tier} />
             ))}
           </Grid>
+          <CustomPackage tier={customTier} />
         </Container>
       </Section>
     </>

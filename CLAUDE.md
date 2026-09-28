@@ -28,13 +28,15 @@ src/styles/         tokens.css  all design tokens (colours as light-dark() pairs
                     base.css / type.css (.t-display .t-h2 .t-h3 .t-h4 .t-lead .t-body .t-small .t-label .t-price)
                     glass.css   glass system      ambient.css  glows/grid/fade/grain/scene
                     ui.css      buttons, icon-btn, badge   nav.css  header + mobile sheet
+                    hero.css, mockup.css   pricing.css  packages, Custom panel, comparison, ownership/scope notes
 src/components/layout/  Container, Section, SectionHeader, Grid
 src/components/ui/      Button, Badge, GlassSurface
 src/components/visual/  Ambient (+Glow, GridOverlay, Fade, Grain), SceneImage
 src/components/motion/  MotionProvider, Reveal, RevealGroup, RevealItem
 src/components/nav/     SiteNav (client), ThemeToggle
-src/components/sections/ (Hero, HeroVisual) and visual/mockup/ (device frames + concept screens); pricing/ later
-src/config/         site.ts, nav.ts, pricing.ts (pricing is data; single source of truth)
+src/components/sections/ (Hero, HeroVisual, Pricing) and visual/mockup/ (device frames + concept screens)
+src/components/pricing/ PackageCard, CustomPackage, CompareTable (server components, all read config/pricing.ts)
+src/config/         site.ts, nav.ts, pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth)
 src/lib/            cn.ts, motion.ts     src/hooks/  useLockBodyScroll, useScrolledPast
 public/images/      scenes/ work/ og/  (see public/images/README.md for asset rules)
 ```
@@ -93,7 +95,7 @@ Remote `origin` = https://github.com/Sarvesh246/websitebuilder.git (branch `main
 Repo was empty (only `skills-lock.json`). Scaffolded Next 16 app, built the token, type, layout, glass, ambient, motion, button/badge, and nav foundation described above, plus `/design-system` living style guide and Stage 1 placeholder home. Validated: lint, typecheck, contrast script, production build all pass; verified in browser at 1440 and 390 widths, light and dark, mobile menu, reduced motion, zero console errors.
 
 Stage 1 carry-overs still true:
-- Nav links are in-page anchors (`#work #services #process #pricing #about`, CTA `#contact`); sections must use matching `id`s. Nav is fixed; `scroll-padding-top` accounts for it.
+- Nav links are in-page anchors (`#work #process #pricing #about`, CTA `#contact`; `#services` was removed in Stage 3); sections must use matching `id`s. Nav is fixed; `scroll-padding-top` accounts for it.
 - Mobile menu has no focus trap yet (Escape closes, focus moves in, aria-modal set). Do a proper trap or `inert` on `<main>` in Stage 9.
 - Scroll reveals (`Reveal`) start hidden (`data-reveal`); a `<noscript>` style makes them visible without JS.
 - `/design-system` is noindex. Keep it as the regression reference; remove or gate before launch if desired.
@@ -118,8 +120,40 @@ Validated: lint, typecheck, production build pass. Browser checked at 1920/1440/
 **Motion**: entrance (CSS, once), pointer parallax (desktop mouse), two slow floats (phone, chip). Nothing else loops.
 
 **Known limitations / next stages must know**
-- `#work`, `#services`, `#process`, `#pricing`, `#about`, `#contact` have no targets yet; nav and CTAs are correct but inert until Stages 3-6. Section ids must match.
+- `#work`, `#process`, `#about`, `#contact` have no targets yet (`#pricing` exists since Stage 3); nav and CTAs are inert until Stages 4-6. Section ids must match.
 - Mockups are CSS-built concept screens (no images). Real artwork (Stage 8) can replace them via `SceneImage`; the hero-stage box does not change.
 - Container caps at 1344px, so at 1920 the hero sits centred with wide side margins (fine, consistent).
 - Mobile menu focus trap still Stage 7/9. Dev launch config at `.claude/launch.json`.
 - Stage 3 must keep: `Section`/`Container`/`Ambient` pattern, `id`s, one label per CTA intent, no fake proof, no em dashes.
+
+## Stage 3 (Packages + pricing): DONE 2026-09-28
+Scope note: the user's Stage 3 brief replaced the roadmap's "Services" stage. There is **no separate Services section**; the four packages are the services. One section, `id="pricing"`, serves the single **Pricing** nav link (the "Services" nav link and `#services` anchor were removed to avoid duplicate content). Roadmap Stage 5 now covers only the contact/conversion flow.
+Validated: lint, typecheck, production build pass; no test runner exists yet (Stage 9). Checked with playwright-core (the MCP browser was busy) at 1920/1440/1280/1024/768/430/390/375/320: zero horizontal overflow, zero console errors, all reveals fire (also with reduced motion at 375), nav link scrolls to `#pricing`, all 4 CTAs 44px tall, light and dark at 1440, light at 1024/768/390. Mobile comparison `<details>` opens.
+
+**Packages (names/prices in `config/pricing.ts`, change only there)**
+| Package | Price shown | Regular | For | Includes |
+| --- | --- | --- | --- | --- |
+| Starter | $50 flat, "One-time price" | none | student portfolios and resumes | 1-page custom design, projects/resume sections, mobile responsive, contact + social links, domain + deployment setup, 1 revision |
+| Plus (featured) | $200 "Launch price" | $350 | creators, freelancers, student orgs | Everything in Starter, plus up to 3 pages, project/gallery sections, contact form, SEO + analytics setup, enhanced animations, 2 revisions |
+| Pro | $350 "Launch price" | $500 | organizations, small businesses | Everything in Plus, plus up to 5 pages, service/team/event pages, forms + simple integrations, CMS support where it fits, advanced UI/interactions, 3 revisions |
+| Custom | "Request a quote" (no number unless decided later) | n/a | complex projects | Quoted by scope: authentication, databases, dashboards, payments, admin panels, APIs, advanced integrations, custom functionality |
+
+Backend/auth/db/payments are explicitly NOT in Starter/Plus/Pro (only "simple integrations" in Pro).
+
+**Launch pricing language**: label "Launch price" on the card, "Regularly $350" with struck `<del>`. Section note (`launchPricing` in config): "Intro pricing while the studio builds its first client portfolio. Regular prices apply once launch pricing ends." No countdowns, no scarcity, no "most popular".
+**Featured logic**: Plus is emphasised as "Best value" (factual, not a sales claim): `glass-feature` surface, "Best value" badge with icon, filled primary CTA, tinted comparison column. Set with `featured: true` + `badge` in config. Not colour-only.
+**Copy rules kept**: no em dashes, no fake proof. CTA labels: "Choose Starter/Plus/Pro", "Request a quote". Microcopy under each CTA is a per-package `note` (avoid invented timelines/policies).
+
+**Architecture**
+- `components/sections/Pricing.tsx` (server): Section `#pricing` (aria-labelledby `pricing-title`) + `Ambient preset="pricing"`. Order: intro row (SectionHeader + launch note, 7/5 at lg), then a `RevealGroup` holding the Grid `packages` of `PackageCard`s and the `CustomPackage`, then `CompareTable`, then ownership panel + "Good to know" scope notes.
+- `PackageCard`: `GlassSurface as="article"` (feature variant when featured). CSS grid areas `head` (name, badge, blurb, price block), `body` (audience, lead-in, features), `foot` (CTA + note). Price block is always label / number / sub so cards align. Price a11y: reads "Launch price $200 Regularly $350" (`<del>`); CTA aria-label includes package + price.
+- `CustomPackage`: quieter `glass-subtle` wide panel under the three cards (intro, chip list of scope, CTA), so "priced by scope" reads as a different kind of offer, not a fourth price card.
+- `CompareTable`: 9 decision-relevant rows from `compareRows` (values order = starter, plus, pro, custom). md+: real `<table>` (sr-only caption, `th scope`, featured column tinted, check/minus icons have sr-only text). Phones: collapsed `<details>` with per-row 2x2 `<dl>` (no horizontal scroll). Footnote lists what every package includes.
+- `Grid` got a `packages` preset (1 col, 3 at lg). `SectionHeader` got `titleId`. Card hover is a 3px lift + firmer border (cards are not links, so no pointer cursor and not `glass-interactive`).
+- `/design-system` pricing block now renders `PackageCard` + `CustomPackage` (old "Most Popular" badge removed).
+
+**Responsive**: below md stacked cards (tier order stays Starter, Plus, Pro, Custom; recommended package is not reordered); md to lg each card is a wide two-column card (head + CTA left, list right), one per row; lg+ three cards in a row plus a full-width Custom panel. Blurb and audience line have min-heights at lg so price blocks and lists align (revisit if copy lengths change).
+**Scope + ownership messaging**: "You own your site and accounts." panel (hosting, domain, email, analytics, database, logins live under the client's name). "Good to know": domain costs extra if not owned; paid third-party services have their own fees; scope beyond the package is re-priced and approved first.
+**CTA behaviour**: every CTA is `href="#contact"` with `data-package="starter|plus|pro|custom"`. `#contact` does not exist yet. Stage 5 builds it and can read `data-package` (or add a `?package=` param) to preselect.
+**Stage 4 must preserve**: the single `#pricing` anchor (no Services duplicate), package names/prices from config only, no "most popular" claim, the `Section > Ambient > Container` pattern, and Reveal patterns (never put `RevealGroup` on a `display: contents` element: IntersectionObserver needs a box). `#work` and `#process` are still inert nav targets; when they land, move `<Pricing/>` in `page.tsx` after them.
+Tooling tip: `playwright-core` with `chromium-1243` under `%LOCALAPPDATA%/ms-playwright` works from a scratch dir when the Playwright MCP is busy.
