@@ -135,27 +135,28 @@
   }
   @media (min-width: 1024px) {
     .hero-stage {
-      width: calc(100% + var(--gutter) * 0.6);
-      aspect-ratio: 1 / 0.78;
+      width: calc(100% + var(--gutter) * 0.8 + 2vw);
+      margin-left: -2vw;
+      aspect-ratio: 1 / 0.8;
     }
   }
   .hero-pane--top {
-    left: 1%;
-    top: 2%;
-    width: 45%;
+    left: 0;
+    top: 0;
+    width: 48%;
     --pose: rotateY(-24deg) rotateX(6deg) rotateZ(9deg);
   }
   .hero-pane--main {
-    left: 13%;
-    top: 31%;
-    width: 56%;
+    left: 11%;
+    top: 30%;
+    width: 62%;
     --ratio: 16 / 11;
     --pose: rotateY(18deg) rotateX(4deg) rotateZ(-7deg);
   }
   .hero-pane--tall {
-    left: 72%;
-    top: 5%;
-    width: 27%;
+    left: 73%;
+    top: 4%;
+    width: 29%;
     --ratio: 10 / 16.5;
     --pose: rotateY(22deg) rotateX(3deg) rotateZ(-8deg);
   }

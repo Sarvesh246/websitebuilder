@@ -4,7 +4,7 @@
  * cyl = [centre x, centre z, radius, top y] (a round plinth). `-dark` = dusk variant for the dark theme.
  * Plates are 2400x1350 (+1280 wide copy for phones); screen photos are content for the glass mockups.
  */
-const plate = { width: 2400, height: 1350, sizes: [2400, 1280], quality: 72, bloom: 0.16, exposure: 0.74, mist: 1.0, haze: 0.002 };
+const plate = { width: 2400, height: 1350, sizes: [2400, 1280], quality: 72, sat: 1.0, tint: [0.985, 0.995, 1.02], bloom: 0.16, exposure: 0.74, mist: 1.0, haze: 0.002 };
 const dusk = { dusk: 1, exposure: 0.8, bloom: 0.2 };
 const photo = { width: 1600, height: 1000, sizes: [1600, 900], quality: 76, bloom: 0.15, amb: 0.7, exposure: 0.8 };
 
