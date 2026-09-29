@@ -4,6 +4,7 @@ import { Section } from "@/components/layout/Section";
 import { InquiryFlow } from "@/components/inquiry/InquiryFlow";
 import { Plate } from "@/components/visual/Plate";
 import { parsePackageId } from "@/config/inquiry";
+import { getViewer } from "@/lib/auth/session";
 import { pageMetadata } from "@/lib/seo";
 
 // Conversion form, not search content (and `?package=` makes variants): noindex, canonical /start,
@@ -20,12 +21,13 @@ export const metadata: Metadata = pageMetadata({
 export default async function StartPage({ searchParams }: PageProps<"/start">) {
   const { package: requested } = await searchParams;
   const initialPackage = parsePackageId(requested);
+  const viewer = await getViewer();
 
   return (
     <Section className="start" spacing="none">
       <Plate name="intake" eager />
       <Container>
-        <InquiryFlow initialPackage={initialPackage} />
+        <InquiryFlow initialPackage={initialPackage} account={viewer ? { email: viewer.email } : null} />
       </Container>
     </Section>
   );

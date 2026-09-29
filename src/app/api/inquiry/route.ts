@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { getViewer } from "@/lib/auth/session";
 import { limits } from "@/config/inquiry";
 import { deliverInquiry, emailConfig, sendAutoReply } from "@/lib/inquiry/email";
 import { saveProjectRequest, StorageError, storageConfigured } from "@/lib/inquiry/projectRequest";
@@ -56,13 +57,17 @@ export async function POST(request: Request) {
   const ip = request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   if (!(ip ? rateLimit(ip) : rateLimit("unknown", 30))) return json({ error: "rate_limited" }, 429);
 
+  // An account is required to send a request: it owns the project in the portal.
+  const viewer = await getViewer();
+  if (!viewer) return json({ error: "unauthorized" }, 401);
+
   if (!storageConfigured()) {
     console.error("[inquiry] storage is not configured (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)");
     return json({ error: "unavailable" }, 503);
   }
   let saved: { id: string; duplicate: boolean };
   try {
-    saved = await saveProjectRequest(result.data, submissionId);
+    saved = await saveProjectRequest(result.data, submissionId, viewer.userId);
   } catch (error) {
     // Log the failure class only, never the submitted content or database details.
     console.error("[inquiry] storage failed:", error instanceof StorageError ? error.message : "unknown");

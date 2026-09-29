@@ -1,5 +1,6 @@
 import "server-only";
 import type { InquiryValues } from "@/lib/inquiry/schema";
+import { pricingSnapshot } from "@/lib/payments/plan";
 import { createAdminClient } from "@/utils/supabase/server";
 
 /**
@@ -31,6 +32,14 @@ export type ProjectRequestInput = {
   existing_website: string | null;
   timeline: string | null;
   budget: string | null;
+  /** Owner account (null for legacy anonymous requests). */
+  user_id: string | null;
+  /** Price snapshot in cents, written once at creation. Null amounts = Custom, quoted later. */
+  currency: "usd";
+  total_amount: number | null;
+  deposit_amount: number | null;
+  remaining_amount: number | null;
+  final_payment_status: "pending" | "not_required";
 };
 
 /** Full row, internal only (never returned to the browser). */
@@ -51,13 +60,16 @@ export type ProjectRequestRecord = ProjectRequestInput & {
 
 const orNull = (value: string) => value || null;
 
-export const toProjectRequest = (data: InquiryValues, submissionKey: string): ProjectRequestInput => ({
+export const toProjectRequest = (data: InquiryValues, submissionKey: string, userId: string | null = null): ProjectRequestInput => {
+  const packageId = data.package as ProjectRequestInput["package"];
+  const snapshot = pricingSnapshot(packageId);
+  return {
   submission_key: submissionKey,
   client_name: data.name,
   email: data.email,
   phone: orNull(data.phone),
   organization: orNull(data.organization),
-  package: data.package as ProjectRequestInput["package"],
+  package: packageId,
   website_type: data.projectType,
   project_description: data.description,
   features_needed: data.features,
@@ -66,7 +78,14 @@ export const toProjectRequest = (data: InquiryValues, submissionKey: string): Pr
   existing_website: orNull(data.siteUrl),
   timeline: orNull(data.timeline),
   budget: orNull(data.budget),
-});
+  user_id: userId,
+  currency: snapshot.currency,
+  total_amount: snapshot.total,
+  deposit_amount: snapshot.deposit,
+  remaining_amount: snapshot.remaining,
+  final_payment_status: snapshot.finalRequired ? "pending" : "not_required",
+  };
+};
 
 export const storageConfigured = () => createAdminClient() !== null;
 
@@ -77,12 +96,12 @@ export class StorageError extends Error {}
  * lost response) returns the existing row's id instead of creating a duplicate.
  * Throws StorageError with a short code only; database details are never surfaced.
  */
-export const saveProjectRequest = async (data: InquiryValues, submissionKey: string): Promise<{ id: string; duplicate: boolean }> => {
+export const saveProjectRequest = async (data: InquiryValues, submissionKey: string, userId: string | null): Promise<{ id: string; duplicate: boolean }> => {
   const db = createAdminClient();
   if (!db) throw new StorageError("not_configured");
   const table = db.from("project_requests");
 
-  const { data: row, error } = await table.insert(toProjectRequest(data, submissionKey)).select("id").single<{ id: string }>();
+  const { data: row, error } = await table.insert(toProjectRequest(data, submissionKey, userId)).select("id").single<{ id: string }>();
   if (row) return { id: row.id, duplicate: false };
 
   if (error?.code === "23505") {
