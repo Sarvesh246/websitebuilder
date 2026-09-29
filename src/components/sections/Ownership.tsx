@@ -52,7 +52,7 @@ export const Ownership = () => (
       <PaneStage
         className="own-stage"
         label={own.visualLabel}
-        layers={[{ id: "own", className: "own-pane", depth: 14, float: true, node: <GlassPane className="pane--smoke"><ScreenPhoto title="Your website. Your ownership." burger /></GlassPane> }]}
+        layers={[{ id: "own", className: "own-pane", depth: 14, float: true, node: <GlassPane className="pane--smoke"><ScreenPhoto title="Your website. Your ownership." photo="own" burger /></GlassPane> }]}
       />
     </Container>
   </Section>

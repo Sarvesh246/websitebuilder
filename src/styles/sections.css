@@ -92,29 +92,29 @@
     pointer-events: none;
   }
   .why-pane--main {
-    left: 17%;
-    top: 24%;
-    width: 60%;
+    left: 15%;
+    top: 22%;
+    width: 66%;
     --ratio: 16 / 11.5;
     --pose: rotateY(-14deg) rotateX(3deg) rotateZ(-2deg);
   }
   .why-pane--top {
-    left: 26%;
-    top: 0;
-    width: 34%;
+    left: 27%;
+    top: -2%;
+    width: 38%;
     --pose: rotateY(-16deg) rotateX(10deg) rotateZ(5deg);
   }
   .why-pane--left {
-    left: 0;
-    top: 14%;
-    width: 20%;
+    left: -2%;
+    top: 12%;
+    width: 21%;
     --ratio: 10 / 16;
     --pose: rotateY(30deg) rotateZ(-3deg);
   }
   .why-pane--right {
-    left: 83%;
-    top: 9%;
-    width: 19%;
+    left: 84%;
+    top: 7%;
+    width: 21%;
     --ratio: 10 / 16;
     --pose: rotateY(-28deg) rotateZ(3deg);
   }
@@ -160,31 +160,32 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: clamp(1.25rem, 2vw, 2.25rem);
       align-items: end;
-      margin-top: -2rem;
+      margin-top: -5rem;
     }
     /* rising steps, like the reference */
     .services__item:nth-child(1) {
-      --svc-y: 3.6rem;
+      --svc-y: 5.5rem;
     }
     .services__item:nth-child(2) {
-      --svc-y: 2.2rem;
+      --svc-y: 3rem;
     }
     .services__item:nth-child(3) {
-      --svc-y: 0.8rem;
+      --svc-y: 0.5rem;
     }
     .services__item:nth-child(4) {
-      --svc-y: -0.6rem;
+      --svc-y: -2rem;
     }
     .services__item {
       perspective: 1400px;
     }
     .svc {
-      min-height: 30rem;
+      min-height: 27rem;
       transform: translateY(var(--svc-y, 0)) rotateY(-12deg);
     }
   }
   .svc {
     --pane-r: 1.6rem;
+    background-color: light-dark(transparent, rgb(12 14 17 / 0.42));
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -199,10 +200,10 @@
   .svc__art {
     position: absolute;
     inset: auto 0 0;
-    height: 46%;
+    height: 38%;
     z-index: 0;
-    -webkit-mask-image: linear-gradient(to top, #000 50%, transparent);
-    mask-image: linear-gradient(to top, #000 50%, transparent);
+    -webkit-mask-image: linear-gradient(to top, #000 60%, transparent);
+    mask-image: linear-gradient(to top, #000 60%, transparent);
     opacity: 0.85;
   }
   .svc__art img {

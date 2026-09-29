@@ -49,3 +49,5 @@ next-env.d.ts
 .skipper/*
 !.skipper/receipts/
 /scripts/art/out/
+/public/images/scenes2/
+/public/images/references/

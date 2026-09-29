@@ -11,7 +11,7 @@ import { finalCta } from "@/config/about";
  */
 export const FinalCta = () => (
   <Section aria-labelledby="final-cta-title" className="final-cta">
-    <Plate name="hero" className="final-cta__plate" />
+    <Plate name="cta" className="final-cta__plate" />
     <Container>
       <Reveal className="final-cta__wrap">
         <div className="pane final-cta__panel">
