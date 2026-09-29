@@ -25,8 +25,8 @@ export const LegalPage = ({ title, intro, children }: { title: string; intro: st
   </Section>
 );
 
-export const LegalSection = ({ title, children }: { title: string; children: ReactNode }) => (
-  <section className="legal__section">
+export const LegalSection = ({ title, id, children }: { title: string; id?: string; children: ReactNode }) => (
+  <section id={id} className="legal__section">
     <h2 className="t-h4">{title}</h2>
     {children}
   </section>

@@ -67,6 +67,13 @@ export default function PrivacyPage() {
           anything other than storing and delivering it. The site&apos;s hosting provider serves the pages and runs the
           form&apos;s server code.
         </p>
+        <p>
+          Project payments are processed by Stripe. You enter card details on Stripe&apos;s secure checkout page, and
+          Northframe never sees or stores card numbers. Northframe keeps payment records (amounts, dates, status, and
+          Stripe reference IDs), your acceptance of the payment terms, and, for projects with a later balance, a reference
+          to the payment method Stripe saved for the remaining balance. Stripe&apos;s own privacy policy covers what it
+          collects.
+        </p>
       </LegalSection>
 
       <LegalSection title="Data retention">
