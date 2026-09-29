@@ -4,7 +4,7 @@ import { footerLinks, legalLinks } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 
 /**
- * Minimal footer: wordmark, one line of descriptor, a short link list, legal, and the year.
+ * Quiet footer: wordmark and descriptor, two link columns, and a hairline with the year.
  * The email only renders when NEXT_PUBLIC_CONTACT_EMAIL is set; social links only when
  * siteConfig.social has real entries. The year is the build/render year.
  */
@@ -53,10 +53,6 @@ export const SiteFooter = () => (
           </ul>
         </nav>
       </div>
-
-      <p aria-hidden className="site-footer__wordmark">
-        {siteConfig.name}
-      </p>
 
       <p className="site-footer__legal t-small">
         &copy; {new Date().getFullYear()} {siteConfig.name}. Designed and built independently.

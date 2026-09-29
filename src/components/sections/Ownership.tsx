@@ -1,68 +1,59 @@
-import { Code2, Database, Globe, User } from "lucide-react";
+import { Code2, Database, Globe, UserRound } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
-import { Plinth, Scene } from "@/components/visual/environment/Scene";
+import { Plate } from "@/components/visual/Plate";
+import { GlassPane } from "@/components/visual/pane/GlassPane";
+import { PaneStage } from "@/components/visual/pane/PaneStage";
+import { ScreenPhoto } from "@/components/visual/pane/Screens";
 import { ownershipScene as own } from "@/config/about";
 
-const icons = [Globe, Code2, User, Database] as const;
+const icons = [Globe, Code2, UserRound, Database] as const;
 
 /**
- * Ownership: the one dark scene, between Process and Pricing (the finished site is handed over,
- * then the packages). `.dusk` flips the subtree to dark tokens; fades top and bottom blend it into
- * the bright sections around it. One smoked-glass frame on a stone plinth, lit from the upper
- * left like the rest of the page. Quiet on purpose: near-black, cool rim light, no grid.
+ * Ownership (reference 6): the one dark scene in both themes (`.dusk` forces dark tokens). Copy,
+ * four ownership marks and the plain-language promise left; one large smoked-glass pane standing
+ * on the lit plinth of the rendered interior right.
  */
 export const Ownership = () => (
   <Section id="ownership" aria-labelledby="ownership-title" className="dusk own">
-    <Scene variant="dusk" seed={19} />
+    <Plate name="ownership" />
     <Container className="own__grid">
-      <Reveal className="own__copy own__head">
-        <span className="t-label t-label--rule">{own.eyebrow}</span>
-        <h2 id="ownership-title" className="t-h2 own__title">
-          {own.titleLines.map((line) => (
-            <span key={line} className="own__line">
-              {line}
-            </span>
-          ))}
-        </h2>
-        <p className="t-lead max-w-[36ch]">{own.lead}</p>
-      </Reveal>
-      <Reveal className="own__visual" delay={0.1}>
-        <div className="own-stage" role="img" aria-label={own.visualLabel}>
-          <Plinth className="own-stage__plinth" />
-          <div className="own-frame">
-            <div className="own-frame__glass">
-              <span className="own-frame__brand">Northframe</span>
-              <span className="own-frame__menu" />
-              <span className="own-frame__text">
-                Your website.
-                <br />
-                Your ownership.
+      <div className="own__copy">
+        <Reveal className="flex flex-col items-start gap-6">
+          <span className="t-label t-label--rule">{own.eyebrow}</span>
+          <h2 id="ownership-title" className="t-h2 own__title">
+            {own.titleLines.map((line) => (
+              <span key={line} className="own__line">
+                {line}
               </span>
-              <span className="own-frame__peaks" />
-              <span className="own-frame__water" />
-            </div>
-          </div>
-        </div>
-      </Reveal>
-      <Reveal className="own__copy own__foot">
+            ))}
+          </h2>
+          <p className="t-lead own__lead">{own.lead}</p>
+        </Reveal>
         <RevealGroup className="own__items" stagger={0.08}>
           {own.items.map((item, i) => {
             const Icon = icons[i];
             return (
               <RevealItem key={item.label} className="own__item">
                 <span aria-hidden className="own__icon">
-                  <Icon size={18} strokeWidth={1.6} />
+                  <Icon size={22} strokeWidth={1.4} />
                 </span>
-                <h3 className="t-h4">{item.label}.</h3>
-                <p className="t-small">{item.body}</p>
+                <h3 className="own__label">{item.label}.</h3>
+                <p className="sr-only">{item.body}</p>
               </RevealItem>
             );
           })}
         </RevealGroup>
-        <p className="t-small own__statement">{own.statement}</p>
-      </Reveal>
+        <Reveal>
+          <p className="own__statement">{own.statement}</p>
+        </Reveal>
+      </div>
+      <PaneStage
+        className="own-stage"
+        label={own.visualLabel}
+        layers={[{ id: "own", className: "own-pane", depth: 14, float: true, node: <GlassPane className="pane--smoke"><ScreenPhoto title="Your website. Your ownership." burger /></GlassPane> }]}
+      />
     </Container>
   </Section>
 );

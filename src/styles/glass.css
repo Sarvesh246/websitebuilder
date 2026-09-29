@@ -103,21 +103,6 @@
   }
 
   /* Interaction. Only transform / shadow / border colour move. */
-  /*
-   * Object glass: thick standing panels (What we build, process, final CTA). Same layers as
-   * .glass plus a heavier edge, a soft contact shadow on the surface below, and a bright
-   * bevel on the lit side. Combine with .glass or .glass-feature.
-   */
-  .glass-slab {
-    box-shadow:
-      inset 2px 2px 0 var(--glass-edge-lit),
-      inset -2px -2px 0 var(--glass-edge-shade),
-      inset 0 0 0 1px var(--glass-border),
-      inset -18px -18px 28px -20px var(--glass-refract),
-      0 1px 1px var(--shadow-ink-soft),
-      0 40px 64px -32px var(--shadow-ink-strong);
-  }
-
   .glass-interactive {
     cursor: pointer;
     transition:

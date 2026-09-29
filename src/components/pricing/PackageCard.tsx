@@ -1,68 +1,57 @@
-import { Check, Sparkles, Tag } from "lucide-react";
-import { GlassSurface } from "@/components/ui/GlassSurface";
-import { Badge } from "@/components/ui/Badge";
+import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { startHref } from "@/config/inquiry";
-import { foundingLabel, type PackageTier } from "@/config/pricing";
+import { foundingLabel, type CustomTier, type PackageTier } from "@/config/pricing";
+
+const CheckList = ({ items }: { items: readonly string[] }) => (
+  <ul className="pkg__list">
+    {items.map((item) => (
+      <li key={item}>
+        <span aria-hidden className="pkg__check">
+          <Check size={11} strokeWidth={2.4} />
+        </span>
+        {item}
+      </li>
+    ))}
+  </ul>
+);
 
 /**
- * One core package. Reads top to bottom as: name, what it is, price, who it is for,
- * what is included, CTA. Layout (stacked, two-column on tablet, stacked again on desktop)
- * lives in styles/pricing.css so this stays a thin wrapper.
+ * One package card (reference 7): name + badge, who it is for, price (struck regular price and the
+ * Founding Client Pricing pill while it applies), what is included, CTA with its scope note.
  */
 export const PackageCard = ({ tier }: { tier: PackageTier }) => {
   const founding = tier.regularPrice !== undefined;
   return (
-    <GlassSurface
-      as="article"
-      variant={tier.featured ? "feature" : "default"}
-      className="pkg"
-      aria-labelledby={`pkg-${tier.id}`}
-    >
+    <article className="pkg" data-featured={tier.featured || undefined} aria-labelledby={`pkg-${tier.id}`}>
       <div className="pkg__head">
         <div className="pkg__title">
-          <h3 id={`pkg-${tier.id}`} className="t-h4">
+          <h3 id={`pkg-${tier.id}`} className="pkg__name">
             {tier.name}
           </h3>
           {tier.badge && (
-            <Badge>
+            <span className="pkg__badge">
               <Sparkles aria-hidden size={12} strokeWidth={2} />
               {tier.badge}
-            </Badge>
+            </span>
           )}
         </div>
-        <p className="pkg__blurb">{tier.blurb}</p>
-        <div className="pkg__price">
-          <span className={founding ? "pkg__price-label pkg__price-label--launch" : "pkg__price-label"}>
-            {founding && <Tag aria-hidden size={13} strokeWidth={2} />}
-            {founding ? foundingLabel : "One-time price"}
-          </span>
-          <span className="t-price">${tier.price}</span>
-          <span className="pkg__price-sub">
-            {founding ? (
-              <>
-                <del className="t-price-was">${tier.regularPrice}</del> regular
-              </>
-            ) : (
-              "Fixed fee"
-            )}
-          </span>
-        </div>
-      </div>
-
-      <div className="pkg__body">
         <p className="pkg__for">{tier.audience}</p>
-        {tier.includesLead && <p className="pkg__lead-in">{tier.includesLead}</p>}
-        <ul className="pkg__list">
-          {tier.features.map((feature) => (
-            <li key={feature}>
-              <Check aria-hidden size={16} strokeWidth={2} />
-              {feature}
-            </li>
-          ))}
-        </ul>
+        <p className="pkg__price">
+          <span className="t-price">${tier.price}</span>
+          {founding && (
+            <>
+              <span className="sr-only">, regularly</span>
+              <del className="t-price-was">${tier.regularPrice}</del>
+            </>
+          )}
+        </p>
+        <p className={founding ? "pkg__pill" : "pkg__pill pkg__pill--plain"}>{founding ? foundingLabel : "One-time price"}</p>
       </div>
-
+      <div className="pkg__body">
+        <p className="pkg__lead-in">{tier.includesLead}</p>
+        <CheckList items={tier.features} />
+      </div>
       <div className="pkg__foot">
         <Button
           href={startHref(tier.id)}
@@ -76,6 +65,34 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
         </Button>
         <p className="pkg__note">{tier.note}</p>
       </div>
-    </GlassSurface>
+    </article>
   );
 };
+
+/** Custom as the fourth card: same anatomy, but "Request a Quote" instead of a number. */
+export const CustomCard = ({ tier }: { tier: CustomTier }) => (
+  <article className="pkg pkg--custom" aria-labelledby="pkg-custom">
+    <div className="pkg__head">
+      <div className="pkg__title">
+        <h3 id="pkg-custom" className="pkg__name">
+          {tier.name}
+        </h3>
+      </div>
+      <p className="pkg__for">{tier.audience}</p>
+      <p className="pkg__price">
+        <span className="pkg__quote">Request a Quote</span>
+      </p>
+      <p className="pkg__pill pkg__pill--plain">Priced by scope</p>
+    </div>
+    <div className="pkg__body">
+      <p className="pkg__lead-in">Quoted by scope</p>
+      <CheckList items={tier.scope} />
+    </div>
+    <div className="pkg__foot">
+      <Button href={startHref(tier.id)} variant="secondary" icon="right" block data-package={tier.id}>
+        {tier.ctaLabel}
+      </Button>
+      <p className="pkg__note">{tier.note}</p>
+    </div>
+  </article>
+);
