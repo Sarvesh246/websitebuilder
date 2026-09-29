@@ -13,7 +13,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      intro="Northframe is an independent web design and development studio. This page explains what this website collects, why, and who handles it. There is no account system, no tracking, and no advertising here."
+      intro="Northframe is an independent web design and development studio. This page explains what this website collects, why, and who handles it. Accounts are used to follow your project and pay for it. There is no tracking and no advertising here."
     >
       <LegalSection title="Information collected">
         <p>
@@ -39,6 +39,19 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
+      <LegalSection title="Account and payment information">
+        <p>
+          If you create an account, your email address and name are held in Supabase Auth, the sign-in service, and in the
+          project database. If you sign in with Google, Google shares only your email address and name with Northframe.
+        </p>
+        <p>
+          Payments are processed by Stripe. Your card details are entered on Stripe&apos;s hosted checkout page and are handled
+          by Stripe. Northframe never sees or stores card numbers. Northframe keeps only Stripe reference IDs, the amount,
+          and the payment status of each payment. If you pay in two parts, Stripe securely saves your payment method so the
+          remaining balance can be charged as you authorized at checkout.
+        </p>
+      </LegalSection>
+
       <LegalSection title="How information is used">
         <p>
           Inquiry details are used to read your request, reply to you, and prepare a quote or proposal. You also receive a
@@ -50,7 +63,7 @@ export default function PrivacyPage() {
       <LegalSection title="Service providers">
         <p>
           Inquiries are stored in a private database hosted by Supabase, a database provider, and a copy is sent by email
-          through Resend, an email delivery service, to Northframe&apos;s inbox. Neither provider uses your submission for
+          through Resend, an email delivery service, to Northframe&apos;s inbox. Payments are handled by Stripe, a payment processor. None of these providers uses your submission for
           anything other than storing and delivering it. The site&apos;s hosting provider serves the pages and runs the
           form&apos;s server code.
         </p>

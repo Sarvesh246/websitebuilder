@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { SiteFooter } from "@/components/footer/SiteFooter";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { MotionProvider } from "@/components/motion/MotionProvider";
+import { SiteNav } from "@/components/nav/SiteNav";
 import { Button } from "@/components/ui/Button";
 import { Ambient } from "@/components/visual/Ambient";
 import { siteConfig } from "@/config/site";
@@ -9,6 +12,9 @@ export const metadata: Metadata = { title: "Page not found", robots: { index: fa
 
 export default function NotFound() {
   return (
+    <MotionProvider>
+      <SiteNav />
+      <main id="main">
     <Section className="legal not-found" spacing="none">
       <Ambient preset="quiet" />
       <Container>
@@ -27,5 +33,8 @@ export default function NotFound() {
         </div>
       </Container>
     </Section>
+      </main>
+      <SiteFooter />
+    </MotionProvider>
   );
 }

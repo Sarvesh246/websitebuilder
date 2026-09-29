@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Info, Loader2, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { ChoiceGroup, TextAreaField, TextField } from "@/components/inquiry/fields";
@@ -24,6 +25,9 @@ import {
 } from "@/config/inquiry";
 import type { PackageId } from "@/config/pricing";
 import { emptyValues, stepFields, validateInquiry, type FieldErrors, type InquiryValues } from "@/lib/inquiry/schema";
+
+/** The signed-in account, or null. Sending a request needs an account: it is how the project portal is opened. */
+export type InquiryAccount = { email: string } | null;
 
 type Status = "idle" | "sending" | "success" | "error";
 /** startedAt persists the first visit, so a restored draft is not mistaken for a bot's instant submit. */
@@ -68,14 +72,15 @@ const readDraft = (): Draft | null => {
  * Server render and first client render use defaults (so hydration matches); once mounted the form
  * remounts with any saved draft. A package in the URL always wins over a saved one.
  */
-export const InquiryFlow = ({ initialPackage }: { initialPackage: PackageId | null }) => {
+export const InquiryFlow = ({ initialPackage, account }: { initialPackage: PackageId | null; account: InquiryAccount }) => {
   const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
-  return <InquiryForm key={mounted ? "client" : "server"} initialPackage={initialPackage} draft={mounted ? readDraft() : null} live={mounted} />;
+  return <InquiryForm key={mounted ? "client" : "server"} initialPackage={initialPackage} account={account} draft={mounted ? readDraft() : null} live={mounted} />;
 };
 
-const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageId | null; draft: Draft | null; live: boolean }) => {
+const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage: PackageId | null; account: InquiryAccount; draft: Draft | null; live: boolean }) => {
+  const router = useRouter();
   const [values, setValues] = useState<InquiryValues>(() => {
-    if (!draft) return { ...emptyValues, package: initialPackage ?? "" };
+    if (!draft) return { ...emptyValues, package: initialPackage ?? "", email: account?.email ?? "" };
     const saved = parsePackageId(draft.values.package) ?? "";
     return { ...emptyValues, ...draft.values, package: initialPackage ?? saved, links: draft.values.links?.length ? draft.values.links : [""] };
   });
@@ -211,6 +216,13 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
         } catch {
           // Ignore: the draft is only a convenience.
         }
+        const sent = (await res.json().catch(() => ({}))) as { requestId?: string };
+        if (sent.requestId) {
+          // The project now lives in the portal: pay the first part there, or follow the quote for Custom.
+          const home = `/portal/projects/${sent.requestId}`;
+          router.push(result.data.package === "custom" ? home : `${home}/checkout`);
+          return;
+        }
         setStatus("success");
         window.scrollTo({ top: 0 });
         return;
@@ -227,6 +239,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
       setFailure(
         res.status === 429
           ? "You've sent a few requests in a short time. Please wait a few minutes, then try again. Your answers are still here."
+          : res.status === 401
+            ? "Your session ended. Sign in again to send this request. Your answers are still here."
           : res.status === 503
             ? copy.unconfigured
             : copy.errorBody,
@@ -497,6 +511,13 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
           {step === 4 && (
             <div className="flow__body">
               <Review values={values} onEdit={go} />
+              {account ? (
+                <p className="flow__account">
+                  Signed in as <strong>{account.email}</strong>. This request opens your project portal.
+                </p>
+              ) : (
+                <AccountGate next={`/start${pkg ? `?package=${pkg}` : ""}`} />
+              )}
               <p className="flow__consent">{copy.consent}</p>
               {status === "error" && (
                 <p role="alert" className="flow__error">
@@ -522,7 +543,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
               <Button type="submit" icon="right">
                 Continue
               </Button>
-            ) : (
+            ) : !account ? null : (
               <button type="submit" className="btn btn-primary" disabled={sending} aria-busy={sending}>
                 {sending ? (
                   <>
@@ -540,6 +561,28 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
           </div>
         </form>
       </GlassSurface>
+    </div>
+  );
+};
+
+/** Shown on Review to signed-out visitors: an account is what lets them follow the project, message and pay. */
+const AccountGate = ({ next }: { next: string }) => {
+  const q = encodeURIComponent(next);
+  return (
+    <div className="flow__gate" role="note">
+      <h3 className="t-h4">Create a free account to send this</h3>
+      <p>
+        Your account is your project portal: progress, messages, files, and payments in one place. Your answers are saved and will
+        be here when you come back.
+      </p>
+      <div className="flow__gate-actions">
+        <Button href={`/signup?next=${q}`} icon="right">
+          Create account
+        </Button>
+        <Button href={`/login?next=${q}`} variant="secondary" icon={false}>
+          Sign in
+        </Button>
+      </div>
     </div>
   );
 };

@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
-import { SiteFooter } from "@/components/footer/SiteFooter";
-import { MotionProvider } from "@/components/motion/MotionProvider";
-import { SiteNav } from "@/components/nav/SiteNav";
 import { Grain } from "@/components/visual/Ambient";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
@@ -52,11 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <MotionProvider>
-          <SiteNav />
-          <main id="main">{children}</main>
-          <SiteFooter />
-        </MotionProvider>
+        {children}
         <Grain />
       </body>
     </html>

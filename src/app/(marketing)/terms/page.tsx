@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactLine, LegalPage, LegalSection } from "@/components/legal/LegalPage";
+import { cancellationPolicy } from "@/config/payments";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -42,6 +43,27 @@ export default function TermsPage() {
           Before paid work begins, the project scope, payment schedule, delivery, revision limits, and ownership terms are
           confirmed in a separate written project agreement. If anything here differs from that agreement, the agreement
           applies to your project.
+        </p>
+      </LegalSection>
+
+      <LegalSection title={`Payments and the ${cancellationPolicy.title}`}>
+        <p>
+          Payments are taken online through Stripe. Launch is paid in full at checkout. Presence and Business are split
+          into two payments: half at checkout to start the project, and the remaining balance after the included
+          revision stage is completed. Custom projects follow the payment schedule in the written quote.
+        </p>
+        <p>
+          For split payments, you authorize Northframe to securely save your payment method with Stripe and to attempt
+          to charge the remaining balance once the revision stage is completed. If that charge fails, you will be asked
+          to pay the balance another way. Launch, transfer, and delivery of the finished site happen only after the
+          remaining balance is paid.
+        </p>
+        <p>
+          <strong>{cancellationPolicy.title}.</strong> {cancellationPolicy.body[0]} {cancellationPolicy.body[1]}{" "}
+          {cancellationPolicy.body[2]} {cancellationPolicy.note}
+        </p>
+        <p>
+          Domain names and paid third-party services are billed separately and are not covered by the package price.
         </p>
       </LegalSection>
 
