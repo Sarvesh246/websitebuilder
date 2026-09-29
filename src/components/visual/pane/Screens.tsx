@@ -3,13 +3,14 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 /**
  * Concept website screens shown inside glass panes. Decorative artwork (no client work): the
- * nearest labelled ancestor describes them. Photos are offline renders from scripts/art/.
+ * nearest labelled ancestor describes them. Photos are crops of the backdrop photography.
  */
 
 const photos = {
-  peak: "/images/scenes/photo-peak.webp",
-  range: "/images/scenes/photo-range.webp",
-  portal: "/images/scenes/photo-portal.webp",
+  peak: "/images/scenes/shot-peak.webp",
+  range: "/images/scenes/shot-range.webp",
+  portal: "/images/scenes/shot-portal.webp",
+  own: "/images/scenes/shot-own.webp",
 } as const;
 type Photo = keyof typeof photos;
 
@@ -29,6 +30,7 @@ const Nav = ({ burger }: { burger?: boolean }) => (
         <em>Services</em>
         <em>Process</em>
         <em>About</em>
+        <i className="scr__burger" />
       </span>
     )}
   </div>

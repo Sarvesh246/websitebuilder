@@ -1,7 +1,7 @@
 /*
  * Reference art direction: rendered environment plates behind each section, thick acrylic glass
  * panes floating in front of them, and concept website screens inside the panes.
- * Plates are rendered offline (scripts/art/) and swapped per theme with custom properties, so only
+ * Plates are the owner's backdrop photos (public/images/backdrops), swapped per theme with custom properties, so only
  * the active theme's image downloads.
  */
 @layer components {
@@ -22,8 +22,8 @@
     background-position: var(--plate-pos, 60% 50%);
     background-repeat: no-repeat;
     /* dissolve into the page colour at the top and bottom so sections join without seams */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 7rem), #000 calc(100% - var(--plate-fade-bottom, 9rem)), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 7rem), #000 calc(100% - var(--plate-fade-bottom, 9rem)), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
   }
   /* soft veil behind the copy column so text always sits on calm haze */
   .plate::after {
@@ -33,48 +33,37 @@
     background: var(--plate-veil, linear-gradient(90deg, var(--plate-veil-color) 0%, transparent 58%));
   }
   .plate {
-    --plate-veil-color: light-dark(rgb(243 243 241 / 0.55), rgb(12 14 17 / 0.55));
+    --plate-veil-color: light-dark(rgb(243 243 241 / 0.45), rgb(12 14 17 / 0.5));
   }
 
-  .plate--hero { --plate: url("/images/scenes/hero-light.webp"); --plate-pos: 62% 58%; }
-  .plate--why { --plate: url("/images/scenes/why-light.webp"); --plate-pos: 58% 60%; }
-  .plate--services { --plate: url("/images/scenes/services-light.webp"); --plate-pos: 55% 62%; }
-  .plate--process { --plate: url("/images/scenes/process-light.webp"); --plate-pos: 50% 62%; --plate-veil: linear-gradient(to bottom, transparent 20%, var(--plate-veil-color) 42%, var(--plate-veil-color) 55%, transparent 72%); }
-  .plate--pricing { --plate: url("/images/scenes/pricing-light.webp"); --plate-pos: 50% 40%; --plate-veil: none; }
-  .plate--ownership { --plate: url("/images/scenes/ownership.webp"); --plate-pos: 60% 55%; }
+  /* Photographic backdrops (public/images/backdrops, from the owner's scenes2 set). Four places,
+     each with a light and a dusk version; Ownership uses the dusk version in both themes. */
+  .plate--hero,
+  .plate--pricing { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); --plate-ls: url("/images/backdrops/a-light-1000.webp"); --plate-ds: url("/images/backdrops/a-dark-1000.webp"); }
+  .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); --plate-ls: url("/images/backdrops/b-light-1000.webp"); --plate-ds: url("/images/backdrops/b-dark-1000.webp"); }
+  .plate--services,
+  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); --plate-ls: url("/images/backdrops/c-light-1000.webp"); --plate-ds: url("/images/backdrops/c-dark-1000.webp"); }
+  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-light-1000.webp"); --plate-ds: url("/images/backdrops/d-dark-1000.webp"); }
+  .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-dark-1000.webp"); --plate-ds: url("/images/backdrops/d-dark-1000.webp"); }
 
-  :root[data-theme="dark"] {
-    .plate--hero { --plate: url("/images/scenes/hero-dark.webp"); }
-    .plate--why { --plate: url("/images/scenes/why-dark.webp"); }
-    .plate--services { --plate: url("/images/scenes/services-dark.webp"); }
-    .plate--process { --plate: url("/images/scenes/process-dark.webp"); }
-    .plate--pricing { --plate: url("/images/scenes/pricing-dark.webp"); }
-  }
+  .plate { --plate: var(--plate-l); }
+  :root[data-theme="dark"] .plate { --plate: var(--plate-d); }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-      .plate--hero { --plate: url("/images/scenes/hero-dark.webp"); }
-      .plate--why { --plate: url("/images/scenes/why-dark.webp"); }
-      .plate--services { --plate: url("/images/scenes/services-dark.webp"); }
-      .plate--process { --plate: url("/images/scenes/process-dark.webp"); }
-      .plate--pricing { --plate: url("/images/scenes/pricing-dark.webp"); }
-    }
+    :root:not([data-theme]) .plate { --plate: var(--plate-d); }
   }
-  /* Phones and small tablets get the 1280px renders. */
   @media (max-width: 900px) {
-    .plate--hero { --plate: url("/images/scenes/hero-light-1280.webp"); }
-    .plate--why { --plate: url("/images/scenes/why-light-1280.webp"); }
-    .plate--services { --plate: url("/images/scenes/services-light-1280.webp"); }
-    .plate--process { --plate: url("/images/scenes/process-light-1280.webp"); }
-    .plate--pricing { --plate: url("/images/scenes/pricing-light-1280.webp"); }
-    .plate--ownership { --plate: url("/images/scenes/ownership-1280.webp"); }
-    :root[data-theme="dark"] {
-      .plate--hero { --plate: url("/images/scenes/hero-dark-1280.webp"); }
-      .plate--why { --plate: url("/images/scenes/why-dark-1280.webp"); }
-      .plate--services { --plate: url("/images/scenes/services-dark-1280.webp"); }
-      .plate--process { --plate: url("/images/scenes/process-dark-1280.webp"); }
-      .plate--pricing { --plate: url("/images/scenes/pricing-dark-1280.webp"); }
-    }
+    .plate { --plate: var(--plate-ls); }
+    :root[data-theme="dark"] .plate { --plate: var(--plate-ds); }
   }
+
+  /* where each photo is anchored so its plinth/ledge sits under the section's art */
+  .plate--hero { --plate-pos: 70% 100%; }
+  .plate--why { --plate-pos: 60% 100%; }
+  .plate--services { --plate-pos: 50% 100%; }
+  .plate--process { --plate-pos: 50% 100%; --plate-veil: linear-gradient(to bottom, var(--plate-veil-color) 0%, var(--plate-veil-color) 34%, transparent 62%); }
+  .plate--pricing { --plate-pos: 50% 100%; --plate-veil: linear-gradient(to bottom, transparent 30%, var(--plate-veil-color) 70%); }
+  .plate--ownership { --plate-pos: 70% 60%; }
+  .plate--cta { --plate-pos: 50% 100%; }
 
   /* Stacked layouts: the render becomes a band at the section's foot (behind the art), faded
      into the page above, instead of a cover image blown up behind the copy. */
@@ -98,19 +87,20 @@
     border-radius: var(--pane-r);
     padding: var(--pane-edge);
     background: linear-gradient(140deg, var(--pane-fill-a) 0%, var(--pane-fill-b) 26%, var(--pane-fill-b) 62%, var(--pane-fill-c) 100%);
-    -webkit-backdrop-filter: blur(4px) saturate(1.15) brightness(1.06);
-    backdrop-filter: blur(4px) saturate(1.15) brightness(1.06);
+    -webkit-backdrop-filter: blur(1.5px) saturate(1.1) brightness(1.14);
+    backdrop-filter: blur(1.5px) saturate(1.1) brightness(1.14);
     box-shadow:
-      inset 0 0 0 1px var(--pane-rim),
-      inset 2px 2px 0 var(--pane-rim),
-      inset -2px -2.5px 1px var(--pane-bevel-shade),
-      inset 0 0 1.4rem var(--pane-glow),
-      /* extrusion: the slab's thickness, seen toward the lower right */
+      inset 0 0 0 1.5px var(--pane-rim),
+      inset 2.5px 2.5px 0 var(--pane-rim),
+      inset -2px -3px 2px var(--pane-bevel-shade),
+      inset 0 0 1.1rem var(--pane-glow),
+      /* extrusion: the clear slab's side, catching light toward the lower right */
       1px 1.5px 0 var(--pane-ext-1),
       2px 3px 0 var(--pane-ext-1),
-      3px 4.5px 0 var(--pane-ext-2),
-      4px 6px 0 var(--pane-ext-3),
-      5px 7.5px 1px var(--pane-ext-4),
+      3px 4.5px 0 var(--pane-ext-1),
+      4px 6px 0 var(--pane-ext-2),
+      5px 7.5px 0 var(--pane-ext-3),
+      6px 9px 1px var(--pane-ext-4),
       /* contact + ambient shadow */
       0 2.5rem 4.5rem -2rem var(--pane-drop),
       0 0.8rem 2rem -1rem var(--pane-drop-soft);
@@ -160,8 +150,9 @@
     color: var(--scr-ink);
     container-type: inline-size;
     box-shadow:
-      0 0 0 1px var(--pane-rim-soft),
-      0 1px 3px var(--pane-drop-soft);
+      0 0 0 1px var(--pane-rim),
+      0 0 0 2.5px var(--pane-rim-cool),
+      0 1px 4px var(--pane-drop-soft);
   }
   .pane__screen::after {
     content: "";
@@ -195,6 +186,7 @@
   .scr__nav span {
     margin-left: auto;
     display: flex;
+    align-items: center;
     gap: 2.2em;
     color: var(--scr-muted);
     font-size: 0.85em;
@@ -215,7 +207,7 @@
     border-top: 1px solid currentColor;
   }
   .scr__h {
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: -0.03em;
     line-height: 1.06;
     color: var(--scr-ink);
@@ -274,7 +266,8 @@
     padding-top: 3.5em;
   }
   .scr--split .scr__h {
-    font-size: 3.3em;
+    font-size: 3.7em;
+    line-height: 1.08;
   }
   .scr--split .scr__img {
     border-top-left-radius: 0.3em;

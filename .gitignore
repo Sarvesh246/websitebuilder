@@ -45,3 +45,5 @@ next-env.d.ts
 /*.png
 !.env.example
 /scripts/art/out/
+/public/images/scenes2/
+/public/images/references/

@@ -87,26 +87,26 @@
   --glass-refract: light-dark(rgb(150 190 255 / 0.22), rgb(130 170 240 / 0.14)); /* faint cool lip inside the far edge */
 
   /* ---------- Glass panes (styles/pane.css): thick acrylic slabs from the references ---------- */
-  --pane-fill-a: light-dark(rgb(255 255 255 / 0.78), rgb(255 255 255 / 0.16));
-  --pane-fill-b: light-dark(rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.02));
-  --pane-fill-c: light-dark(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.1));
+  --pane-fill-a: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.14));
+  --pane-fill-b: light-dark(rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+  --pane-fill-c: light-dark(rgb(255 255 255 / 0.32), rgb(255 255 255 / 0.08));
   --pane-rim: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.42));
   --pane-rim-soft: light-dark(rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.1));
   --pane-rim-cool: light-dark(rgb(168 184 206 / 0.55), rgb(120 140 170 / 0.35));
   --pane-bevel-shade: light-dark(rgb(120 132 150 / 0.32), rgb(0 0 0 / 0.5));
-  --pane-glow: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.07));
-  --pane-ext-1: light-dark(rgb(250 251 252 / 0.98), rgb(150 158 170 / 0.6));
-  --pane-ext-2: light-dark(rgb(236 239 243 / 0.92), rgb(110 118 130 / 0.55));
-  --pane-ext-3: light-dark(rgb(220 225 232 / 0.8), rgb(78 85 96 / 0.5));
-  --pane-ext-4: light-dark(rgb(200 207 217 / 0.6), rgb(50 55 63 / 0.45));
-  --pane-drop: light-dark(rgb(40 46 58 / 0.3), rgb(0 0 0 / 0.6));
+  --pane-glow: light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.08));
+  --pane-ext-1: light-dark(rgb(255 255 255 / 0.98), rgb(170 178 190 / 0.6));
+  --pane-ext-2: light-dark(rgb(246 248 251 / 0.95), rgb(120 128 140 / 0.55));
+  --pane-ext-3: light-dark(rgb(232 236 242 / 0.88), rgb(88 95 106 / 0.5));
+  --pane-ext-4: light-dark(rgb(214 220 228 / 0.7), rgb(58 63 72 / 0.45));
+  --pane-drop: light-dark(rgb(40 46 58 / 0.22), rgb(0 0 0 / 0.6));
   --pane-drop-soft: light-dark(rgb(40 46 58 / 0.14), rgb(0 0 0 / 0.4));
   --pane-glare: light-dark(rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.07));
   /* concept screens inside the panes */
-  --scr-bg: light-dark(#f5f5f3, #16191e);
+  --scr-bg: light-dark(rgb(246 247 248 / 0.93), rgb(22 25 30 / 0.92));
   --scr-bg-2: light-dark(#e9eaea, #1e2228);
   --scr-ink: light-dark(#121418, #eef0f3);
-  --scr-muted: light-dark(#6a7079, #9197a0);
+  --scr-muted: light-dark(#5f6670, #9197a0);
   --scr-line: light-dark(rgb(20 20 20 / 0.1), rgb(255 255 255 / 0.1));
   --scr-block: light-dark(#dfe1e3, #2a2f36);
 
