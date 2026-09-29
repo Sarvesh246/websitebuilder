@@ -47,6 +47,14 @@
   @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
     .stage__float {
       animation: stage-float 9s var(--ease-in-out) infinite alternate;
+      animation-play-state: paused;
+    }
+    .stage[data-live] .stage__float {
+      animation-play-state: running;
+    }
+    /* weak hardware: the pane simply rests in its pose */
+    :root[data-power="low"] .stage__float {
+      animation: none;
     }
   }
   @keyframes stage-float {

@@ -43,6 +43,9 @@
     .glow--drift {
       animation: glow-drift var(--dur-ambient) var(--ease-in-out) infinite alternate;
     }
+    :root[data-power="low"] .glow--drift {
+      animation: none;
+    }
   }
   @keyframes glow-drift {
     from {

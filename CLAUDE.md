@@ -345,6 +345,13 @@ Goal: make the site look like the six approved references in `public/images/refe
 - Hero: rebuilt (Plate + label + h1 + lead + CTAs + dot-separated values + scroll cue to #why; three panes: "Cleaner websites. Bigger ideas." photo pane, "Ideas deserve better websites." split pane (floats), "Built for what's next." tall pane).
 - Next (R3): reorder page to Hero, Why, Services, Process, Ownership, Pricing, About, FinalCta; rebuild Why (merge About's founder note is optional), Services (4 glass cards), Process (4 steps + framed panes + connectors), Ownership (dark, dark pane). Old `Terrain`/`Scene`/`Plinth`/`Ambient` art and `mockup.css`/`environment.css` get deleted once unused.
 
+## Performance pass (2026-09-28): DONE
+Head script (`layout.tsx` `themeScript`, now a plain inline `<script>` in `<head>`; `next/script` beforeInteractive only queued it until after first paint) sets `data-js`, `data-net="slow"` (Save-Data or 3G-or-worse) and `data-power="low"` (deviceMemory or cores <= 2) before paint.
+- **Images:** `Plate` is a client component; non-`eager` plates get `data-near` from an IntersectionObserver (one viewport ahead) and `pane.css` hides their background until then (`:root[data-js]`), so first load fetches 2 backdrops (~280KB) instead of 7 (~1.1MB). Hero and /start plates are `eager`. Slow nets get `-lite.webp` (1280w, ~20-60KB each, made by `scripts/backdrops.mjs`).
+- **Motion:** `PaneStage` sets `data-live` via IntersectionObserver; the pane float loops only while on screen. `data-power="low"` also stops floats, glow drift and parallax, and removes `backdrop-filter` from `.pane` and `.glass*` (solid surface instead). The animation engine (`domAnimation`) loads as its own chunk (`motion/features.ts`).
+- **Input lag:** `/start` panel no longer has a backdrop blur (opacity 0.9 instead), and the sessionStorage draft write is debounced 400ms (flushed on `pagehide`).
+- Rules to keep: no new infinite animation without an on-screen gate; anything that needs a blur under a moving or typed-in element should have a `data-power="low"` fallback.
+
 ## Full debug pass (2026-09-28): DONE
 Audited the whole site on the production build (next start) with a local Resend mock. Fixed:
 - **Inquiry: silent lead loss.** The 3s fill-time bot check measured from form mount, and a restored draft on Review submitted fast got a fake "success" with nothing sent. The draft now stores `startedAt`; a restored draft without it (older drafts) counts as human.

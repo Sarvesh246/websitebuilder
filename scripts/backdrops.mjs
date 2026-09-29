@@ -2,6 +2,7 @@
  * Encodes the owner's backdrop photos (public/images/scenes2/*.png, gitignored sources) into the
  * WebP files the site ships. Run after adding or replacing a source: `node scripts/backdrops.mjs`.
  *
+ *   backdrops/<name>-lite.webp  1280 wide q74, served only on slow / Save-Data connections.
  *   backdrops/<name>.webp     2560 wide, lanczos3 upscale + light sharpening, q88. Used at every width:
  *                             phones show it as a viewport-sized sticky backdrop, so it needs the resolution.
  *   scenes/pic-<name>[-dark].webp  photos inside the glass panes and Services cards, cropped from the
@@ -43,6 +44,8 @@ const hq = (img, width) =>
 
 for (const [name, file] of Object.entries(backdrops)) {
   await hq(sharp(src(file)), 2560).webp({ quality: 88, effort: 6, smartSubsample: true }).toFile(join(images, "backdrops", `${name}.webp`));
+  // Same composition at half the pixels, for Save-Data and 3G-or-slower connections (html[data-net="slow"]).
+  await hq(sharp(src(file)), 1280).webp({ quality: 74, effort: 6, smartSubsample: true }).toFile(join(images, "backdrops", `${name}-lite.webp`));
   console.log("backdrop", name);
 }
 
