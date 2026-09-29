@@ -1,7 +1,7 @@
 @layer components {
   /* ---------- About: editorial, hairline-separated, no card ---------- */
   .about {
-    border-top: 1px solid var(--border);
+    --about-panel: light-dark(rgb(255 255 255 / 0.62), rgb(14 16 20 / 0.66));
   }
   .about__grid {
     display: grid;
@@ -22,14 +22,26 @@
   .about__head .t-h2 {
     max-width: 12ch;
   }
+  /* frosted panel: the terrace backdrop has a sunlit wall edge behind this column */
   .about__text {
     display: flex;
     flex-direction: column;
     gap: 1.4rem;
+    padding: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    background: var(--about-panel);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.2);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      0 30px 60px -36px var(--shadow-ink-mid);
   }
-  @media (min-width: 1024px) {
+  @media (prefers-reduced-transparency: reduce) {
     .about__text {
-      padding-top: 2.6rem;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--surface-solid);
     }
   }
   .about__lead {

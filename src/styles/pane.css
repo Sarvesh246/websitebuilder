@@ -40,6 +40,8 @@
      each with a light and a dusk version; Ownership uses the dusk version in both themes. */
   .plate--hero { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); --plate-ls: url("/images/backdrops/a-light-sm.webp"); --plate-ds: url("/images/backdrops/a-dark-sm.webp"); }
   .plate--pricing { --plate-l: url("/images/backdrops/pricing-light.webp"); --plate-d: url("/images/backdrops/pricing-dark.webp"); --plate-ls: url("/images/backdrops/pricing-light-sm.webp"); --plate-ds: url("/images/backdrops/pricing-dark-sm.webp"); }
+  .plate--about { --plate-l: url("/images/backdrops/about-light.webp"); --plate-d: url("/images/backdrops/about-dark.webp"); --plate-ls: url("/images/backdrops/about-light-sm.webp"); --plate-ds: url("/images/backdrops/about-dark-sm.webp"); }
+  .plate--intake { --plate-l: url("/images/backdrops/intake-light.webp"); --plate-d: url("/images/backdrops/intake-dark.webp"); --plate-ls: url("/images/backdrops/intake-light-sm.webp"); --plate-ds: url("/images/backdrops/intake-dark-sm.webp"); }
   .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); --plate-ls: url("/images/backdrops/b-light-sm.webp"); --plate-ds: url("/images/backdrops/b-dark-sm.webp"); }
   .plate--services,
   .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); --plate-ls: url("/images/backdrops/c-light-sm.webp"); --plate-ds: url("/images/backdrops/c-dark-sm.webp"); }
@@ -66,6 +68,8 @@
   .plate--pricing { --plate-pos: 50% 0; --plate-veil: none; --plate-fade-top: 3rem; --plate-fade-bottom: 6rem; }
   .plate--ownership { --plate-pos: 70% 60%; }
   .plate--cta { --plate-pos: 50% 100%; }
+  .plate--about { --plate-pos: 50% 70%; }
+  .plate--intake { --plate-pos: 50% 60%; --plate-veil: none; }
 
   /* Stacked layouts: the render becomes a band at the section's foot (behind the art), faded
      into the page above, instead of a cover image blown up behind the copy. */

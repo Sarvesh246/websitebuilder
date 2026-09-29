@@ -49,6 +49,8 @@
 
   .inquiry__panel {
     --glass-radius: var(--radius-panel);
+    /* denser than default glass: the intake backdrop has a bright window behind the form */
+    --glass-bg-strong: light-dark(rgb(255 255 255 / 0.82), rgb(18 21 26 / 0.84));
     padding: clamp(1.25rem, 1rem + 1.6vw, 2.5rem);
   }
 

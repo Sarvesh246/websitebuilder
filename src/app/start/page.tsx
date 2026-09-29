@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { InquiryFlow } from "@/components/inquiry/InquiryFlow";
-import { Ambient } from "@/components/visual/Ambient";
+import { Plate } from "@/components/visual/Plate";
 import { parsePackageId } from "@/config/inquiry";
 import { pageMetadata } from "@/lib/seo";
 
@@ -23,7 +23,7 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
 
   return (
     <Section className="start" spacing="none">
-      <Ambient preset="start" />
+      <Plate name="intake" />
       <Container>
         <InquiryFlow initialPackage={initialPackage} />
       </Container>
