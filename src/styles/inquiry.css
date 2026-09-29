@@ -50,7 +50,11 @@
   .inquiry__panel {
     --glass-radius: var(--radius-panel);
     /* denser than default glass: the intake backdrop has a bright window behind the form */
-    --glass-bg-strong: light-dark(rgb(255 255 255 / 0.82), rgb(18 21 26 / 0.84));
+    --glass-bg-strong: light-dark(rgb(255 255 255 / 0.9), rgb(18 21 26 / 0.9));
+    /* No live blur under the form: every keystroke repaints the panel, and re-blurring a panel this
+       large per keypress is what made typing lag on slower devices. At this opacity the look is the same. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     padding: clamp(1.25rem, 1rem + 1.6vw, 2.5rem);
   }
 

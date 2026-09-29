@@ -23,7 +23,7 @@ export default async function StartPage({ searchParams }: PageProps<"/start">) {
 
   return (
     <Section className="start" spacing="none">
-      <Plate name="intake" />
+      <Plate name="intake" eager />
       <Container>
         <InquiryFlow initialPackage={initialPackage} />
       </Container>

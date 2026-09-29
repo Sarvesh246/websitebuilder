@@ -1,7 +1,7 @@
 "use client";
 
 import { m, useMotionValue, useReducedMotion, useSpring, useTransform, type MotionValue } from "motion/react";
-import type { CSSProperties, PointerEvent, ReactNode } from "react";
+import { useEffect, useRef, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export type StageLayer = {
@@ -38,8 +38,22 @@ export const PaneStage = ({ label, className, layers }: { label: string; classNa
   const x = useSpring(px, { stiffness: 70, damping: 20, mass: 0.7 });
   const y = useSpring(py, { stiffness: 70, damping: 20, mass: 0.7 });
 
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Looping motion on frosted panes repaints their blur every frame, so it only runs while the stage
+  // is on screen (data-live, read by stage.css). Set on the node, so no re-render.
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      node.toggleAttribute("data-live", entry.isIntersecting);
+    });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   const onMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (reduce || event.pointerType !== "mouse") return;
+    if (reduce || event.pointerType !== "mouse" || document.documentElement.dataset.power === "low") return;
     const box = event.currentTarget.getBoundingClientRect();
     px.set((event.clientX - box.left) / box.width - 0.5);
     py.set((event.clientY - box.top) / box.height - 0.5);
@@ -50,7 +64,7 @@ export const PaneStage = ({ label, className, layers }: { label: string; classNa
   };
 
   return (
-    <div className={cn("stage", className)} role="img" aria-label={label} onPointerMove={onMove} onPointerLeave={onLeave}>
+    <div ref={ref} className={cn("stage", className)} role="img" aria-label={label} onPointerMove={onMove} onPointerLeave={onLeave}>
       {layers.map((layer, i) => (
         <Layer key={layer.id} x={x} y={y} layer={layer} index={i} />
       ))}

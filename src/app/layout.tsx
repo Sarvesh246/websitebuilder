@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
-import Script from "next/script";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteNav } from "@/components/nav/SiteNav";
@@ -32,7 +31,10 @@ export const viewport: Viewport = {
 };
 
 /** Resolves the theme before first paint (no flash). Stored choice wins, then system preference. */
-const themeScript = `try{var t=localStorage.getItem("nf-theme");if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.dataset.theme=t}catch(e){}`;
+// Runs before paint: theme, plus two capability hints. `data-net="slow"` (Save-Data or a 3G-or-worse
+// connection) swaps backdrops for lighter encodes; `data-power="low"` (2 cores or 2GB memory or less)
+// stops looping motion and per-frame blur. Nothing is removed from the layout or the content.
+const themeScript = `var d=document.documentElement;d.dataset.js="";try{var c=navigator.connection||{};if(c.saveData||/^(slow-2g|2g|3g)$/.test(c.effectiveType||""))d.dataset.net="slow";if((navigator.deviceMemory&&navigator.deviceMemory<=2)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=2))d.dataset.power="low";var t=localStorage.getItem("nf-theme");if(t!=="light"&&t!=="dark"){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}d.dataset.theme=t}catch(e){}`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -42,11 +44,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <noscript>
           <style>{`[data-reveal]{--reveal:1!important;transform:none!important}`}</style>
         </noscript>
+        {/* A plain inline script runs while the head is parsed, before any body content is styled
+            (next/script's beforeInteractive only queues it for Next's runtime, which is after first paint). */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
         <a href="#main" className="skip-link">
           Skip to content
         </a>

@@ -105,13 +105,26 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
     submissionId.current = draft?.submissionId || newSubmissionId();
   }, [draft]);
 
+  // Draft persistence is synchronous (stringify + storage write), so it waits for a pause in typing
+  // instead of running on every keystroke. Leaving the page flushes it.
+  const draftRef = useRef<Draft | null>(null);
   useEffect(() => {
     if (!live || status === "success") return;
-    try {
-      sessionStorage.setItem(inquiryDraftKey, JSON.stringify({ values, step, reached, startedAt: startedAt.current, submissionId: submissionId.current } satisfies Draft));
-    } catch {
-      // Ignore: persistence is a convenience.
-    }
+    draftRef.current = { values, step, reached, startedAt: startedAt.current, submissionId: submissionId.current };
+    const save = () => {
+      if (!draftRef.current) return;
+      try {
+        sessionStorage.setItem(inquiryDraftKey, JSON.stringify(draftRef.current));
+      } catch {
+        // Ignore: persistence is a convenience.
+      }
+    };
+    const timer = window.setTimeout(save, 400);
+    window.addEventListener("pagehide", save);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pagehide", save);
+    };
   }, [values, step, reached, live, status]);
 
   // Keep the URL in step with the chosen package, so refresh and shared links keep it.

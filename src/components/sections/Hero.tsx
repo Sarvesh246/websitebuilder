@@ -17,7 +17,7 @@ const step = (i: number) => ({ "--i": i }) as CSSProperties;
  */
 export const Hero = () => (
   <Section id="top" spacing="none" className="hero">
-    <Plate name="hero" />
+    <Plate name="hero" eager />
     <Container className="hero__grid">
       <div className="hero__copy">
         <p className="t-label t-label--rule hero-enter" style={step(0)}>

@@ -148,4 +148,11 @@
       backdrop-filter: none;
     }
   }
+  /* Weak hardware (html[data-power="low"], set before paint): a live blur per panel is what makes
+     scrolling stutter, so surfaces stay solid instead. Same layout, same contrast. */
+  :root[data-power="low"] :is(.glass, .glass-subtle, .glass-elevated, .glass-feature) {
+    background: var(--surface-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
