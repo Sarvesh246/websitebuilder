@@ -9,7 +9,7 @@ import { Plate } from "@/components/visual/Plate";
 import { services } from "@/config/about";
 
 const icons = [UserRound, MonitorSmartphone, Briefcase, Code2] as const;
-const art = ["shot-range", "shot-portal", "shot-range", "shot-peak"] as const;
+const art = ["pic-range", "pic-portal", "pic-range", "pic-peak"] as const;
 
 /**
  * What Northframe builds (reference 4): four standing glass cards rising like steps along the
