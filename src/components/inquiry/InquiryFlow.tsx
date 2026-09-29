@@ -27,7 +27,18 @@ import { emptyValues, stepFields, validateInquiry, type FieldErrors, type Inquir
 
 type Status = "idle" | "sending" | "success" | "error";
 /** startedAt persists the first visit, so a restored draft is not mistaken for a bot's instant submit. */
-type Draft = { values: InquiryValues; step: number; reached: number; startedAt?: number };
+/** submissionId is the idempotency key: retries and double clicks of the same request never create a second record. */
+type Draft = { values: InquiryValues; step: number; reached: number; startedAt?: number; submissionId?: string };
+
+/** RFC 4122 v4. randomUUID only exists in secure contexts, so fall back for plain-http LAN testing. */
+const newSubmissionId = () => {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const hex = Array.from(b, (n) => n.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
 
 /** Longer than the server's worst case (notification timeout), short enough to recover the UI. */
 const SUBMIT_TIMEOUT_MS = 20_000;
@@ -79,6 +90,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
   const [attempt, setAttempt] = useState(0);
 
   const startedAt = useRef(0);
+  const submissionId = useRef("");
+  const sendingRef = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const movedRef = useRef(false);
@@ -89,12 +102,13 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
     // A restored draft means someone already worked through the form; drafts saved before startedAt
     // existed get a start far enough back that the server's fill-time check can't mistake them for a bot.
     startedAt.current = typeof saved === "number" && saved <= Date.now() ? saved : draft ? Date.now() - 60_000 : Date.now();
+    submissionId.current = draft?.submissionId || newSubmissionId();
   }, [draft]);
 
   useEffect(() => {
     if (!live || status === "success") return;
     try {
-      sessionStorage.setItem(inquiryDraftKey, JSON.stringify({ values, step, reached, startedAt: startedAt.current } satisfies Draft));
+      sessionStorage.setItem(inquiryDraftKey, JSON.stringify({ values, step, reached, startedAt: startedAt.current, submissionId: submissionId.current } satisfies Draft));
     } catch {
       // Ignore: persistence is a convenience.
     }
@@ -125,6 +139,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
 
   const set = useCallback(<K extends keyof InquiryValues>(key: K, value: InquiryValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
+    // Edited answers are a new request; an unchanged retry keeps its key and is deduplicated.
+    submissionId.current = newSubmissionId();
     setErrors((prev) => {
       if (!(key in prev)) return prev;
       const next = { ...prev };
@@ -154,7 +170,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (step < steps.length - 1) return next();
-    if (status === "sending") return;
+    // The ref blocks a second click that lands before React re-renders the disabled button.
+    if (sendingRef.current) return;
 
     const result = validateInquiry(values);
     if (!result.ok) {
@@ -165,13 +182,14 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
       return;
     }
 
+    sendingRef.current = true;
     setStatus("sending");
     setFailure("");
     try {
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...result.data, hp, elapsed: Date.now() - startedAt.current }),
+        body: JSON.stringify({ ...result.data, hp, elapsed: Date.now() - startedAt.current, submissionId: submissionId.current }),
         signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
       });
       if (res.ok) {
@@ -204,6 +222,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
     } catch {
       setFailure(copy.errorBody);
       setStatus("error");
+    } finally {
+      sendingRef.current = false;
     }
   };
 
