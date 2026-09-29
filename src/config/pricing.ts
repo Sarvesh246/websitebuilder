@@ -16,6 +16,8 @@ export type PackageTier = {
   price: number;
   /** Regular price. Present only while Founding Client Pricing applies to this package. */
   regularPrice?: number;
+  /** Share of the price collected at checkout (100 = paid in full). The rest is due after the revision stage. */
+  upfrontPercent: 100 | 50;
   /** Lead-in above the feature list when a package builds on the previous one. */
   includesLead: string;
   features: readonly string[];
@@ -45,6 +47,7 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "A polished one-page site for your work and contact details.",
     audience: "Best for student portfolios and resumes.",
     price: 50,
+    upfrontPercent: 100,
     includesLead: "What's included",
     features: [
       "1 custom-designed page",
@@ -61,6 +64,7 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "A fuller site for creators and professionals who need it to do more.",
     audience: "Best for creators and professionals.",
     price: 200,
+    upfrontPercent: 50,
     regularPrice: 350,
     includesLead: "Everything in Launch, plus",
     features: [
@@ -82,6 +86,7 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "More pages, structure, and content for organizations and small businesses.",
     audience: "Best for organizations and businesses.",
     price: 350,
+    upfrontPercent: 50,
     regularPrice: 500,
     includesLead: "Everything in Presence, plus",
     features: [

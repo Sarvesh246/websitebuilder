@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactLine, LegalPage, LegalSection } from "@/components/legal/LegalPage";
+import { paymentTerms } from "@/config/payment";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -34,6 +35,25 @@ export default function TermsPage() {
         <p>
           Sending an inquiry is a request for a conversation and a quote. It does not create an agreement or oblige either
           side to work together.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Payments and cancellation" id="payments">
+        <p>
+          Website packages are paid through Stripe. Launch is paid in full at checkout. Presence and Business are paid in two
+          parts: half at checkout and the remaining half after the included revision stage is completed. Custom projects
+          follow the amounts quoted to you. The total, the amount due today, and the amount due later are shown before you pay.
+        </p>
+        <p>
+          For projects with a remaining balance, you authorize Northframe to have Stripe securely save your payment method and
+          to attempt to charge the remaining balance after the revision stage. If that payment fails, you can pay the balance
+          with any card through a secure payment link. Launch, transfer, or delivery of the finished website happens only after
+          the balance has been paid. Northframe never sees or stores your card number.
+        </p>
+        <p>
+          <strong>{paymentTerms.cancellation.title}.</strong> {paymentTerms.cancellation.body} Refunds are reviewed and
+          issued by Northframe; they are never automatic. This policy does not limit any rights you have under the law where
+          you live.
         </p>
       </LegalSection>
 

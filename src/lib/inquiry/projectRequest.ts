@@ -1,5 +1,6 @@
 import "server-only";
 import type { InquiryValues } from "@/lib/inquiry/schema";
+import { planForPackage } from "@/lib/payments/plan";
 import { createAdminClient } from "@/utils/supabase/server";
 
 /**
@@ -8,9 +9,10 @@ import { createAdminClient } from "@/utils/supabase/server";
  * workflow, payment and note columns are set by the database defaults or, later, by staff/Stripe.
  */
 export const requestStatuses = [
-  "new", "contacted", "awaiting_payment", "paid", "in_progress", "awaiting_client", "review", "completed", "cancelled",
+  "new", "contacted", "awaiting_payment", "paid", "in_progress", "awaiting_client", "review",
+  "revisions", "awaiting_final_payment", "ready_for_launch", "completed", "cancelled",
 ] as const;
-export const paymentStatuses = ["unpaid", "pending", "paid", "partially_paid", "refunded", "failed"] as const;
+export const paymentStatuses = ["unpaid", "pending", "paid", "partially_paid", "failed", "partially_refunded", "refunded", "disputed"] as const;
 
 export type ProjectRequestStatus = (typeof requestStatuses)[number];
 export type PaymentStatus = (typeof paymentStatuses)[number];
@@ -31,6 +33,15 @@ export type ProjectRequestInput = {
   existing_website: string | null;
   timeline: string | null;
   budget: string | null;
+} & Partial<PriceSnapshot>;
+
+/** Agreed price frozen at submission (integer cents). Absent for Custom until staff quote it. */
+export type PriceSnapshot = {
+  total_cents: number;
+  deposit_cents: number;
+  remaining_cents: number;
+  initial_payment_status: "pending";
+  final_payment_status: "pending" | "not_required";
 };
 
 /** Full row, internal only (never returned to the browser). */
@@ -51,7 +62,21 @@ export type ProjectRequestRecord = ProjectRequestInput & {
 
 const orNull = (value: string) => value || null;
 
+const snapshotFor = (pkg: Exclude<InquiryValues["package"], "">): Partial<PriceSnapshot> => {
+  const plan = planForPackage(pkg);
+  return plan
+    ? {
+        total_cents: plan.total,
+        deposit_cents: plan.deposit,
+        remaining_cents: plan.remaining,
+        initial_payment_status: "pending",
+        final_payment_status: plan.remaining > 0 ? "pending" : "not_required",
+      }
+    : {};
+};
+
 export const toProjectRequest = (data: InquiryValues, submissionKey: string): ProjectRequestInput => ({
+  ...snapshotFor(data.package as Exclude<InquiryValues["package"], "">),
   submission_key: submissionKey,
   client_name: data.name,
   email: data.email,

@@ -83,6 +83,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
   const [reached, setReached] = useState(() => (draft ? Math.min(Math.max(draft.reached ?? draft.step, draft.step), lastEditable + 1) : 0));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
+  const [requestId, setRequestId] = useState("");
   const [failure, setFailure] = useState("");
   const [showAllFeatures, setShowAllFeatures] = useState(false);
   const [hp, setHp] = useState("");
@@ -211,6 +212,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
         } catch {
           // Ignore: the draft is only a convenience.
         }
+        const saved = (await res.json().catch(() => ({}))) as { requestId?: string };
+        setRequestId(typeof saved.requestId === "string" ? saved.requestId : "");
         setStatus("success");
         window.scrollTo({ top: 0 });
         return;
@@ -240,7 +243,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
     }
   };
 
-  if (status === "success") return <Success email={values.email} />;
+  if (status === "success") return <Success email={values.email} requestId={requestId} pkg={values.package} />;
 
   const pkg = values.package;
   const advancedPicked = features.some((f) => f.advanced && values.features.includes(f.id));
@@ -544,7 +547,8 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
   );
 };
 
-const Success = ({ email }: { email: string }) => {
+const Success = ({ email, requestId, pkg }: { email: string; requestId: string; pkg: PackageId | "" }) => {
+  const payable = !!requestId && pkg !== "custom" && pkg !== "";
   const ref = useRef<HTMLHeadingElement>(null);
   useEffect(() => ref.current?.focus(), []);
   return (
@@ -563,9 +567,14 @@ const Success = ({ email }: { email: string }) => {
           <li>
             I email you at <strong>{email}</strong> with questions or next steps.
           </li>
-          <li>Scope and price are agreed with you before any work starts.</li>
+          <li>{payable ? "Pay the amount shown for your package to start. The next page shows exactly what is due today." : "Scope and price are agreed with you before any work starts."}</li>
         </ol>
       </div>
+      {payable && (
+        <Button href={`/pay/${requestId}`} size="lg" icon="right">
+          Continue to payment
+        </Button>
+      )}
       <Button href="/" variant="secondary" icon="right">
         Back to Northframe
       </Button>
