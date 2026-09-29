@@ -109,3 +109,28 @@ export const sendAutoReply = async (data: InquiryValues) => {
     console.error("[inquiry] auto-reply failed:", error instanceof Error ? error.message : "unknown");
   }
 };
+
+/** Tells the customer their remaining balance needs a manual payment. Best effort; the /pay page is the source of truth. */
+export const sendBalanceDueEmail = async (to: string, name: string, payUrl: string) => {
+  const cfg = emailConfig();
+  if (!cfg) return;
+  try {
+    await send(cfg, {
+      to,
+      subject: `${siteConfig.name}: your remaining balance`,
+      text: [
+        `Hi ${name.split(/\s+/)[0]},`,
+        "",
+        "Your website is ready for its final step. The remaining balance couldn't be charged automatically to the saved payment method.",
+        "You can pay it securely with any card here:",
+        payUrl,
+        "",
+        "Launch or delivery happens after the balance is paid.",
+        "",
+        siteConfig.name,
+      ].join("\n"),
+    });
+  } catch (error) {
+    console.error("[payments] balance email failed:", error instanceof Error ? error.message : "unknown");
+  }
+};

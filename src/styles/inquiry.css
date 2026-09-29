@@ -670,4 +670,60 @@
     margin: 0.75rem 0 0;
     padding-left: 1.25rem;
   }
+
+  /* ---------- Payment page (/pay/[id]) ---------- */
+  .pay__rows {
+    width: 100%;
+    margin: 0;
+    display: grid;
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+  .pay__rows > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .pay__rows dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .pay__strong {
+    font-weight: 600;
+  }
+  .pay__consent {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-size: var(--fs-small, 0.9rem);
+    line-height: 1.5;
+  }
+  .pay__consent input {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.15rem;
+    accent-color: var(--accent);
+  }
+  .pay__consent a,
+  .pay__cancel a {
+    color: var(--accent-ink);
+    text-decoration: underline;
+  }
+  .pay__cancel {
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .pay__error {
+    color: var(--danger);
+  }
+  .pay button[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }

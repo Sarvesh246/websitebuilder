@@ -29,4 +29,4 @@ export const siteConfig = {
 } as const;
 
 /** Bump when the privacy policy or terms text changes. */
-export const legalUpdated = "September 28, 2026";
+export const legalUpdated = "September 29, 2026";
