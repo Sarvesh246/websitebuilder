@@ -92,14 +92,20 @@ const send = async (cfg: NonNullable<ReturnType<typeof emailConfig>>, mail: Mail
   if (!res.ok) throw new Error(`Email provider responded ${res.status}`);
 };
 
-/** Sends the notification (required) then the auto-reply (best effort). Throws only if the notification fails. */
+/** Sends the notification to the studio inbox. Throws if it fails (the visitor then sees "Try again"). */
 export const deliverInquiry = async (data: InquiryValues) => {
   const cfg = emailConfig();
   if (!cfg) throw new Error("Email is not configured");
   await send(cfg, inquiryMail(data, cfg.to));
+};
+
+/** Courtesy auto-reply to the visitor. Best effort: run it after the response, never fail on it. */
+export const sendAutoReply = async (data: InquiryValues) => {
+  const cfg = emailConfig();
+  if (!cfg) return;
   try {
     await send(cfg, autoReplyMail(data));
-  } catch {
-    // The team already has the inquiry; a failed courtesy reply must not fail the request.
+  } catch (error) {
+    console.error("[inquiry] auto-reply failed:", error instanceof Error ? error.message : "unknown");
   }
 };

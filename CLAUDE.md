@@ -341,3 +341,16 @@ Goal: make the site look like the six approved references in `public/images/refe
 - Tokens: warm neutral palette (see plan above), `--radius-sm` 8px, labels = Figtree 500 widely tracked with a thin trailing rule, hero 4.5rem max, nav 5.25rem tall at lg, text-only wordmark (frame mark removed from nav/footer; favicon unchanged).
 - Hero: rebuilt (Plate + label + h1 + lead + CTAs + dot-separated values + scroll cue to #why; three panes: "Cleaner websites. Bigger ideas." photo pane, "Ideas deserve better websites." split pane (floats), "Built for what's next." tall pane).
 - Next (R3): reorder page to Hero, Why, Services, Process, Ownership, Pricing, About, FinalCta; rebuild Why (merge About's founder note is optional), Services (4 glass cards), Process (4 steps + framed panes + connectors), Ownership (dark, dark pane). Old `Terrain`/`Scene`/`Plinth`/`Ambient` art and `mockup.css`/`environment.css` get deleted once unused.
+
+## Full debug pass (2026-09-28): DONE
+Audited the whole site on the production build (next start) with a local Resend mock. Fixed:
+- **Inquiry: silent lead loss.** The 3s fill-time bot check measured from form mount, and a restored draft on Review submitted fast got a fake "success" with nothing sent. The draft now stores `startedAt`; a restored draft without it (older drafts) counts as human.
+- **Inquiry: hung UI.** The client fetch now aborts after 20s (`SUBMIT_TIMEOUT_MS`), so a hung provider shows "Try again" with the answers kept. The server sends the auto-reply via `after()` (`sendAutoReply`), so the response waits only on the studio notification (10s timeout).
+- **Inquiry: rate limiter.** Now counts only valid submissions (typo fixes no longer lock people out). It is keyed on `x-real-ip`, then the first `x-forwarded-for` entry; with no IP it uses a looser shared bucket (30). It prunes expired keys every 50 calls.
+- **Security headers** (`next.config.ts`): nosniff, Referrer-Policy, X-Frame-Options DENY + CSP `frame-ancestors 'none'`, Permissions-Policy; `poweredByHeader: false`. There is no full CSP yet (it would need nonces for the theme script, JSON-LD and Next's bootstrap).
+Verified clean:
+- **API:** 14/14 checks (400/415/403, 422 never rate-limited, honeypot, delivery + auto-reply, 502 on failure/hang in ~10s, per-IP 429 at the 5th).
+- **Browser E2E:** instant draft submit delivers (new and old drafts); a hung provider recovers and the retry succeeds.
+- **Performance:** LCP 0.5-0.9s (phone at 4x CPU), CLS 0, no long tasks while scrolling, median frame 6.1ms / p95 6.5ms, heap flat across 3 scroll passes, JS 190KB, home 22KB gzipped.
+- **Routes:** all routes/assets have correct status and type; 5 routes x 2 themes x 3 widths show no overflow, one h1 and a clean console; glass is never behind a translucent ancestor; only the active theme's photos download.
+Test rigs are ad hoc (not committed): mock Resend on :3999 via `RESEND_API_BASE`, prod on :3100 (`.claude/launch.json`, untracked). Still open: real Resend delivery, a real iOS device check, and the platform firewall rule.
