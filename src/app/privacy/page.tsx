@@ -49,16 +49,18 @@ export default function PrivacyPage() {
 
       <LegalSection title="Service providers">
         <p>
-          Inquiries are delivered by email through Resend, an email delivery service, to Northframe&apos;s inbox. Resend
-          processes your submission only to deliver these messages. The site&apos;s hosting provider serves the pages and runs
-          the form&apos;s server code.
+          Inquiries are stored in a private database hosted by Supabase, a database provider, and a copy is sent by email
+          through Resend, an email delivery service, to Northframe&apos;s inbox. Neither provider uses your submission for
+          anything other than storing and delivering it. The site&apos;s hosting provider serves the pages and runs the
+          form&apos;s server code.
         </p>
       </LegalSection>
 
       <LegalSection title="Data retention">
         <p>
-          The site has no database. Your inquiry exists as an email in Northframe&apos;s inbox and is kept for as long as
-          needed to respond and, if a project goes ahead, to carry it out. You can ask for it to be deleted at any time.
+          Your inquiry is kept in Northframe&apos;s project database and inbox for as long as needed to respond and, if a
+          project goes ahead, to carry it out. It is not publicly accessible. You can ask for it to be deleted at any
+          time.
         </p>
       </LegalSection>
 

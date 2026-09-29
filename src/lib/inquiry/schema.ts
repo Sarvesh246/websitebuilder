@@ -123,6 +123,9 @@ export const validateInquiry = (input: unknown): Result => {
   });
   if (Array.isArray(raw.links) && raw.links.length > limits.links) errors.links = `Up to ${limits.links} links, please.`;
 
+  // Lists must be arrays when present (the form always sends arrays); other shapes are malformed.
+  if (raw.links !== undefined && !Array.isArray(raw.links)) errors.links = "Please re-enter your links.";
+  if (raw.features !== undefined && !Array.isArray(raw.features)) errors.features = "One of the selected features isn't recognised. Please reselect.";
   const featureList = Array.isArray(raw.features) ? raw.features : [];
   const selected = [...new Set(featureList.filter((f): f is string => typeof f === "string"))];
   if (selected.some((id) => !featureIds.includes(id)) || selected.length > featureIds.length) {

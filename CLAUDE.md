@@ -10,7 +10,7 @@ Marketing site for a student-focused web design and development studio. Audience
 **No fake social proof, ever.** New business: no client counts, testimonials, reviews, awards, "trusted by" claims. Confidence comes from design quality and clarity.
 
 ## Stack
-Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS v4 (CSS-first config, no tailwind.config), `motion` (import from `motion/react`), `lucide-react` icons, `clsx`. Fonts via `next/font`: **Figtree** (display/body) and **Nunito** (rounded, labels/badges/small caps text). No backend, auth, or DB yet. Node 24.
+Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS v4 (CSS-first config, no tailwind.config), `motion` (import from `motion/react`), `lucide-react` icons, `clsx`. Fonts via `next/font`: **Figtree** (display/body) and **Nunito** (rounded, labels/badges/small caps text). Backend: Supabase Postgres (project requests only, see "Supabase backend" below); no auth. Node 24.
 Next 16 has breaking changes vs older versions: docs are in `node_modules/next/dist/docs/`. `LayoutProps<"/">` is a generated global type (run `npx next typegen` after adding routes if types are missing).
 
 ## Commands
@@ -39,6 +39,9 @@ src/components/sections/ (Hero, HeroVisual, Services, Why, Process, Pricing, Own
 src/components/pricing/ PackageCard, CustomPackage, CompareTable (server components, all read config/pricing.ts)
 src/config/         site.ts (name, tagline, contactEmail, social, founder, legalUpdated), nav.ts (nav/footer/legal links), about.ts (About, Expect, final CTA copy), pricing.ts (packages, prices, comparison, ownership + scope copy: single source of truth)
 src/lib/            cn.ts, motion.ts     src/hooks/  useLockBodyScroll, useScrolledPast
+src/lib/inquiry/    schema.ts (shared validation), projectRequest.ts (Supabase insert + DTO/record types), email.ts, rateLimit.ts
+src/utils/supabase/ env.ts, client.ts (browser, unused), server.ts (createClient = cookie SSR client; createAdminClient = secret key, server-only)
+supabase/migrations/ SQL for project_requests (apply in the Supabase SQL editor)
 public/images/      scenes/ work/ og/  (see public/images/README.md for asset rules)
 ```
 
@@ -354,3 +357,14 @@ Verified clean:
 - **Performance:** LCP 0.5-0.9s (phone at 4x CPU), CLS 0, no long tasks while scrolling, median frame 6.1ms / p95 6.5ms, heap flat across 3 scroll passes, JS 190KB, home 22KB gzipped.
 - **Routes:** all routes/assets have correct status and type; 5 routes x 2 themes x 3 widths show no overflow, one h1 and a clean console; glass is never behind a translucent ancestor; only the active theme's photos download.
 Test rigs are ad hoc (not committed): mock Resend on :3999 via `RESEND_API_BASE`, prod on :3100 (`.claude/launch.json`, untracked). Still open: real Resend delivery, a real iOS device check, and the platform firewall rule.
+
+## Supabase backend (project requests): DONE 2026-09-28
+Every valid `/start` submission is stored in Supabase table `public.project_requests`; emails are now notifications on top of the record.
+**Flow:** InquiryFlow (client validation, `submissionId` UUID idempotency key kept in the sessionStorage draft, regenerated whenever an answer changes, `sendingRef` + disabled/aria-busy button) -> `POST /api/inquiry` (same-origin, JSON, 24KB cap, rejects any key outside the form fields + `hp`/`elapsed`/`submissionId` with 400, honeypot/fill-time, `validateInquiry`, UUID check, rate limit) -> `saveProjectRequest` (`lib/inquiry/projectRequest.ts`, secret-key admin client, 10s fetch timeout) -> `{ ok, requestId }`. A repeated `submission_key` (double click, retry after a lost response) returns the existing id (unique violation 23505 -> lookup) and sends no second email. Notification + auto-reply run in `after()`, best effort, only when Resend is configured. Storage not configured -> 503 ("can't be delivered right now"); DB error/timeout -> 502 with generic copy, answers kept, "Try again". Logs carry only error codes, never content or DB messages.
+**Table** (`supabase/migrations/20260928000000_project_requests.sql`): id uuid, created_at/updated_at (trigger), submission_key uuid unique, client_name, email, phone, organization, package (check launch|presence|business|custom), website_type (= projectType), project_description, pages_needed jsonb (unused by the form), features_needed jsonb, inspiration_links jsonb, has_existing_website bool, existing_website, domain_status (unused), timeline (form bucket), budget (Custom only), desired_launch_date date (unused, form has buckets not dates), status (default new; new|contacted|awaiting_payment|paid|in_progress|awaiting_client|review|completed|cancelled), payment_status (default unpaid; unpaid|pending|paid|partially_paid|refunded|failed), stripe_customer_id, stripe_session_id (unique), amount_paid integer cents, internal_notes. Length/shape checks mirror `config/inquiry.ts` limits. Indexes: created_at desc, status, lower(email).
+**Security:** RLS enabled + forced with NO policies, and all grants revoked from `anon`/`authenticated`: the publishable key can't select/insert/update/delete. Only `service_role` (server) has access. Server-managed columns are never read from the payload (explicit mapping in `toProjectRequest`, plus the unknown-key 400). Types: `InquiryValues` (public DTO) -> `ProjectRequestInput` (insertable columns) / `ProjectRequestRecord` (internal row).
+**Env:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (public), `SUPABASE_SERVICE_ROLE_KEY` (server-only secret, `sb_secret_...` or legacy service_role; never NEXT_PUBLIC_). `NEXT_PUBLIC_*` are inlined at build time, so rebuild after changing them. Resend vars are now optional (notifications). `.env.local` is gitignored.
+**No auth, so no `proxy.ts`/session refresh.** `utils/supabase/server.ts` `createClient` (cookie SSR client) exists for a future admin login; add `proxy.ts` then.
+**Privacy page updated** (Supabase named as the database provider). Update it again if Stripe or other processors are added.
+**Testing:** ad hoc (not committed): mock PostgREST + Resend on :3998, prod build with `NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:3998` at build time, 17 API checks (insert, mapping, concurrent duplicate -> 1 row, validation, rejected server fields, DB fail/hang -> clean 502, rate limit) + Playwright E2E desktop/mobile.
+**Stripe stage must know:** set `status`/`payment_status`/`stripe_*`/`amount_paid` only from server code (webhook with the admin client), never from the browser; `amount_paid` is cents; `stripe_session_id` is unique (use it for webhook idempotency); add a Privacy line for Stripe; a checkout link can be keyed by `requestId` (returned by the API) but must re-check the row server-side.
