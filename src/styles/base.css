@@ -85,6 +85,18 @@
   }
 
   /* Reduced motion: kill transitions/animations globally. Motion components also respect this. */
+  /* Scroll reveals fade content, never the wrapper (see fadeUp in lib/motion.ts): plain children fade
+     themselves, and any frosted surface inside fades itself, so no ancestor of a backdrop-filter is
+     ever translucent and the glass is fully frosted from its first frame. */
+  [data-reveal] > :not(:has(.pane, .pkg, .pkg-common, .about__text, [class*="glass"])),
+  [data-reveal] :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
+    opacity: var(--reveal, 1);
+  }
+  /* a frosted surface nested in another only fades once (via the outer one) */
+  [data-reveal] :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
