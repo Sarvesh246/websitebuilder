@@ -20,16 +20,26 @@
     aspect-ratio: var(--ratio, 16 / 10.5);
   }
 
+  /* The pose only moves; the pane fades itself. Fading the pose would make it the backdrop root
+     and the glass would render un-frosted until the fade ended. */
   @media (prefers-reduced-motion: no-preference) {
     .stage-enter {
       animation: stage-in 1100ms var(--ease-out) both;
       animation-delay: calc(220ms + var(--i, 0) * 140ms);
     }
+    .stage-enter .pane {
+      animation: stage-fade 900ms var(--ease-out) both;
+      animation-delay: calc(220ms + var(--i, 0) * 140ms);
+    }
   }
   @keyframes stage-in {
     from {
-      opacity: 0;
       transform: translate3d(0, 2.2rem, 0) var(--pose, none);
+    }
+  }
+  @keyframes stage-fade {
+    from {
+      opacity: 0;
     }
   }
 

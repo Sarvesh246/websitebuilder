@@ -20,16 +20,18 @@ export const About = () => (
             {about.title}
           </h2>
         </Reveal>
-        <Reveal className="about__text" delay={0.08}>
-          <p className="t-lead about__lead">{about.lead}</p>
-          <p className="about__body">{about.body}</p>
-          <div className="founder">
-            <span aria-hidden className="founder__mark">
-              {siteConfig.founder.initial}
-            </span>
-            <div>
-              <h3 className="founder__name">{about.founder.heading}</h3>
-              <p className="founder__note">{about.founder.note}</p>
+        <Reveal delay={0.08}>
+          <div className="about__text">
+            <p className="t-lead about__lead">{about.lead}</p>
+            <p className="about__body">{about.body}</p>
+            <div className="founder">
+              <span aria-hidden className="founder__mark">
+                {siteConfig.founder.initial}
+              </span>
+              <div>
+                <h3 className="founder__name">{about.founder.heading}</h3>
+                <p className="founder__note">{about.founder.note}</p>
+              </div>
             </div>
           </div>
         </Reveal>

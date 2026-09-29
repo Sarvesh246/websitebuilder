@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* Scroll reveals start hidden; without JS they must still be visible. */}
         <noscript>
-          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+          <style>{`[data-reveal]{--reveal:1!important;transform:none!important}`}</style>
         </noscript>
       </head>
       <body>

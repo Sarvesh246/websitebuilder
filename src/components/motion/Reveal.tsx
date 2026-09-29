@@ -12,7 +12,7 @@ type RevealProps = {
 };
 
 /**
- * Single-element entrance: fade + small upward travel, once. Use on headings, a hero block,
+ * Single-element entrance: fade (children, see fadeUp in lib/motion.ts) + small upward travel, once. Use on headings, a hero block,
  * or one artwork. For a set of siblings use <RevealGroup/> so they cascade instead of firing
  * independently.
  */
@@ -20,8 +20,8 @@ export const Reveal = ({ children, className, delay = 0, y = revealDistance }: R
   <m.div
     data-reveal
     className={className}
-    initial={{ opacity: 0, y }}
-    whileInView={{ opacity: 1, y: 0 }}
+    initial={{ "--reveal": 0, y }}
+    whileInView={{ "--reveal": 1, y: 0 }}
     viewport={revealViewport}
     transition={{ ...revealTransition, delay }}
   >

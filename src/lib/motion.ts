@@ -29,9 +29,15 @@ export const staggerContainer = (stagger = 0.08, delay = 0): Variants => ({
   show: { opacity: 1, transition: { staggerChildren: stagger, delayChildren: delay } },
 });
 
+/*
+ * Reveals fade through `--reveal`, which base.css applies as opacity on the wrapper's CHILDREN, not
+ * the wrapper. An ancestor with opacity < 1 becomes the "backdrop root" for backdrop-filter, so a
+ * frosted card inside a fading wrapper would blur only the wrapper's (empty) contents and then snap
+ * to full frost when the fade ends. The wrapper itself only moves (transform is not a backdrop root).
+ */
 export const fadeUp = (y = revealDistance): Variants => ({
-  hidden: { opacity: 0, y },
-  show: { opacity: 1, y: 0, transition: revealTransition },
+  hidden: { "--reveal": 0, y },
+  show: { "--reveal": 1, y: 0, transition: revealTransition },
 });
 
 /** Shared viewport config: fire once, slightly before the element is fully in view. */
