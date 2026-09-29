@@ -2,26 +2,21 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
-import { GlassSurface } from "@/components/ui/GlassSurface";
-import { Ambient } from "@/components/visual/Ambient";
-import { Plinth, Scene } from "@/components/visual/environment/Scene";
+import { Plate } from "@/components/visual/Plate";
 import { finalCta } from "@/config/about";
 
 /**
- * Last space on the page: a glass slab standing on a stone platform in front of the shared
- * mountains. The scene's mist resolves into the footer colour, so the page ends without a seam. Both buttons are real links (Start a
- * Project -> /start, View Pricing -> /#pricing).
+ * Last space on the page: one thick glass slab over the same lake and plinth the page opened with,
+ * so the site ends where it began. Both buttons are real links (/start and /#pricing).
  */
 export const FinalCta = () => (
-  <Section aria-labelledby="final-cta-title" className="final-cta" spacing="none">
-    <Ambient preset="horizon" />
-    <Scene variant="wide" seed={5} />
+  <Section aria-labelledby="final-cta-title" className="final-cta">
+    <Plate name="hero" className="final-cta__plate" />
     <Container>
-      <Reveal className="final-cta__stage">
-        <Plinth className="final-cta__plinth" />
-        <GlassSurface variant="feature" className="glass-slab final-cta__panel">
+      <Reveal className="final-cta__wrap">
+        <div className="pane final-cta__panel">
           <span className="t-label t-label--rule t-label--rule-both">{finalCta.eyebrow}</span>
-          <h2 id="final-cta-title" className="t-h2 max-w-[16ch]">
+          <h2 id="final-cta-title" className="t-h2 max-w-[15ch]">
             {finalCta.title}
           </h2>
           <p className="t-lead max-w-[38ch]">{finalCta.body}</p>
@@ -29,11 +24,11 @@ export const FinalCta = () => (
             <Button href={finalCta.primary.href} size="lg" icon="diag">
               {finalCta.primary.label}
             </Button>
-            <Button href={finalCta.secondary.href} size="lg" variant="secondary">
+            <Button href={finalCta.secondary.href} size="lg" variant="secondary" icon="right">
               {finalCta.secondary.label}
             </Button>
           </div>
-        </GlassSurface>
+        </div>
       </Reveal>
     </Container>
   </Section>

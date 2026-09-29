@@ -61,14 +61,14 @@ export const ScreenPhoto = ({ title, photo = "peak", burger }: { title: string; 
   </div>
 );
 
-export const ScreenTall = () => (
+export const ScreenTall = ({ title = "Built for what's next.", photo = "range" }: { title?: string; photo?: Photo }) => (
   <div className="scr scr--tall">
     <Nav burger />
     <div className="scr__copy">
-      <p className="scr__h">Built for what&apos;s next.</p>
+      <p className="scr__h">{title}</p>
       <span className="scr__rule" />
     </div>
-    <Photo src="range" sizes="20vw" />
+    <Photo src={photo} sizes="20vw" />
   </div>
 );
 

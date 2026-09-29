@@ -1,327 +1,270 @@
 /*
- * Pricing section: package cards, Custom panel, comparison, scope notes.
- * Everything sits on the Stage 1 glass system (.glass / .glass-feature / .glass-subtle);
- * this file only adds layout and the price / list typography. Tokens only, no raw colours.
- *
- * Package card layout, one grid with three areas (head, body, foot):
- *   < md   stacked
- *   md-lg  two columns: head + foot on the left, feature list on the right (each card is a
- *          wide horizontal card, so tablet gets a real layout instead of squeezed thirds)
- *   lg+    stacked again, three cards side by side, foot pinned to the bottom
+ * Pricing (reference 7): four light cards in one row, Presence emphasised with a cool border and
+ * tint, then shared inclusions, comparison and scope notes. Tokens only, no raw colours.
+ *   < 700    one column
+ *   700-1179 two columns
+ *   1180+    four columns
  */
 @layer components {
-  /* ---------- Intro row ---------- */
-  .pricing__intro {
-    display: grid;
-    gap: var(--stack-gap);
-    align-items: end;
+  .pricing {
+    --pkg-bg: light-dark(rgb(255 255 255 / 0.72), rgb(22 25 30 / 0.72));
+    --pkg-border: light-dark(rgb(20 20 20 / 0.08), rgb(255 255 255 / 0.09));
+    --pkg-feature-border: light-dark(rgb(120 160 225 / 0.75), rgb(150 180 235 / 0.5));
+    --pkg-feature-tint: light-dark(rgb(214 228 250 / 0.7), rgb(90 125 190 / 0.16));
+    --pkg-feature-glow: light-dark(rgb(120 160 225 / 0.28), rgb(120 160 225 / 0.18));
+    --pkg-pill-bg: light-dark(#dfe8f6, rgb(150 180 235 / 0.16));
+    --pkg-pill-ink: light-dark(#2c4d85, #c3d4f3);
+    --pkg-check-bg: light-dark(rgb(20 20 20 / 0.06), rgb(255 255 255 / 0.08));
+    padding-block: var(--section-y);
   }
-  @media (min-width: 1024px) {
-    .pricing__intro {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      gap: var(--grid-gap);
-    }
-  }
-  .launch-note {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-  }
-  .launch-note > svg {
-    flex: none;
-    margin-top: 0.15rem;
-    color: var(--accent-ink);
-  }
-  .launch-note .t-small {
-    margin-top: 0.4rem;
-  }
-
-  /* ---------- Package card ---------- */
-  .pkg {
-    display: grid;
-    height: 100%;
-    gap: 1.75rem;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "head" "body" "foot";
-    grid-template-rows: auto 1fr auto;
-  }
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .pkg {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      grid-template-areas: "head body" "foot body";
-      grid-template-rows: auto 1fr;
-      column-gap: 0;
-    }
-    .pkg__head,
-    .pkg__foot {
-      padding-right: clamp(1.5rem, 4vw, 2.5rem);
-    }
-    .pkg__foot {
-      align-self: end;
-    }
-    .pkg__body {
-      padding-left: clamp(1.5rem, 4vw, 2.5rem);
-      border-left: 1px solid var(--border);
-    }
-  }
-  .pkg__head {
-    grid-area: head;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .pkg__body {
-    grid-area: body;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-  .pkg__foot {
-    grid-area: foot;
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-
-  .pkg__title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    min-height: 1.75rem;
-  }
-  .pkg__blurb {
-    font-size: var(--fs-small);
-    line-height: var(--lh-small);
-    color: var(--text-muted);
-    text-wrap: pretty;
-  }
-  @media (min-width: 1024px) {
-    /* Keeps the price block aligned across the three cards whatever the blurb length. */
-    .pkg__head .pkg__blurb {
-      min-height: calc(var(--lh-small) * 3em);
-    }
-  }
-
-  /* Price: label / number / sub. Every package has all three lines so cards align. */
-  .pkg__price {
-    display: flex;
-    flex-direction: column;
+  .pricing__founding {
+    display: inline-flex;
     align-items: flex-start;
     gap: 0.6rem;
-    margin-top: 0.25rem;
-    padding-top: 1.1rem;
-    border-top: 1px solid var(--border);
-  }
-  @media (max-width: 767px) {
-    /* Phones: label on top, price and "Regularly" share one baseline so cards stay short. */
-    .pkg__price {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: baseline;
-      column-gap: 0.85rem;
-      row-gap: 0.35rem;
-    }
-    .pkg__price-label {
-      grid-column: 1 / -1;
-    }
-    .pkg .t-price {
-      grid-column: 1;
-    }
-    .pkg__price-sub {
-      grid-column: 2;
-    }
-    .pkg {
-      gap: 1.5rem;
-    }
-  }
-  .pkg__price-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: var(--font-rounded);
-    font-size: var(--fs-label);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
+    max-width: 42rem;
+    font-size: 0.94rem;
+    line-height: 1.5;
     color: var(--text-muted);
+    text-align: left;
   }
-  .pkg__price-label--launch {
-    color: var(--accent-ink);
-  }
-  .pkg__price-sub {
-    font-size: var(--fs-small);
-    color: var(--text-muted);
-  }
-
-  .pkg__for {
-    font-family: var(--font-rounded);
-    font-size: 0.9375rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--text-strong);
-  }
-  @media (min-width: 1024px) {
-    /* Two lines reserved so the feature lists start at the same height in all three cards. */
-    .pkg__for {
-      min-height: 2.8em;
-    }
-  }
-  .pkg__lead-in {
-    font-family: var(--font-rounded);
-    font-size: var(--fs-label);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .pkg__list {
-    display: grid;
-    gap: 0.7rem;
-  }
-  .pkg__list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.65rem;
-    font-size: 0.9375rem;
-    line-height: 1.45;
-    color: var(--text);
-  }
-  .pkg__list svg {
+  .pricing__founding svg {
     flex: none;
     margin-top: 0.2em;
     color: var(--accent);
   }
-  .pkg__note {
-    font-size: var(--fs-small);
-    line-height: var(--lh-small);
-    color: var(--text-muted);
-    text-align: center;
+  .pricing__founding strong {
+    font-weight: 600;
+    color: var(--text-strong);
   }
 
-  /* Card hover: a small lift and a firmer edge. The card is not a link, so no pointer cursor. */
+  .pricing__row {
+    display: grid;
+    gap: 1.25rem;
+    align-items: stretch;
+  }
+  @media (min-width: 700px) {
+    .pricing__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1180px) {
+    .pricing__row {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: clamp(1rem, 1.5vw, 1.5rem);
+      width: 100%;
+      max-width: 78rem;
+      margin-inline: auto;
+    }
+    .pkg__for {
+      min-height: 2.9em;
+    }
+  }
+
+  /* ---------- Card ---------- */
   .pkg {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: clamp(1.5rem, 1.2rem + 0.8vw, 2rem) clamp(1.35rem, 1.1rem + 0.6vw, 1.75rem);
+    border: 1px solid var(--pkg-border);
+    border-radius: var(--radius-md);
+    background: var(--pkg-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(1.2);
+    backdrop-filter: blur(var(--glass-blur-sm)) saturate(1.2);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      0 1px 2px var(--shadow-ink-soft),
+      0 24px 48px -32px var(--shadow-ink-mid);
     transition:
       transform var(--dur-base) var(--ease-out),
-      box-shadow var(--dur-base) var(--ease-out),
-      border-color var(--dur-base) var(--ease-out);
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .pkg[data-featured] {
+    border-color: var(--pkg-feature-border);
+    background: linear-gradient(180deg, var(--pkg-bg) 0%, var(--pkg-feature-tint) 100%);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      0 0 0 1px var(--pkg-feature-border),
+      0 20px 50px -24px var(--pkg-feature-glow);
   }
   @media (hover: hover) {
     .pkg:hover {
-      transform: translateY(-3px);
-      --_shadow: var(--shadow-glass-hover);
-      border-color: var(--border-strong);
+      transform: translateY(-4px);
+      box-shadow:
+        inset 0 1px 0 var(--glass-highlight),
+        0 1px 2px var(--shadow-ink-soft),
+        0 32px 60px -30px var(--shadow-ink-strong);
+    }
+    .pkg[data-featured]:hover {
+      box-shadow:
+        inset 0 1px 0 var(--glass-highlight),
+        0 0 0 1px var(--pkg-feature-border),
+        0 32px 60px -26px var(--pkg-feature-glow);
     }
   }
-  .pkg:focus-within {
-    border-color: var(--border-strong);
+  @media (prefers-reduced-transparency: reduce) {
+    .pkg {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--surface-solid);
+    }
   }
 
-  /* ---------- Shared inclusions (said once, not on every card) ---------- */
-  .pkg-common {
-    display: grid;
-    gap: 1rem 2.5rem;
-    align-items: center;
-    padding: 0.25rem 0.25rem 0;
+  .pkg__head {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1.4rem;
+    border-bottom: 1px solid var(--border);
   }
-  .pkg-common__list {
+  .pkg__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 2rem;
+  }
+  .pkg__name {
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  .pkg__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--pkg-pill-ink);
+    background: var(--pkg-pill-bg);
+    white-space: nowrap;
+  }
+  .pkg__for {
+    margin-top: 0.3rem;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  .pkg__price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.7rem;
+    margin-top: 1.4rem;
+    min-height: 3.5rem;
+  }
+  .pkg__price .t-price {
+    font-size: clamp(2.3rem, 1.9rem + 1vw, 2.85rem);
+  }
+  .pkg__price .t-price-was {
+    font-size: 1.4rem;
+  }
+  .pkg__quote {
+    font-size: clamp(1.6rem, 1.35rem + 0.6vw, 1.95rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: var(--text-strong);
+  }
+  .pkg__pill {
+    align-self: flex-start;
+    margin-top: 0.7rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-xs);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--pkg-pill-ink);
+    background: var(--pkg-pill-bg);
+  }
+  .pkg__pill--plain {
+    padding-inline: 0;
+    color: var(--text-subtle);
+    background: none;
+  }
+
+  .pkg__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding-top: 1.3rem;
+  }
+  .pkg__lead-in {
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+  .pkg__list {
+    display: grid;
+    gap: 0.62rem;
+  }
+  .pkg__list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.93rem;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .pkg__check {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.08rem;
+    border-radius: 50%;
+    color: var(--text-muted);
+    background: var(--pkg-check-bg);
+  }
+  .pkg__foot {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1.75rem;
   }
-  .pkg-common__list ul {
+  .pkg__note {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-subtle);
+    text-align: center;
+  }
+
+  /* ---------- Shared inclusions ---------- */
+  .pkg-common {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+  .pkg-common ul {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
+    justify-content: center;
+    gap: 0.6rem 1.6rem;
   }
-  .pkg-common__list li {
-    display: flex;
+  .pkg-common li {
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9375rem;
+    gap: 0.45rem;
+    font-size: 0.95rem;
     color: var(--text);
   }
-  .pkg-common__list svg {
-    flex: none;
-    color: var(--accent);
+  .pkg-common svg {
+    color: var(--text-subtle);
   }
   .pkg-common__own {
-    font-size: var(--fs-small);
-    line-height: var(--lh-small);
+    max-width: 44rem;
+    font-size: 0.92rem;
     color: var(--text-muted);
-    text-wrap: pretty;
   }
   .pkg-common__own strong {
     font-weight: 600;
     color: var(--text-strong);
-  }
-  @media (min-width: 1024px) {
-    .pkg-common {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    }
-  }
-
-  /* ---------- Custom panel ---------- */
-  .pkg-custom {
-    display: grid;
-    gap: 1.5rem;
-    align-items: center;
-  }
-  .pkg-custom__intro {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-  .pkg-custom__scope {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-  .pkg-custom__cta {
-    display: flex;
-    flex-direction: column;
-    gap: 0.85rem;
-  }
-  @media (min-width: 768px) {
-    .pkg-custom {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      column-gap: clamp(2rem, 4vw, 3rem);
-    }
-    .pkg-custom__cta {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      align-items: center;
-      gap: 1.25rem;
-    }
-    .pkg-custom__cta .btn {
-      width: auto;
-      flex: none;
-    }
-    .pkg-custom__cta .pkg__note {
-      text-align: left;
-    }
-  }
-  @media (min-width: 1024px) {
-    .pkg-custom {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 5fr) minmax(0, 3fr);
-    }
-    .pkg-custom__cta {
-      grid-column: auto;
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .pkg-custom__cta .btn {
-      width: 100%;
-    }
-    .pkg-custom__cta .pkg__note {
-      text-align: center;
-    }
-  }
-
-  .chip-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
   }
 
   /* ---------- Comparison (md and up: table) ---------- */
@@ -467,10 +410,6 @@
   }
 
   /* ---------- Scope notes (ownership has its own section) ---------- */
-  .pricing__notes {
-    display: grid;
-    max-width: 44rem;
-  }
   .scope-notes {
     display: flex;
     flex-direction: column;

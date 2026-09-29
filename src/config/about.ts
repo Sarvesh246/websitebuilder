@@ -18,7 +18,7 @@ export const about = {
 } as const;
 
 export const services = {
-  eyebrow: "Services",
+  eyebrow: "What Northframe builds",
   title: "A site sized to what you need.",
   lead: "Four kinds of project, from a single portfolio page to something built around your own logic. Prices are in the pricing section.",
   items: [
@@ -56,6 +56,9 @@ export const services = {
 export const why = {
   eyebrow: "Why Northframe",
   title: "Considered design. Clear terms.",
+  lead: "Every site is designed around your content, built to work on every screen, and handed over in your name.",
+  /** Aria label for the decorative pane composition. */
+  visualLabel: "Concept website designs shown on floating glass panels",
   items: [
     {
       title: "Clear communication",
@@ -99,7 +102,7 @@ export const ownershipScene = {
     { label: "Your accounts", body: "Hosting, analytics, and email live under your login." },
     { label: "Your data", body: "Whatever your site collects stays under your control." },
   ],
-  visualLabel: "Illustration of a glass browser frame reading: Your website. Your ownership.",
+  visualLabel: "A dark glass panel showing a concept site that reads: Your website. Your ownership.",
   statement: "No locked platform. No mystery credentials. No dependency on us to keep your website running.",
 } as const;
 

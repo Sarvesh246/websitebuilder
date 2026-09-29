@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { Ambient } from "@/components/visual/Ambient";
-import { CustomPackage } from "@/components/pricing/CustomPackage";
-import { PackageCard } from "@/components/pricing/PackageCard";
+
+import { CustomCard, PackageCard } from "@/components/pricing/PackageCard";
 import { customTier, packageTiers } from "@/config/pricing";
 
 export const metadata: Metadata = {
@@ -171,7 +171,7 @@ export default function DesignSystemPage() {
             align="center"
             eyebrow="Pricing"
             title="Choose what fits."
-            lead="Real data from config/pricing.ts, rendered by the PackageCard and CustomPackage components."
+            lead="Real data from config/pricing.ts, rendered by the PackageCard and CustomCard components."
             className="mx-auto"
           />
           <Grid cols="packages">
@@ -179,7 +179,7 @@ export default function DesignSystemPage() {
               <PackageCard key={tier.id} tier={tier} />
             ))}
           </Grid>
-          <CustomPackage tier={customTier} />
+          <CustomCard tier={customTier} />
         </Container>
       </Section>
     </>

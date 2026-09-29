@@ -1,129 +1,71 @@
-/*
- * About (editorial copy + framed concept composition).
- * Tokens only. Compositions are CSS-built placeholders that art can replace in the polish stage.
- */
 @layer components {
-  /* ---------- About ---------- */
-  .about__copy {
-    display: flex;
-    flex-direction: column;
-    gap: var(--stack-gap);
+  /* ---------- About: editorial, hairline-separated, no card ---------- */
+  .about {
+    border-top: 1px solid var(--border);
   }
-  .founder {
-    display: flex;
-    gap: 1.1rem;
-    align-items: flex-start;
-    margin-top: 0.5rem;
-    padding-top: var(--stack-gap);
-    border-top: 1px solid var(--border-strong);
-  }
-  .founder__mark {
-    flex: none;
+  .about__grid {
     display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg-strong);
-    box-shadow: inset 0 1px 0 var(--glass-highlight), var(--shadow-sm);
-    font-weight: 600;
-    font-size: 1.25rem;
-    letter-spacing: -0.03em;
-    color: var(--text-strong);
-  }
-
-  .about__art {
-    margin-top: var(--section-header-gap);
+    gap: 2.5rem;
   }
   @media (min-width: 1024px) {
-    .about__art {
-      margin-top: 0;
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: clamp(3rem, 6vw, 7rem);
     }
   }
-
-  .about-visual {
-    position: relative;
-    aspect-ratio: 1 / 0.86;
-    width: 100%;
-    margin: 0;
-  }
-  .about-visual__frame {
-    position: absolute;
-    inset: 0 8% 12% 0;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-card);
-    background: linear-gradient(160deg, var(--glass-bg-subtle), transparent 70%);
-  }
-  .about-visual__rule {
-    position: absolute;
-    background: var(--border);
-  }
-  .about-visual__rule--v {
-    top: -1.5rem;
-    bottom: 3%;
-    left: 22%;
-    width: 1px;
-  }
-  .about-visual__rule--h {
-    left: 0;
-    right: 2%;
-    top: 30%;
-    height: 1px;
-  }
-  .about-visual__browser {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 88%;
-    transform: perspective(1400px) rotateY(-6deg) rotateX(2deg);
-    transform-origin: 100% 60%;
-  }
-  .about-visual__caption {
-    position: absolute;
-    left: 6%;
-    bottom: 3%;
-  }
-
-  /* Editorial scale: the About headline is one of the page's large typographic moments. */
-  .about .t-h2 {
-    font-size: var(--fs-display);
-    max-width: 11ch;
-  }
-  .about-visual__chip,
-  .about-visual__code {
-    position: absolute;
+  .about__head {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.8rem;
-    --glass-radius: var(--radius-md);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
   }
-  .about-visual__chip {
-    left: 0;
-    top: 6%;
+  .about__head .t-h2 {
+    max-width: 12ch;
   }
-  .about-visual__chip b {
-    font-size: 1.25rem;
-    letter-spacing: -0.04em;
+  .about__text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+  @media (min-width: 1024px) {
+    .about__text {
+      padding-top: 2.6rem;
+    }
+  }
+  .about__lead {
+    color: var(--text);
+    max-width: 34ch;
+  }
+  .about__body {
+    max-width: 52ch;
+    color: var(--text-muted);
+  }
+  .founder {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1.1rem;
+    margin-top: 1rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .founder__mark {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--border-strong);
+    font-weight: 500;
     color: var(--text-strong);
   }
-  .about-visual__chip i {
-    width: 0.8rem;
-    height: 0.8rem;
-    border-radius: 50%;
-    background: var(--accent);
+  .founder__name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
   }
-  .about-visual__chip i:nth-of-type(2) {
-    background: var(--text-strong);
-  }
-  .about-visual__chip i:nth-of-type(3) {
-    background: var(--atmos-cool);
-  }
-  .about-visual__code {
-    right: 4%;
-    top: -4%;
-    font: 600 0.8125rem/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    color: var(--accent-ink);
+  .founder__note {
+    margin-top: 0.4rem;
+    max-width: 52ch;
+    color: var(--text-muted);
   }
 }

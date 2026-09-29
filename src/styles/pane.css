@@ -34,7 +34,7 @@
   .plate--hero { --plate: url("/images/scenes/hero-light.webp"); --plate-pos: 62% 58%; }
   .plate--why { --plate: url("/images/scenes/why-light.webp"); --plate-pos: 58% 60%; }
   .plate--services { --plate: url("/images/scenes/services-light.webp"); --plate-pos: 55% 62%; }
-  .plate--process { --plate: url("/images/scenes/process-light.webp"); --plate-pos: 50% 62%; --plate-veil: none; }
+  .plate--process { --plate: url("/images/scenes/process-light.webp"); --plate-pos: 50% 62%; --plate-veil: linear-gradient(to bottom, transparent 20%, var(--plate-veil-color) 42%, var(--plate-veil-color) 55%, transparent 72%); }
   .plate--pricing { --plate: url("/images/scenes/pricing-light.webp"); --plate-pos: 50% 40%; --plate-veil: none; }
   .plate--ownership { --plate: url("/images/scenes/ownership.webp"); --plate-pos: 60% 55%; }
 
@@ -68,6 +68,20 @@
       .plate--services { --plate: url("/images/scenes/services-dark-1280.webp"); }
       .plate--process { --plate: url("/images/scenes/process-dark-1280.webp"); }
       .plate--pricing { --plate: url("/images/scenes/pricing-dark-1280.webp"); }
+    }
+  }
+
+  /* Stacked layouts: the render becomes a band at the section's foot (behind the art), faded
+     into the page above, instead of a cover image blown up behind the copy. */
+  @media (max-width: 1023px) {
+    .plate {
+      --plate-band: 101vw; /* 180vw wide at 16:9 */
+      background-image: linear-gradient(to bottom, var(--bg) calc(100% - var(--plate-band)), transparent calc(100% - var(--plate-band) + 30vw)), var(--plate);
+      background-size: 100% 100%, 180vw auto;
+      background-position: 0 0, var(--plate-pos-sm, 65%) 100%;
+    }
+    .plate::after {
+      display: none;
     }
   }
 

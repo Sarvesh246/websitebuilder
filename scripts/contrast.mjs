@@ -17,16 +17,18 @@ const ratio = (a, b) => {
 
 const themes = {
   light: {
-    bg: "#edf1f6", strong: "#0e1218", text: "#28313c", muted: "#4f5a68", subtle: "#5b6675",
-    accentInk: "#1d479f", accent: "#2f62c8", accentSoftBase: [47, 98, 200, 0.11],
-    btnBg: "#12161d", btnText: "#f4f7fb", glassWhite: 0.55,
-    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92, footerBg: "#c8d4e4",
+    bg: "#f3f3f1", strong: "#0f1115", text: "#2b2f36", muted: "#5d646e", subtle: "#646b75",
+    accentInk: "#2a4a82", accent: "#3b5f9e", accentSoftBase: [92, 132, 200, 0.14],
+    btnBg: "#17191d", btnText: "#f7f7f5", glassWhite: 0.55,
+    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92, footerBg: "#f3f3f1",
+    pillBg: "#dfe8f6", pillInk: "#2c4d85",
   },
   dark: {
-    bg: "#0b0e13", strong: "#f3f6fa", text: "#cdd5df", muted: "#97a2b0", subtle: "#838e9c",
-    accentInk: "#b3ccfb", accent: "#7ea6f5", accentSoftBase: [126, 166, 245, 0.16],
-    btnBg: "#f1f4f8", btnText: "#0b0e13", glassWhite: 0.06,
-    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08, footerBg: "#0c1119",
+    bg: "#0c0e11", strong: "#f3f4f6", text: "#c9cdd3", muted: "#a0a6ae", subtle: "#8d939b",
+    accentInk: "#c3d4f3", accent: "#a9c0ea", accentSoftBase: [169, 192, 234, 0.14],
+    btnBg: "#f3f4f6", btnText: "#0c0e11", glassWhite: 0.06,
+    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08, footerBg: "#0c0e11",
+    pillBg: "#1f2733", pillInk: "#c3d4f3",
   },
 };
 
@@ -51,6 +53,7 @@ for (const [name, t] of Object.entries(themes)) {
     ["accent-ink on bg (legal links)", t.accentInk, bg, 4.5],
     ["text on footer", t.text, t.footerBg, 4.5],
     ["text-muted on footer", t.muted, t.footerBg, 4.5],
+    ["pricing pill (Founding Client Pricing)", t.pillInk, t.pillBg, 4.5],
   ].map(([label, fg, back, min]) => [label, ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back), min]);
 
   console.log(`\n${name}`);

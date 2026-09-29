@@ -1,56 +1,51 @@
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Briefcase, Code2, MonitorSmartphone, UserRound } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
-import { GlassSurface } from "@/components/ui/GlassSurface";
-import { Ambient } from "@/components/visual/Ambient";
-import { Plinth, Scene } from "@/components/visual/environment/Scene";
-import { MiniSite, type MiniKind } from "@/components/visual/MiniSite";
+import { Plate } from "@/components/visual/Plate";
 import { services } from "@/config/about";
 
-const kinds: readonly MiniKind[] = ["personal", "professional", "business", "custom"];
+const icons = [UserRound, MonitorSmartphone, Briefcase, Code2] as const;
+const art = ["photo-range", "photo-portal", "photo-peak", "photo-portal"] as const;
 
 /**
- * Four kinds of project as tall standing glass panels: offset heights on desktop (an architectural
- * stair, not a grid of equal cards), 2x2 on tablet, a simple stack on phones. Each panel carries
- * a small site sketch that grows in complexity. Copy comes from config/about.ts and mirrors the
- * package tiers in config/pricing.ts (no prices here: pricing owns those).
+ * What Northframe builds (reference 4): four standing glass cards rising like steps along the
+ * rendered ledge. Copy comes from config/about.ts and mirrors the packages in config/pricing.ts
+ * (no prices here: pricing owns those, and every arrow leads there).
  */
 export const Services = () => (
-  <Section id="services" aria-labelledby="services-title">
-    <Ambient preset="section" />
-    <Scene variant="backdrop" seed={3} relief={0.8} />
+  <Section id="services" aria-labelledby="services-title" className="services">
+    <Plate name="services" />
     <Container className="flex flex-col gap-[var(--section-header-gap)]">
       <Reveal>
         <SectionHeader titleId="services-title" eyebrow={services.eyebrow} title={services.title} lead={services.lead} />
       </Reveal>
-      <div className="services">
-        <RevealGroup className="services__row" stagger={0.1}>
-          {services.items.map((item, i) => (
-            <RevealItem key={item.id} className={`services__item services__item--${i}`}>
-              <GlassSurface as="article" padded={false} className="glass-slab panel">
-                <div aria-hidden className="panel__art">
-                  <MiniSite kind={kinds[i]} />
+      <RevealGroup className="services__row" stagger={0.1}>
+        {services.items.map((item, i) => {
+          const Icon = icons[i];
+          return (
+            <RevealItem key={item.id} className="services__item">
+              <article className="pane svc">
+                <div aria-hidden className="svc__art">
+                  <Image src={`/images/scenes/${art[i]}-900.webp`} alt="" fill sizes="(min-width: 1024px) 22vw, 90vw" />
                 </div>
-                <div className="panel__body">
-                  <span aria-hidden className="panel__index">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="t-h3">{item.name}</h3>
-                  <p className="t-label panel__for">{item.for}</p>
-                  <p className="t-body text-muted">{item.body}</p>
-                  <ul className="panel__points">
-                    {item.points.map((p) => (
-                      <li key={p}>{p}</li>
-                    ))}
-                  </ul>
-                </div>
-              </GlassSurface>
+                <span aria-hidden className="svc__icon">
+                  <Icon size={20} strokeWidth={1.5} />
+                </span>
+                <h3 className="svc__name">{item.name}</h3>
+                <p className="svc__for">{item.for}</p>
+                <p className="svc__body">{item.body}</p>
+                <Link href="/#pricing" className="svc__link" aria-label={`See ${item.name} in pricing`}>
+                  <ArrowRight aria-hidden size={20} strokeWidth={1.5} />
+                </Link>
+              </article>
             </RevealItem>
-          ))}
-        </RevealGroup>
-        <Plinth className="services__plinth" />
-      </div>
+          );
+        })}
+      </RevealGroup>
     </Container>
   </Section>
 );
