@@ -73,29 +73,12 @@
   --grid-line: light-dark(rgb(15 23 42 / 0.06), rgb(255 255 255 / 0.05));
   --noise-opacity: light-dark(0.05, 0.07);
 
-  /* ---------- Horizon scene (final CTA) and footer. The near ridge IS the footer colour, so they join seamlessly ---------- */
-  --ridge-far: light-dark(#dbe4f0, #18202b);
-  --ridge-mid: light-dark(#cfdaea, #121923);
-  --ridge-near: light-dark(#c8d4e4, #0c1119);
-  --ridge-rim: light-dark(rgb(255 255 255 / 0.9), rgb(150 180 230 / 0.35));
+  /* ---------- Footer ---------- */
   --footer-bg: var(--bg);
 
-  /* ---------- Environment: one light source (upper left, slightly behind), one cool palette ---------- */
-  --light-x: 16%; /* where the key light sits, used by glass specular + terrain sun */
+  /* ---------- Key light for the .glass specular ---------- */
+  --light-x: 16%; /* where the key light sits, used by the glass specular highlight */
   --light-y: 0%;
-  --sun: light-dark(rgb(255 240 218 / 0.95), rgb(255 232 200 / 0.22));
-  --sky-a: light-dark(#cfdcec, #0c1016);
-  --sky-b: light-dark(#e6edf5, #131a24);
-  --terrain-far: light-dark(#c3d2e5, #1a222d);
-  --terrain-mid: light-dark(#a6b9d1, #141b25);
-  --terrain-near: light-dark(#8aa2c0, #0e141c);
-  --terrain-lit: light-dark(rgb(255 255 255 / 0.78), rgb(170 196 240 / 0.2)); /* faces toward the light */
-  --terrain-shade: light-dark(rgb(70 96 132 / 0.28), rgb(0 0 0 / 0.45));
-  --mist: light-dark(rgb(240 246 252 / 0.92), rgb(150 172 208 / 0.16));
-  --stone-top: light-dark(#f3f6fa, #232a35);
-  --stone-face: light-dark(#d9e1ea, #10151c);
-  --stone-edge: light-dark(rgb(255 255 255 / 0.95), rgb(190 210 245 / 0.32));
-  --stone-shadow: light-dark(rgb(40 62 100 / 0.28), rgb(0 0 0 / 0.7));
 
   /* ---------- Glass thickness (edge light on the lit side, edge shade on the far side) ---------- */
   --glass-edge-lit: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.5));
@@ -190,7 +173,7 @@
   --tracking-label: 0.26em;
 
   /* ---------- Layout ---------- */
-  --container-page: 86rem; /* 1344px, main content */
+  --container-page: 96rem; /* 1344px, main content */
   --container-wide: 100rem; /* 1600px, full-bleed artwork */
   --container-narrow: 62rem; /* 992px, focused blocks (pricing intro, CTA) */
   --container-prose: 42rem; /* 672px, long-form text */
@@ -251,8 +234,4 @@
   color-scheme: dark;
   --bg: #07090d;
   --bg-deep: #05070a;
-  --terrain-far: #141b25;
-  --terrain-mid: #0f151d;
-  --terrain-near: #0a0f15;
-  --mist: rgb(120 146 190 / 0.1);
 }

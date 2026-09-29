@@ -5,6 +5,11 @@
  * the active theme's image downloads.
  */
 @layer components {
+  /* Art (panes, stages) may bleed past the container; sections clip it so the page never scrolls sideways. */
+  main > section {
+    overflow-x: clip;
+  }
+
   /* ---------- Environment plate ---------- */
   .plate {
     position: absolute;

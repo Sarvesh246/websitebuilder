@@ -160,7 +160,7 @@
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: clamp(1.25rem, 2vw, 2.25rem);
       align-items: end;
-      padding-top: 3rem;
+      margin-top: -2rem;
     }
     /* rising steps, like the reference */
     .services__item:nth-child(1) {
@@ -179,7 +179,8 @@
       perspective: 1400px;
     }
     .svc {
-      transform: translateY(var(--svc-y, 0)) rotateY(-8deg);
+      min-height: 30rem;
+      transform: translateY(var(--svc-y, 0)) rotateY(-12deg);
     }
   }
   .svc {
@@ -477,9 +478,9 @@
     aspect-ratio: 1 / 0.84;
   }
   .own-pane {
-    left: 5%;
-    top: 6%;
-    width: 88%;
+    left: 2%;
+    top: 4%;
+    width: 96%;
     --ratio: 16 / 12.5;
     --pose: rotateY(-17deg) rotateX(2deg) rotateZ(-1deg);
   }
@@ -492,8 +493,8 @@
   }
   /* smoked glass: darker body, brighter rims (reference 6) */
   .pane--smoke {
-    --pane-r: 2rem;
-    --pane-edge: 0.9rem;
+    --pane-r: 2.2rem;
+    --pane-edge: 1.15rem;
     --pane-fill-a: rgb(255 255 255 / 0.16);
     --pane-fill-b: rgb(255 255 255 / 0.015);
     --pane-fill-c: rgb(255 255 255 / 0.09);
