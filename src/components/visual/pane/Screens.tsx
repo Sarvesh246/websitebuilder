@@ -1,22 +1,16 @@
-import Image from "next/image";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ThemedPhoto, type PhotoName } from "@/components/visual/ThemedPhoto";
 
 /**
  * Concept website screens shown inside glass panes. Decorative artwork (no client work): the
  * nearest labelled ancestor describes them. Photos are crops of the backdrop photography.
  */
 
-const photos = {
-  peak: "/images/scenes/pic-peak.webp",
-  range: "/images/scenes/pic-range.webp",
-  portal: "/images/scenes/pic-portal.webp",
-  own: "/images/scenes/pic-own.webp",
-} as const;
-type Photo = keyof typeof photos;
+type Photo = PhotoName;
 
 const Photo = ({ src, sizes = "30vw", className }: { src: Photo; sizes?: string; className?: string }) => (
   <div className={className ?? "scr__img"}>
-    <Image src={photos[src]} alt="" fill sizes={sizes} />
+    <ThemedPhoto name={src} sizes={sizes} />
   </div>
 );
 

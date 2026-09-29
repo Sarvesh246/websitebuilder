@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Briefcase, Code2, MonitorSmartphone, UserRound } from "lucide-react";
 import { Container } from "@/components/layout/Container";
@@ -6,10 +5,11 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { Plate } from "@/components/visual/Plate";
+import { ThemedPhoto } from "@/components/visual/ThemedPhoto";
 import { services } from "@/config/about";
 
 const icons = [UserRound, MonitorSmartphone, Briefcase, Code2] as const;
-const art = ["pic-range", "pic-portal", "pic-range", "pic-peak"] as const;
+const art = ["range", "portal", "range", "peak"] as const;
 
 /**
  * What Northframe builds (reference 4): four standing glass cards rising like steps along the
@@ -30,7 +30,7 @@ export const Services = () => (
             <RevealItem key={item.id} className="services__item">
               <article className="pane svc">
                 <div aria-hidden className="svc__art">
-                  <Image src={`/images/scenes/${art[i]}-900.webp`} alt="" fill sizes="(min-width: 1024px) 22vw, 90vw" />
+                  <ThemedPhoto name={art[i]} small sizes="(min-width: 1024px) 22vw, 90vw" />
                 </div>
                 <span aria-hidden className="svc__icon">
                   <Icon size={20} strokeWidth={1.5} />
