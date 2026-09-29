@@ -8,5 +8,7 @@ export type PlateName = "hero" | "why" | "services" | "process" | "pricing" | "o
  * theme's photo downloads. Photos live in public/images/backdrops/.
  */
 export const Plate = ({ name, className }: { name: PlateName; className?: string }) => (
-  <div aria-hidden className={cn("plate", `plate--${name}`, className)} />
+  <div aria-hidden className={cn("plate", `plate--${name}`, className)}>
+    <div className="plate__img" />
+  </div>
 );

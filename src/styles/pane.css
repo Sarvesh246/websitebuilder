@@ -10,20 +10,29 @@
     overflow-x: clip;
   }
 
-  /* ---------- Environment plate ---------- */
+  /* ---------- Environment plate ----------
+     .plate is the section-sized frame (fades, veil); .plate__img carries the photo. Desktop: the
+     photo covers the section. Stacked layouts: the photo is a viewport-sized sticky layer, so every
+     section is fully backdropped at ~1x scale while it scrolls past (and the painted layer stays
+     viewport-sized, which mobile GPUs need; a 3000px+ masked layer can fail to paint). */
   .plate {
+    --plate-veil-color: light-dark(rgb(243 243 241 / 0.45), rgb(12 14 17 / 0.5));
     position: absolute;
     inset: 0;
     z-index: -1;
     pointer-events: none;
     background-color: var(--bg);
+    /* dissolve into the page colour at the top and bottom so sections join without seams */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
+  }
+  .plate__img {
+    position: absolute;
+    inset: 0;
     background-image: var(--plate);
     background-size: cover;
     background-position: var(--plate-pos, 60% 50%);
     background-repeat: no-repeat;
-    /* dissolve into the page colour at the top and bottom so sections join without seams */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--plate-fade-top, 4rem), #000 calc(100% - var(--plate-fade-bottom, 4rem)), transparent 100%);
   }
   /* soft veil behind the copy column so text always sits on calm haze */
   .plate::after {
@@ -32,56 +41,82 @@
     inset: 0;
     background: var(--plate-veil, linear-gradient(90deg, var(--plate-veil-color) 0%, transparent 58%));
   }
-  .plate {
-    --plate-veil-color: light-dark(rgb(243 243 241 / 0.45), rgb(12 14 17 / 0.5));
-  }
 
-  /* Photographic backdrops (public/images/backdrops, from the owner's scenes2 set). Four places,
-     each with a light and a dusk version; Ownership uses the dusk version in both themes. */
-  .plate--hero { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); --plate-ls: url("/images/backdrops/a-light-sm.webp"); --plate-ds: url("/images/backdrops/a-dark-sm.webp"); }
-  .plate--pricing { --plate-l: url("/images/backdrops/pricing-light.webp"); --plate-d: url("/images/backdrops/pricing-dark.webp"); --plate-ls: url("/images/backdrops/pricing-light-sm.webp"); --plate-ds: url("/images/backdrops/pricing-dark-sm.webp"); }
-  .plate--about { --plate-l: url("/images/backdrops/about-light.webp"); --plate-d: url("/images/backdrops/about-dark.webp"); --plate-ls: url("/images/backdrops/about-light-sm.webp"); --plate-ds: url("/images/backdrops/about-dark-sm.webp"); }
-  .plate--intake { --plate-l: url("/images/backdrops/intake-light.webp"); --plate-d: url("/images/backdrops/intake-dark.webp"); --plate-ls: url("/images/backdrops/intake-light-sm.webp"); --plate-ds: url("/images/backdrops/intake-dark-sm.webp"); }
-  .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); --plate-ls: url("/images/backdrops/b-light-sm.webp"); --plate-ds: url("/images/backdrops/b-dark-sm.webp"); }
+  /* Photographic backdrops (public/images/backdrops, from the owner's scenes2 set). Ownership uses
+     the dusk version in both themes. Encoded by scripts/backdrops.mjs. */
+  .plate--hero { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); }
+  .plate--pricing { --plate-l: url("/images/backdrops/pricing-light.webp"); --plate-d: url("/images/backdrops/pricing-dark.webp"); }
+  .plate--about { --plate-l: url("/images/backdrops/about-light.webp"); --plate-d: url("/images/backdrops/about-dark.webp"); }
+  .plate--intake { --plate-l: url("/images/backdrops/intake-light.webp"); --plate-d: url("/images/backdrops/intake-dark.webp"); }
+  .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); }
   .plate--services,
-  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); --plate-ls: url("/images/backdrops/c-light-sm.webp"); --plate-ds: url("/images/backdrops/c-dark-sm.webp"); }
-  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-light-sm.webp"); --plate-ds: url("/images/backdrops/d-dark-sm.webp"); }
-  .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-dark-sm.webp"); --plate-ds: url("/images/backdrops/d-dark-sm.webp"); }
+  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); }
+  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); }
+  .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); }
 
   .plate { --plate: var(--plate-l); }
   :root[data-theme="dark"] .plate { --plate: var(--plate-d); }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) .plate { --plate: var(--plate-d); }
   }
-  @media (max-width: 900px) {
-    .plate { --plate: var(--plate-ls); }
-    :root[data-theme="dark"] .plate { --plate: var(--plate-ds); }
+
+  /* where each photo is anchored so its plinth/ledge sits under the section's art (desktop) */
+  .plate--hero { --plate-pos: 70% 100%; --plate-pos-sm: 72% 50%; }
+  .plate--why { --plate-pos: 60% 100%; --plate-pos-sm: 62% 50%; }
+  .plate--services { --plate-pos: 50% 100%; --plate-pos-sm: 55% 50%; }
+  .plate--process { --plate-pos: 50% 100%; --plate-pos-sm: 30% 50%; --plate-veil: linear-gradient(to bottom, var(--plate-veil-color) 0%, var(--plate-veil-color) 34%, transparent 62%); }
+  /* Pricing has its own portrait photo (20:27) sized for the tall section: scene at the top behind the
+     header, terrace floor behind the cards and comparison. */
+  .plate--pricing { --plate-pos: 50% 0; --plate-pos-sm: 55% 30%; --plate-veil: none; --plate-fade-top: 3rem; --plate-fade-bottom: 6rem; }
+  .plate--ownership { --plate-pos: 70% 60%; --plate-pos-sm: 62% 50%; }
+  .plate--cta { --plate-pos: 50% 100%; --plate-pos-sm: 60% 50%; }
+  .plate--about { --plate-pos: 50% 70%; --plate-pos-sm: 30% 50%; }
+  .plate--intake { --plate-pos: 50% 60%; --plate-pos-sm: 80% 50%; --plate-veil: none; }
+
+  /* Stacked layouts: sticky, viewport-sized backdrop per section + an even veil for small text. */
+  @media (max-width: 1023px) {
+    .plate {
+      --plate-fade-top: 3rem;
+      --plate-fade-bottom: 3rem;
+    }
+    .plate__img {
+      position: sticky;
+      inset: 0 auto auto; /* top: 0 (inset is shorthand, so never set it after top) */
+      width: 100%;
+      height: 100lvh;
+      background-position: var(--plate-pos-sm, 60% 50%);
+    }
+    .plate::after {
+      background: light-dark(rgb(243 243 241 / 0.4), rgb(12 14 17 / 0.52));
+    }
+    /* copy that sits straight on a photo (not on glass) gets a soft halo in the page colour, so
+       small text stays legible over snow, glare, and reflections */
+    main section :is(header, .hero__copy, .why__list, .own__copy, .process__step > :not(.process__pane), .pricing__founding, .scope-notes, .about__head, .inquiry__aside) {
+      text-shadow:
+        0 0 0.9rem var(--text-halo),
+        0 0 0.25rem var(--text-halo);
+    }
+    main section .btn {
+      text-shadow: none;
+    }
+  }
+  .plate,
+  main section {
+    --text-halo: light-dark(rgb(243 243 241 / 0.85), rgb(12 14 17 / 0.9));
   }
 
-  /* where each photo is anchored so its plinth/ledge sits under the section's art */
-  .plate--hero { --plate-pos: 70% 100%; }
-  .plate--why { --plate-pos: 60% 100%; }
-  .plate--services { --plate-pos: 50% 100%; }
-  .plate--process { --plate-pos: 50% 100%; --plate-veil: linear-gradient(to bottom, var(--plate-veil-color) 0%, var(--plate-veil-color) 34%, transparent 62%); }
-  /* Pricing has its own portrait photo (20:27) sized for the tall section: scene at the top behind the
-     header, terrace floor behind the cards and comparison. Anchored to the top, never a foot band. */
-  .plate--pricing { --plate-pos: 50% 0; --plate-veil: none; --plate-fade-top: 3rem; --plate-fade-bottom: 6rem; }
-  .plate--ownership { --plate-pos: 70% 60%; }
-  .plate--cta { --plate-pos: 50% 100%; }
-  .plate--about { --plate-pos: 50% 70%; }
-  .plate--intake { --plate-pos: 50% 60%; --plate-veil: none; }
-
-  /* Stacked layouts: the render becomes a band at the section's foot (behind the art), faded
-     into the page above, instead of a cover image blown up behind the copy. */
-  @media (max-width: 1023px) {
-    .plate:not(.plate--pricing) {
-      --plate-band: 101vw; /* 180vw wide at 16:9 */
-      background-image: linear-gradient(to bottom, var(--bg) calc(100% - var(--plate-band)), transparent calc(100% - var(--plate-band) + 30vw)), var(--plate);
-      background-size: 100% 100%, 180vw auto;
-      background-position: 0 0, var(--plate-pos-sm, 65%) 100%;
-    }
-    .plate:not(.plate--pricing)::after {
-      display: none;
+  /* Theme-matched photos (ThemedPhoto): only the active theme's image shows (and loads). */
+  .pic--dark {
+    display: none;
+  }
+  :root[data-theme="dark"] {
+    .pic--light { display: none; }
+    .pic--dark { display: block; }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      .pic--light { display: none; }
+      .pic--dark { display: block; }
     }
   }
 
