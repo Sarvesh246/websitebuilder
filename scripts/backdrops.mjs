@@ -24,13 +24,15 @@ const sources = [
   "scene-d-dark.png",
 ];
 
-/** Scene pairs, by position in the source list, plus the dedicated pricing portrait. */
+/** Scene pairs, by position in the source list, plus the dedicated pricing, about and intake (/start) pairs. */
 const backdrops = {
   "a-light": sources[0], "a-dark": sources[1],
   "b-light": sources[2], "b-dark": sources[3],
   "c-light": sources[4], "c-dark": sources[5],
   "d-light": sources[6], "d-dark": sources[7],
   "pricing-light": "pricingpagelight.png", "pricing-dark": "pricingpagedark.png",
+  "about-light": "aboutsectionlight.png", "about-dark": "aboutsectiondark.png",
+  "intake-light": "intakesectionlight.png", "intake-dark": "intakesectiondark.png",
 };
 
 /** Crops (in source pixels) used as the concept-site photos inside the panes. */

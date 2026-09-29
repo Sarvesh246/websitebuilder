@@ -1,6 +1,6 @@
 import { cn } from "@/lib/cn";
 
-export type PlateName = "hero" | "why" | "services" | "process" | "pricing" | "ownership" | "cta";
+export type PlateName = "hero" | "why" | "services" | "process" | "pricing" | "ownership" | "cta" | "about" | "intake";
 
 /**
  * Rendered environment behind a section (sky, haze, mountains, lake, concrete). First child of a

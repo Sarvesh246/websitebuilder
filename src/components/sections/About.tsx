@@ -1,15 +1,17 @@
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Reveal } from "@/components/motion/Reveal";
+import { Plate } from "@/components/visual/Plate";
 import { about } from "@/config/about";
 import { siteConfig } from "@/config/site";
 
 /**
  * Who is behind Northframe: an understated editorial block. Statement left, the studio note and
- * the founder's own words right, separated by hairlines. No visual: the page has enough art.
+ * the founder's own words right, separated by hairlines, over the open terrace backdrop.
  */
 export const About = () => (
   <Section id="about" aria-labelledby="about-title" className="about">
+    <Plate name="about" />
     <Container>
       <div className="about__grid">
         <Reveal className="about__head">
