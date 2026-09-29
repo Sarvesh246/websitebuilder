@@ -26,7 +26,11 @@ import type { PackageId } from "@/config/pricing";
 import { emptyValues, stepFields, validateInquiry, type FieldErrors, type InquiryValues } from "@/lib/inquiry/schema";
 
 type Status = "idle" | "sending" | "success" | "error";
-type Draft = { values: InquiryValues; step: number; reached: number };
+/** startedAt persists the first visit, so a restored draft is not mistaken for a bot's instant submit. */
+type Draft = { values: InquiryValues; step: number; reached: number; startedAt?: number };
+
+/** Longer than the server's worst case (notification timeout), short enough to recover the UI. */
+const SUBMIT_TIMEOUT_MS = 20_000;
 
 const lastEditable = steps.length - 2; // index of the contact step; review is the last
 
@@ -80,13 +84,17 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
   const movedRef = useRef(false);
 
   useEffect(() => {
-    startedAt.current = Date.now();
-  }, []);
+    if (startedAt.current) return; // set once per form instance
+    const saved = draft?.startedAt;
+    // A restored draft means someone already worked through the form; drafts saved before startedAt
+    // existed get a start far enough back that the server's fill-time check can't mistake them for a bot.
+    startedAt.current = typeof saved === "number" && saved <= Date.now() ? saved : draft ? Date.now() - 60_000 : Date.now();
+  }, [draft]);
 
   useEffect(() => {
     if (!live || status === "success") return;
     try {
-      sessionStorage.setItem(inquiryDraftKey, JSON.stringify({ values, step, reached } satisfies Draft));
+      sessionStorage.setItem(inquiryDraftKey, JSON.stringify({ values, step, reached, startedAt: startedAt.current } satisfies Draft));
     } catch {
       // Ignore: persistence is a convenience.
     }
@@ -164,6 +172,7 @@ const InquiryForm = ({ initialPackage, draft, live }: { initialPackage: PackageI
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...result.data, hp, elapsed: Date.now() - startedAt.current }),
+        signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
       });
       if (res.ok) {
         try {
