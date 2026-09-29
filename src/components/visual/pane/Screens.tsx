@@ -7,10 +7,10 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
  */
 
 const photos = {
-  peak: "/images/scenes/shot-peak.webp",
-  range: "/images/scenes/shot-range.webp",
-  portal: "/images/scenes/shot-portal.webp",
-  own: "/images/scenes/shot-own.webp",
+  peak: "/images/scenes/pic-peak.webp",
+  range: "/images/scenes/pic-range.webp",
+  portal: "/images/scenes/pic-portal.webp",
+  own: "/images/scenes/pic-own.webp",
 } as const;
 type Photo = keyof typeof photos;
 

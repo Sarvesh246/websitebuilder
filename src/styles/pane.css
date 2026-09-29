@@ -38,13 +38,13 @@
 
   /* Photographic backdrops (public/images/backdrops, from the owner's scenes2 set). Four places,
      each with a light and a dusk version; Ownership uses the dusk version in both themes. */
-  .plate--hero,
-  .plate--pricing { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); --plate-ls: url("/images/backdrops/a-light-1000.webp"); --plate-ds: url("/images/backdrops/a-dark-1000.webp"); }
-  .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); --plate-ls: url("/images/backdrops/b-light-1000.webp"); --plate-ds: url("/images/backdrops/b-dark-1000.webp"); }
+  .plate--hero { --plate-l: url("/images/backdrops/a-light.webp"); --plate-d: url("/images/backdrops/a-dark.webp"); --plate-ls: url("/images/backdrops/a-light-sm.webp"); --plate-ds: url("/images/backdrops/a-dark-sm.webp"); }
+  .plate--pricing { --plate-l: url("/images/backdrops/pricing-light.webp"); --plate-d: url("/images/backdrops/pricing-dark.webp"); --plate-ls: url("/images/backdrops/pricing-light-sm.webp"); --plate-ds: url("/images/backdrops/pricing-dark-sm.webp"); }
+  .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); --plate-ls: url("/images/backdrops/b-light-sm.webp"); --plate-ds: url("/images/backdrops/b-dark-sm.webp"); }
   .plate--services,
-  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); --plate-ls: url("/images/backdrops/c-light-1000.webp"); --plate-ds: url("/images/backdrops/c-dark-1000.webp"); }
-  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-light-1000.webp"); --plate-ds: url("/images/backdrops/d-dark-1000.webp"); }
-  .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-dark-1000.webp"); --plate-ds: url("/images/backdrops/d-dark-1000.webp"); }
+  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); --plate-ls: url("/images/backdrops/c-light-sm.webp"); --plate-ds: url("/images/backdrops/c-dark-sm.webp"); }
+  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-light-sm.webp"); --plate-ds: url("/images/backdrops/d-dark-sm.webp"); }
+  .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); --plate-ls: url("/images/backdrops/d-dark-sm.webp"); --plate-ds: url("/images/backdrops/d-dark-sm.webp"); }
 
   .plate { --plate: var(--plate-l); }
   :root[data-theme="dark"] .plate { --plate: var(--plate-d); }
@@ -61,20 +61,22 @@
   .plate--why { --plate-pos: 60% 100%; }
   .plate--services { --plate-pos: 50% 100%; }
   .plate--process { --plate-pos: 50% 100%; --plate-veil: linear-gradient(to bottom, var(--plate-veil-color) 0%, var(--plate-veil-color) 34%, transparent 62%); }
-  .plate--pricing { --plate-pos: 50% 100%; --plate-veil: linear-gradient(to bottom, transparent 30%, var(--plate-veil-color) 70%); }
+  /* Pricing has its own portrait photo (20:27) sized for the tall section: scene at the top behind the
+     header, terrace floor behind the cards and comparison. Anchored to the top, never a foot band. */
+  .plate--pricing { --plate-pos: 50% 0; --plate-veil: none; --plate-fade-top: 3rem; --plate-fade-bottom: 6rem; }
   .plate--ownership { --plate-pos: 70% 60%; }
   .plate--cta { --plate-pos: 50% 100%; }
 
   /* Stacked layouts: the render becomes a band at the section's foot (behind the art), faded
      into the page above, instead of a cover image blown up behind the copy. */
   @media (max-width: 1023px) {
-    .plate {
+    .plate:not(.plate--pricing) {
       --plate-band: 101vw; /* 180vw wide at 16:9 */
       background-image: linear-gradient(to bottom, var(--bg) calc(100% - var(--plate-band)), transparent calc(100% - var(--plate-band) + 30vw)), var(--plate);
       background-size: 100% 100%, 180vw auto;
       background-position: 0 0, var(--plate-pos-sm, 65%) 100%;
     }
-    .plate::after {
+    .plate:not(.plate--pricing)::after {
       display: none;
     }
   }
