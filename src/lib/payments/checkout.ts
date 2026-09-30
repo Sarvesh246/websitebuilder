@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { PAYMENT_TERMS_VERSION } from "@/config/payments";
 import { finalKey } from "@/lib/payments/finalize";
 import type { ProjectPayRow } from "@/lib/payments/repo";
@@ -12,6 +13,8 @@ import type { Viewer } from "@/lib/portal/types";
  */
 const depositKey = (projectId: string) => `project:${projectId}:deposit`;
 const HALF_HOUR = 30 * 60 * 1000;
+/** Stripe rejects a reused idempotency key whose request body changed (new host, amount or customer), so the key carries a fingerprint of those inputs. */
+const fingerprint = (...parts: Array<string | number>) => createHash("sha256").update(parts.join("|")).digest("hex").slice(0, 12);
 const packageName: Record<ProjectPayRow["package"], string> = { launch: "Launch", presence: "Presence", business: "Business", custom: "Custom" };
 
 const loadProject = async (deps: PaymentsDeps, projectId: string): Promise<ProjectPayRow> => {
@@ -24,13 +27,16 @@ const loadProject = async (deps: PaymentsDeps, projectId: string): Promise<Proje
 const ensureCustomer = async (deps: PaymentsDeps, project: ProjectPayRow, userId: string, email: string, name: string | null) => {
   const { repo, stripe } = deps;
   const existing = project.stripe_customer_id ?? (await repo.getProfileCustomerId(userId));
-  if (existing) {
+  // A stored id can be unusable on this Stripe key (test-mode id under a live key, another account, or a
+  // deleted customer). Confirm it, and fall through to a fresh customer instead of failing checkout.
+  const usable = existing ? await stripe.customers.retrieve(existing).then((c) => !("deleted" in c && c.deleted), () => false) : false;
+  if (existing && usable) {
     if (!project.stripe_customer_id) await repo.updateProject(project.id, { stripe_customer_id: existing });
     return existing;
   }
   const customer = await stripe.customers.create(
     { email, name: name ?? undefined, metadata: { user_id: userId } },
-    { idempotencyKey: `customer:${userId}` },
+    { idempotencyKey: `customer:${userId}:${existing ?? "new"}` },
   );
   await repo.setProfileCustomerId(userId, customer.id);
   await repo.updateProject(project.id, { stripe_customer_id: customer.id });
@@ -95,7 +101,7 @@ export const createDepositCheckout = async (
       success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/checkout`,
     },
-    { idempotencyKey: `checkout:${depositKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}` },
+    { idempotencyKey: `checkout:${depositKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}:${fingerprint(origin, deposit, customerId, split ? "s" : "f")}` },
   );
   if (!session.url) throw new PaymentError("Could not start checkout. Please try again.");
 
@@ -152,7 +158,7 @@ export const createFinalCheckout = async (
       success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/payments`,
     },
-    { idempotencyKey: `checkout:${finalKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}` },
+    { idempotencyKey: `checkout:${finalKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}:${fingerprint(origin, remaining, project.stripe_customer_id ?? project.email)}` },
   );
   if (!session.url) throw new PaymentError("Could not start checkout. Please try again.");
 
