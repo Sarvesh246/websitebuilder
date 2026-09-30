@@ -10,7 +10,7 @@ export const about = {
   body: "The goal is the care and polish people expect from expensive agencies, without a price that makes a professional website unrealistic when you're just starting out.",
   founder: {
     heading: "Built by Sarvesh.",
-    note: "I'm a student and developer who likes building polished digital products. Northframe started from a simple idea: good website design shouldn't only be available to companies with agency budgets.",
+    note: "I'm an engineering student at Texas A&M and developer who likes building polished digital products. Northframe started from a simple idea: good website design shouldn't only be available to companies with agency budgets.",
   },
   /** Aria label for the decorative composition. */
   visualLabel: "Concept designs for a portfolio site, shown in a browser window inside a frame",

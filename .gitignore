@@ -51,3 +51,7 @@ next-env.d.ts
 /scripts/art/out/
 /public/images/scenes2/
 /public/images/references/
+
+# local secrets, never commit
+Google_secret.txt
+*_secret*.txt
