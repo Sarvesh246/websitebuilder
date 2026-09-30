@@ -27,7 +27,9 @@ const actor = async (role?: "admin"): Promise<Viewer> => {
 
 const toFailure = (err: unknown): Failure => {
   if (err instanceof PaymentError) return { ok: false, error: err.message };
-  console.error("[payments] action_failed");
+  // Class, Stripe code and message only (Stripe/PostgREST messages carry no secrets or customer content).
+  const e = err as { type?: string; code?: string; message?: string };
+  console.error("[payments] action_failed", e?.type ?? (err as Error)?.name, e?.code ?? "", e?.message ?? "");
   return { ok: false, error: "Something went wrong with the payment. Nothing was charged. Please try again." };
 };
 
