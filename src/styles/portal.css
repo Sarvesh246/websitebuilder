@@ -58,22 +58,7 @@
     }
   }
   .pt-brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.25rem 0.75rem;
-    font-size: 1.15rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: var(--text-strong);
-    text-decoration: none;
-  }
-  .pt-brand__dot {
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 0.2rem;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-soft);
+    padding-inline: 0.5rem;
   }
   .pt-nav {
     display: flex;

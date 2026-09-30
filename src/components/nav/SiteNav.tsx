@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Container } from "@/components/layout/Container";
 import { ThemeToggle } from "@/components/nav/ThemeToggle";
 import { Button } from "@/components/ui/Button";
@@ -59,8 +60,8 @@ export const SiteNav = () => {
       <div ref={sentinelRef} aria-hidden className="pointer-events-none absolute top-0 left-0 h-6 w-px" />
       <header className="site-nav" data-scrolled={scrolled || open}>
         <Container className="site-nav__inner">
-          <Link href="/" className="site-nav__logo" onClick={close}>
-            {siteConfig.name}
+          <Link href="/" className="brand" aria-label={`${siteConfig.name} home`} onClick={close}>
+            <BrandLogo />
           </Link>
 
           <nav aria-label="Primary" className="site-nav__links">

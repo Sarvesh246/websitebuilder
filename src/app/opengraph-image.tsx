@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { siteConfig } from "@/config/site";
 
 export const alt = siteConfig.socialAlt;
@@ -7,10 +9,11 @@ export const contentType = "image/png";
 
 /**
  * Social card, rendered once at build time. Same world as the site's "dusk" scenes: near-black sky,
- * a cool light from the upper left, faceted ice-blue ridgelines, the frame mark. Copy stays inside
+ * a cool light from the upper left, faceted ice-blue ridgelines, the door mark. Copy stays inside
  * an 80px safe margin so square and 1.91:1 crops both keep the name and subtitle.
  */
-export default function OpengraphImage() {
+export default async function OpengraphImage() {
+  const mark = `data:image/png;base64,${(await readFile(join(process.cwd(), "public/brand/icon-dark.png"))).toString("base64")}`;
   return new ImageResponse(
     (
       <div
@@ -42,18 +45,8 @@ export default function OpengraphImage() {
         {/* copy */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", paddingLeft: 80, width: 900 }}>
           <div style={{ display: "flex", alignItems: "center" }}>
-            <div
-              style={{
-                display: "flex",
-                width: 64,
-                height: 64,
-                border: "8px solid #f3f6fa",
-                borderRadius: 20,
-                boxSizing: "border-box",
-              }}
-            >
-              <div style={{ width: 20, height: 20, borderRadius: 6, background: "#7ea6f5", marginLeft: 1, marginTop: 1 }} />
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- next/og renders plain img */}
+            <img src={mark} width={96} height={96} alt="" style={{ marginLeft: -16 }} />
             <div style={{ fontSize: 26, letterSpacing: 5, whiteSpace: "nowrap", marginLeft: 24, color: "#b3ccfb", textTransform: "uppercase" }}>
               Web Design &amp; Development
             </div>

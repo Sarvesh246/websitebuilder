@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Container } from "@/components/layout/Container";
 import { footerLinks, legalLinks } from "@/config/nav";
 import { siteConfig } from "@/config/site";
@@ -13,8 +14,8 @@ export const SiteFooter = () => (
     <Container className="site-footer__inner">
       <div className="site-footer__top">
         <div className="site-footer__brand">
-          <Link href="/" className="site-nav__logo" aria-label={`${siteConfig.name} home`}>
-            {siteConfig.name}
+          <Link href="/" className="brand" aria-label={`${siteConfig.name} home`}>
+            <BrandLogo />
           </Link>
           <p className="t-small">{siteConfig.descriptor}</p>
         </div>
