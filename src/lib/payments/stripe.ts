@@ -1,4 +1,5 @@
 import "server-only";
+import { headers } from "next/headers";
 import Stripe from "stripe";
 import { supabasePaymentsRepo, type PaymentsRepo } from "@/lib/payments/repo";
 
@@ -11,7 +12,11 @@ let client: Stripe | null = null;
 export const getStripe = (): Stripe => {
   const key = process.env.STRIPE_SECRET_KEY?.trim();
   if (!key) throw new PaymentError("Payments are not configured yet.");
-  client ??= new Stripe(key, { maxNetworkRetries: 2, timeout: 15_000 });
+  if (!client) {
+    client = new Stripe(key, { maxNetworkRetries: 2, timeout: 15_000 });
+    // Mode only (never the key), so a live key in a test environment is obvious in the server log.
+    console.info(`[stripe] using ${key.includes("_live_") ? "LIVE" : "test"} mode`);
+  }
   return client;
 };
 
@@ -20,7 +25,7 @@ export type PaymentsDeps = {
   repo: PaymentsRepo;
   stripe: Stripe;
   now: () => Date;
-  /** Public origin for Checkout return URLs. */
+  /** Public origin for Checkout return URLs. Empty = derive it from the incoming request (see resolveOrigin). */
   origin: string;
 };
 
@@ -30,9 +35,30 @@ const defaultOrigin = () => {
   return process.env.NODE_ENV === "production" ? "https://northframe.co" : "http://localhost:3000";
 };
 
+/**
+ * Where Stripe sends the customer back to. Uses the host the customer is actually on, so local,
+ * preview and production each return to themselves, and falls back to the configured site URL when
+ * there is no request (tests, scripts). Only http(s) hosts are accepted.
+ */
+export const resolveOrigin = async (deps: PaymentsDeps): Promise<string> => {
+  if (deps.origin) return deps.origin;
+  try {
+    const h = await headers();
+    const host = h.get("x-forwarded-host") ?? h.get("host");
+    if (host && /^[a-z0-9.-]+(:\d+)?$/i.test(host)) {
+      const local = /^(localhost|127\.0\.0\.1)(:|$)/i.test(host);
+      const proto = local ? "http" : (h.get("x-forwarded-proto") ?? "https").split(",")[0].trim();
+      return `${proto === "http" ? "http" : "https"}://${host}`;
+    }
+  } catch {
+    // No request context.
+  }
+  return defaultOrigin();
+};
+
 export const defaultDeps = (): PaymentsDeps => ({
   repo: supabasePaymentsRepo(),
   stripe: getStripe(),
   now: () => new Date(),
-  origin: defaultOrigin(),
+  origin: "",
 });

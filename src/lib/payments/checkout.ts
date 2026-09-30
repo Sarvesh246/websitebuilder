@@ -2,7 +2,7 @@ import "server-only";
 import { PAYMENT_TERMS_VERSION } from "@/config/payments";
 import { finalKey } from "@/lib/payments/finalize";
 import type { ProjectPayRow } from "@/lib/payments/repo";
-import { defaultDeps, PaymentError, type PaymentsDeps } from "@/lib/payments/stripe";
+import { defaultDeps, PaymentError, resolveOrigin, type PaymentsDeps } from "@/lib/payments/stripe";
 import type { Viewer } from "@/lib/portal/types";
 
 /**
@@ -54,7 +54,8 @@ export const createDepositCheckout = async (
 
   const remaining = project.remaining_amount ?? 0;
   const split = remaining > 0;
-  const { repo, stripe, now, origin } = deps;
+  const { repo, stripe, now } = deps;
+  const origin = await resolveOrigin(deps);
 
   await repo.updateProject(project.id, {
     terms_accepted_at: now().toISOString(),
@@ -118,7 +119,8 @@ export const createFinalCheckout = async (
   const remaining = project.remaining_amount;
   if (!remaining || remaining <= 0) throw new PaymentError("There is no remaining balance.");
 
-  const { repo, stripe, now, origin } = deps;
+  const { repo, stripe, now } = deps;
+  const origin = await resolveOrigin(deps);
   const ledger = await repo.upsertLedger({
     project_id: project.id,
     type: "final_balance",
