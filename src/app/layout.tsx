@@ -16,6 +16,15 @@ export const metadata: Metadata = {
   // forgets to (like the 404) never inherits a wrong one.
   openGraph: { type: "website", siteName: siteConfig.name, locale: "en_US" },
   twitter: { card: "summary_large_image" },
+  // Tab icon follows the browser's colour scheme (the door mark that reads on that tab colour).
+  // public/favicon.ico (dark mark) only serves clients that request it directly.
+  icons: {
+    icon: [
+      { url: "/brand/icon-light.png", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/brand/icon-dark.png", type: "image/png", media: "(prefers-color-scheme: dark)" },
+    ],
+    apple: [{ url: "/brand/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,5 +1,6 @@
 import { Eye, LogOut } from "lucide-react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/BrandLogo";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "@/components/nav/ThemeToggle";
 import type { Viewer } from "@/lib/portal/types";
@@ -15,9 +16,8 @@ type ShellProps = {
 };
 
 const Brand = () => (
-  <Link href="/portal" className="pt-brand" aria-label="Northframe portal home">
-    <span className="pt-brand__dot" aria-hidden />
-    Northframe
+  <Link href="/portal" className="brand pt-brand" aria-label="Northframe portal home">
+    <BrandLogo />
   </Link>
 );
 
