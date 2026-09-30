@@ -21,6 +21,7 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
   const needsApproval = perspective === "client" && (p.stage === "client_review" || p.stage === "revisions") && !p.approvedAt;
 
   return (
+    <>
     <div className="pt-grid pt-cols-side">
       <div className="pt-stack">
         <Card>
@@ -51,18 +52,26 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
             <ApproveButton projectId={p.id} />
           </div>
         )}
+      </div>
 
+      <MoneySummary p={p} />
+    </div>
+
+    {/* Two even columns under the summary row, so neither side runs far past the other. */}
+    <div className="pt-grid pt-cols-2 pt-section-gap">
+      <div className="pt-stack">
         <Card title="Timeline" note="Milestones and what is next">
           <Timeline milestones={p.milestones} />
         </Card>
-        <Requirements p={p} admin={isAdmin} />
-      </div>
-
-      <div className="pt-stack">
-        <MoneySummary p={p} />
-        {isAdmin && <AdminControls project={p} />}
         <ActivityList events={p.events} />
       </div>
+      <div className="pt-stack">
+        <Requirements p={p} admin={isAdmin} />
+      </div>
     </div>
+
+    {/* Studio tools sit in their own full-width band (two columns) instead of stretching the side column. */}
+    {isAdmin && <AdminControls project={p} />}
+    </>
   );
 }
