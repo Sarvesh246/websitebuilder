@@ -5,6 +5,19 @@
     scroll-padding-top: calc(var(--nav-h) + 1rem);
   }
 
+  /* Nav links land with the section's content just under the header, not its empty top padding. */
+  #why,
+  #services,
+  #process,
+  #pricing,
+  #about {
+    scroll-margin-top: calc(0.5rem - var(--section-y));
+  }
+
+  #ownership {
+    scroll-margin-top: calc(-0.5rem - var(--section-y));
+  }
+
   body {
     min-height: 100dvh;
     /* Atmosphere comes from each section's rendered plate (styles/pane.css .plate). */
