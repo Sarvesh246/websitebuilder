@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Container } from "@/components/layout/Container";
 import { ThemeToggle } from "@/components/nav/ThemeToggle";
@@ -11,6 +11,12 @@ import { navLinks } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { useScrolledPast } from "@/hooks/useScrolledPast";
+
+// Supabase keeps the session in an `sb-<ref>-auth-token` cookie (chunked as `.0`, `.1`). Reading its
+// presence lets the header say "Dashboard" without a request, so marketing pages stay static.
+// It is only a label hint: /portal re-verifies the session and sends signed-out visitors to /login.
+const subscribeNone = () => () => {};
+const hasSessionCookie = () => /(?:^|;\s*)sb-[^=]*-auth-token/.test(document.cookie);
 
 /**
  * Site header. Desktop (lg+): logo, centred links, theme toggle and CTA on one line.
@@ -25,6 +31,8 @@ export const SiteNav = () => {
   const sheetId = useId();
   const scrolled = useScrolledPast(sentinelRef);
   const [open, setOpen] = useState(false);
+  const signedIn = useSyncExternalStore(subscribeNone, hasSessionCookie, () => false);
+  const accountLabel = signedIn ? "Dashboard" : "Log in";
 
   useLockBodyScroll(open);
 
@@ -78,6 +86,9 @@ export const SiteNav = () => {
 
           <div className="site-nav__actions">
             <ThemeToggle />
+            <Link href="/portal" className="site-nav__link hidden lg:inline-flex">
+              {accountLabel}
+            </Link>
             <Button href={siteConfig.cta.href} icon="diag" className="hidden lg:inline-flex">
               {siteConfig.cta.label}
             </Button>
@@ -106,6 +117,11 @@ export const SiteNav = () => {
                     </Link>
                   </li>
                 ))}
+                <li>
+                  <Link href="/portal" className="site-nav__sheet-link" onClick={close}>
+                    {accountLabel}
+                  </Link>
+                </li>
               </ul>
             </nav>
             <Button href={siteConfig.cta.href} size="lg" block icon="diag" onClick={close}>
