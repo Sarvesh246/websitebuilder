@@ -3,6 +3,8 @@
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
     scroll-padding-top: calc(var(--nav-h) + 1rem);
+    /* No rubber-band past the top or bottom of the page. */
+    overscroll-behavior-y: none;
   }
 
   /* Nav links land with the section's content just under the header, not its empty top padding. */
