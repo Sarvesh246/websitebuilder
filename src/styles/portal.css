@@ -1,24 +1,143 @@
 /*
- * Client + admin portal. Same Glacier language as the marketing site, tuned to a calm, functional app:
- * solid-ish raised cards (real glass only on the client hero), hairline borders, one accent.
- * Tokens only. Charts are plain SVG/HTML styled here (no chart library).
+ * Client + admin portal. Same Glacier language as the marketing site, as a working app:
+ * frosted panes floating over a veiled glacier scene, with the data engraved into them.
+ *   Depth  0 scene (.pt-app::before: terrace photo under a heavy veil + the key light, top left)
+ *          1 rail and panes (.pt-side, .pt-card, .pt-stat, ...): frosted, lit top-left edge, shaded far edge
+ *          2 raised (active nav pill, client hero, phone bars, dialog)
+ *   Engraving: tracks, rings and dividers are grooves cut into the pane (shade on the upper wall,
+ *   light on the lower lip); chart lines are incised the same way; key numbers are letterpressed.
+ * Tokens only (--pt-* / --etch-* in tokens.css). Charts are plain SVG/HTML styled here (no chart library).
+ * Solid surfaces replace the blur under data-power="low", reduced transparency and no backdrop-filter.
  */
 @layer components {
   /* ---------- App frame ---------- */
   .pt-app {
     --pt-side-w: 16rem;
     --pt-bar-h: calc(3.5rem + env(safe-area-inset-top));
-    --pt-tab-h: calc(4.25rem + env(safe-area-inset-bottom));
-    --pt-card: color-mix(in oklab, var(--bg-raised) 88%, transparent);
+    --pt-tab-h: calc(4.75rem + env(safe-area-inset-bottom));
+    --pt-blur: 18px;
+    --pt-card: var(--pt-pane);
     --pt-track: color-mix(in oklab, var(--text-strong) 9%, transparent);
     --pt-tint: color-mix(in oklab, var(--text-strong) 5%, transparent);
+    --pt-scene: url("/images/backdrops/c-light-lite.webp");
     position: relative;
+    isolation: isolate;
     min-height: 100dvh;
-    background:
-      radial-gradient(60rem 32rem at 82% -8%, var(--accent-soft), transparent 70%),
-      radial-gradient(44rem 30rem at -6% 96%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 70%),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
+  }
+  :root[data-theme="dark"] .pt-app {
+    --pt-scene: url("/images/backdrops/c-dark-lite.webp");
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .pt-app {
+      --pt-scene: url("/images/backdrops/c-dark-lite.webp");
+    }
+  }
+  @media (max-width: 767px) {
+    .pt-app {
+      --pt-blur: 12px;
+    }
+  }
+  /* Depth 0: the terrace scene, veiled so it only reads as cool light through the panes. Fixed, so it never scrolls. */
+  .pt-app::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(56rem 30rem at var(--light-x) -12%, var(--pt-specular), transparent 70%),
+      radial-gradient(48rem 28rem at 92% 0%, var(--accent-soft), transparent 72%),
+      linear-gradient(180deg, var(--pt-veil) 0%, var(--pt-veil) 34%, var(--pt-veil-deep) 82%),
+      var(--pt-scene) 50% 40% / cover no-repeat,
+      var(--bg);
+  }
+
+  /* ---------- Pane material (depth 1) ---------- */
+  .pt-card,
+  .pt-stat,
+  .pt-frame,
+  .pt-side,
+  .pt-tabbar {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid var(--glass-border);
+    background:
+      radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%),
+      linear-gradient(160deg, var(--pt-sheen), transparent 40%),
+      var(--pt-pane);
+    -webkit-backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      inset -12px -14px 24px -22px var(--glass-refract),
+      var(--shadow-glass);
+  }
+  /* Rim light: brightest at the lit corner, catching again at the far one. Drawn inside the border so
+     flush (overflow: hidden) panes keep it too. */
+  .pt-card::before,
+  .pt-stat::before,
+  .pt-frame::before,
+  .pt-side::before,
+  .pt-tabbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(150deg, var(--glass-rim) 0%, transparent 30%, transparent 72%, var(--glass-rim) 100%);
+    opacity: 0.5;
+    pointer-events: none;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+  }
+
+  /* Grooves: anything that is a channel cut into a pane (tracks, wells). */
+  .pt-progress__track,
+  .pt-bars__track,
+  .pt-stat__icon,
+  .pt-user {
+    background: var(--pt-groove);
+    box-shadow:
+      inset 0 1px 2px var(--etch-shade),
+      inset 0 -1px 0 var(--etch-lit);
+  }
+  /* Engraved dividers: the cut, then the lit lip under it. */
+  .pt-list > li + li,
+  .pt-hero__facts,
+  .pt-composer {
+    border-top-color: var(--etch-shade);
+    box-shadow: inset 0 1px 0 var(--etch-lit);
+  }
+  /* Letterpressed figures: pressed into the glass, so the light catches under them (dusk: shade over them). */
+  .pt-stat__value,
+  .pt-ring__num,
+  .pt-donut__pct,
+  .pt-donut__legend dd,
+  .pt-head__title {
+    text-shadow:
+      0 1px 0 var(--etch-text-lit),
+      0 -1px 0 var(--etch-text-shade);
+  }
+  .pt-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  .pt-defs__shade {
+    flood-color: var(--etch-shade);
+  }
+  .pt-defs__lit {
+    flood-color: var(--etch-lit);
   }
   .pt-shell {
     display: block;
@@ -40,21 +159,22 @@
     }
   }
 
-  /* Sidebar (lg+) */
+  /* Sidebar (lg+): one tall frosted rail standing off the page edge. */
   .pt-side {
     display: none;
   }
   @media (min-width: 1024px) {
     .pt-side {
       position: sticky;
-      top: 0;
-      height: 100dvh;
+      top: 0.75rem;
+      height: calc(100dvh - 1.5rem);
+      margin: 0.75rem 0 0.75rem 0.75rem;
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      padding: 1.5rem 1rem 1.25rem;
-      border-right: 1px solid var(--border);
-      background: color-mix(in oklab, var(--bg-raised) 72%, transparent);
+      padding: 1.5rem 0.85rem 1rem;
+      border-radius: var(--radius-card);
+      background: radial-gradient(140% 50% at var(--light-x) 0%, var(--pt-specular), transparent 50%), linear-gradient(170deg, var(--pt-sheen), transparent 32%), var(--pt-rail);
     }
   }
   .pt-brand {
@@ -84,8 +204,30 @@
     color: var(--text-strong);
   }
   .pt-nav__link[aria-current="page"] {
-    background: var(--accent-soft);
+    background: var(--pt-pane-raised);
+    color: var(--text-strong);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      0 8px 18px -12px var(--shadow-ink-strong);
+  }
+  .pt-nav__link[aria-current="page"] svg {
     color: var(--accent-ink);
+  }
+  /* The brand's frame motif: a sliver of light standing at the rail edge beside the current page. */
+  .pt-nav__link[aria-current="page"]::before {
+    content: "";
+    position: absolute;
+    left: -0.6rem;
+    top: 50%;
+    width: 3px;
+    height: 1.35rem;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    box-shadow:
+      0 0 12px 1px var(--accent-soft),
+      0 0 4px var(--accent-soft);
+    transform: translateY(-50%);
   }
   .pt-nav__link:focus-visible,
   .pt-tab:focus-visible {
@@ -113,9 +255,7 @@
     align-items: center;
     gap: 0.7rem;
     padding: 0.6rem 0.7rem;
-    border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    background: var(--pt-card);
     min-width: 0;
   }
   .pt-user__name {
@@ -165,24 +305,31 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: var(--nav-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
-    backdrop-filter: blur(var(--glass-blur-sm));
-    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--pt-sheen), transparent 70%), var(--nav-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur-sm)) saturate(1.5);
+    backdrop-filter: blur(var(--glass-blur-sm)) saturate(1.5);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: 0 1px 0 var(--etch-lit);
   }
+  /* Phones: the tabs float as one frosted capsule above the home indicator. */
   .pt-tabbar {
     position: fixed;
-    inset: auto 0 0 0;
+    inset: auto 0.75rem calc(0.6rem + env(safe-area-inset-bottom)) 0.75rem;
     z-index: var(--z-nav);
-    height: var(--pt-tab-h);
-    padding: 0.3rem 0.5rem env(safe-area-inset-bottom);
+    height: 4rem;
+    padding: 0.3rem;
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    background: var(--nav-bg);
-    -webkit-backdrop-filter: blur(var(--glass-blur-sm));
-    backdrop-filter: blur(var(--glass-blur-sm));
-    border-top: 1px solid var(--border);
+    gap: 0.15rem;
+    border-radius: 1.6rem;
+    background: radial-gradient(120% 90% at var(--light-x) 0%, var(--pt-specular), transparent 50%), var(--nav-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.6);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      var(--shadow-lg);
   }
   .pt-tab {
     position: relative;
@@ -190,29 +337,31 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.2rem;
-    min-height: 3.5rem;
-    border-radius: var(--radius-sm);
+    gap: 0.15rem;
+    min-height: 3.3rem;
+    border-radius: 1.3rem;
     color: var(--text-muted);
     font-size: 0.72rem;
     font-weight: 600;
     text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-standard),
+      color var(--dur-fast) var(--ease-standard);
+  }
+  .pt-tab:active {
+    transform: scale(0.96);
   }
   .pt-tab[aria-current="page"] {
+    background: var(--pt-pane-raised);
     color: var(--accent-ink);
-  }
-  .pt-tab[aria-current="page"]::before {
-    content: "";
-    position: absolute;
-    top: 0.1rem;
-    width: 1.5rem;
-    height: 0.2rem;
-    border-radius: 1rem;
-    background: var(--accent);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      0 6px 14px -10px var(--shadow-ink-strong);
   }
   .pt-tab .pt-nav__badge {
     position: absolute;
-    top: 0.25rem;
+    top: 0.2rem;
     left: calc(50% + 0.35rem);
     margin: 0;
   }
@@ -234,6 +383,9 @@
     border: 1px dashed color-mix(in oklab, var(--accent) 55%, transparent);
     border-radius: var(--radius-md);
     background: var(--accent-soft);
+    -webkit-backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    box-shadow: inset 1px 1px 0 var(--glass-edge-lit);
     color: var(--accent-ink);
     font-size: 0.92rem;
     font-weight: 500;
@@ -343,10 +495,7 @@
   .pt-card {
     position: relative;
     padding: clamp(1.1rem, 0.8rem + 1vw, 1.6rem);
-    border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    background: var(--pt-card);
-    box-shadow: var(--shadow-sm);
     min-width: 0;
   }
   .pt-card--flush {
@@ -406,10 +555,7 @@
     flex-direction: column;
     gap: 0.35rem;
     padding: 1.1rem 1.15rem;
-    border: 1px solid var(--border);
     border-radius: var(--radius-card);
-    background: var(--pt-card);
-    box-shadow: var(--shadow-sm);
     min-width: 0;
   }
   .pt-stat__head {
@@ -424,7 +570,12 @@
     color: var(--text-muted);
   }
   .pt-stat__icon {
-    color: var(--text-subtle);
+    box-sizing: content-box;
+    flex: none;
+    padding: 0.35rem;
+    margin: -0.35rem -0.35rem -0.35rem 0;
+    border-radius: 0.65rem;
+    color: var(--text-muted);
   }
   .pt-stat__value {
     font-size: clamp(1.6rem, 1.3rem + 0.9vw, 2.15rem);
@@ -443,6 +594,16 @@
   }
   .pt-stat--warn .pt-stat__icon {
     color: var(--danger);
+  }
+  /* Two-up phone tiles are too narrow for a label and a well side by side; the label carries the meaning. */
+  @media (max-width: 479px) {
+    .pt-stat__icon {
+      display: none;
+    }
+  }
+  /* A pane that needs attention holds a little of the warning colour in its glass. */
+  .pt-stat--warn {
+    background: radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%), linear-gradient(180deg, var(--danger-soft), transparent 70%), var(--pt-pane);
   }
 
   /* ---------- Chips ---------- */
@@ -499,7 +660,6 @@
     flex: 1;
     height: 0.5rem;
     border-radius: var(--radius-pill);
-    background: var(--pt-track);
     overflow: hidden;
   }
   .pt-progress--sm .pt-progress__track {
@@ -509,7 +669,8 @@
     position: absolute;
     inset: 0 auto 0 0;
     border-radius: inherit;
-    background: var(--accent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--accent), var(--glass-edge-lit) 24%), var(--accent));
+    box-shadow: 0 0 10px var(--pt-line-glow);
     transition: width var(--dur-slow) var(--ease-out);
   }
   .pt-progress--muted .pt-progress__fill {
@@ -532,8 +693,16 @@
     position: relative;
     flex: none;
   }
-  .pt-ring__track {
-    stroke: var(--pt-track);
+  .pt-ring__track,
+  .pt-donut__rest {
+    stroke: var(--pt-groove);
+    filter: url(#pt-engrave);
+  }
+  .pt-ring__arc,
+  .pt-donut__got,
+  .pt-chart__line,
+  .pt-spark__line {
+    filter: drop-shadow(0 0 6px var(--pt-line-glow));
   }
   .pt-ring__arc {
     stroke: var(--accent);
@@ -579,8 +748,9 @@
     overflow: visible;
   }
   .pt-chart__grid {
-    stroke: var(--pt-track);
+    stroke: var(--etch-shade);
     stroke-width: 1;
+    filter: drop-shadow(0 1px 0 var(--etch-lit));
   }
   .pt-chart__tick {
     fill: var(--text-muted);
@@ -596,7 +766,7 @@
   }
   .pt-chart__dot {
     fill: var(--accent);
-    stroke: var(--bg-raised);
+    stroke: var(--surface-solid);
     stroke-width: 2;
   }
   .pt-spark__line {
@@ -629,14 +799,14 @@
   .pt-bars__track {
     height: 0.65rem;
     border-radius: var(--radius-pill);
-    background: var(--pt-track);
     overflow: hidden;
   }
   .pt-bars__fill {
     display: block;
     height: 100%;
     border-radius: var(--radius-pill);
-    background: var(--accent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--accent), var(--glass-edge-lit) 24%), var(--accent));
+    box-shadow: 0 0 10px var(--pt-line-glow);
   }
   .pt-bars__fill[data-empty] {
     width: 0 !important;
@@ -662,9 +832,6 @@
   .pt-donut__chart svg {
     width: 100%;
     height: 100%;
-  }
-  .pt-donut__rest {
-    stroke: var(--pt-track);
   }
   .pt-donut__got {
     stroke: var(--accent);
@@ -720,7 +887,7 @@
     background: var(--accent);
   }
   .pt-swatch--rest {
-    background: var(--pt-track);
+    background: var(--pt-groove);
     box-shadow: inset 0 0 0 1px var(--border-strong);
   }
 
@@ -732,7 +899,7 @@
     list-style: none;
   }
   .pt-list > li + li {
-    border-top: 1px solid var(--border);
+    border-top: 1px solid;
   }
   .pt-row {
     display: grid;
@@ -840,12 +1007,13 @@
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--etch-shade);
     white-space: nowrap;
   }
   .pt-table td {
     padding: 0.9rem 1rem;
     border-bottom: 1px solid var(--border);
+    box-shadow: inset 0 -1px 0 var(--etch-lit);
     vertical-align: middle;
   }
   .pt-table tbody tr:last-child td {
@@ -1005,9 +1173,14 @@
     padding: 0.3rem;
     overflow-x: auto;
     scrollbar-width: none;
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    background: var(--pt-card);
+    background: var(--pt-pane);
+    -webkit-backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    box-shadow:
+      inset 0 1px 3px var(--etch-shade),
+      inset 0 -1px 0 var(--etch-lit);
     width: fit-content;
     max-width: 100%;
   }
@@ -1031,8 +1204,15 @@
     color: var(--text-strong);
   }
   .pt-tabs a[aria-current="page"] {
-    background: var(--btn-primary-bg);
-    color: var(--btn-primary-text);
+    background: var(--surface-solid);
+    color: var(--text-strong);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      0 6px 16px -10px var(--shadow-ink-strong);
+  }
+  .pt-tabs a[aria-current="page"] svg {
+    color: var(--accent-ink);
   }
   .pt-tabs a:focus-visible {
     outline: 2px solid var(--focus-ring);
@@ -1046,8 +1226,9 @@
     align-items: center;
     padding: clamp(1.4rem, 1rem + 2vw, 2.5rem);
     background:
+      radial-gradient(120% 90% at var(--light-x) 0%, var(--glass-specular), transparent 46%),
       radial-gradient(38rem 20rem at 92% 0%, var(--accent-soft), transparent 70%),
-      var(--pt-card);
+      var(--pt-pane-raised);
   }
   .pt-hero__ring {
     display: grid;
@@ -1078,7 +1259,7 @@
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     margin-top: 1.4rem;
     padding-top: 1.2rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--etch-shade);
   }
   .pt-fact dt {
     font-size: 0.78rem;
@@ -1102,6 +1283,9 @@
     border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--border));
     border-radius: var(--radius-md);
     background: var(--accent-soft);
+    -webkit-backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
+    box-shadow: inset 1px 1px 0 var(--glass-edge-lit);
   }
   .pt-prompt > div {
     flex: 1 1 16rem;
@@ -1133,13 +1317,15 @@
     top: 1.6rem;
     bottom: 0;
     width: 2px;
-    background: var(--pt-track);
+    background: var(--etch-shade);
+    box-shadow: 1px 0 0 var(--etch-lit);
   }
   .pt-tl:last-child::before {
     display: none;
   }
   .pt-tl[data-status="done"]::before {
     background: var(--accent);
+    box-shadow: 0 0 8px var(--pt-line-glow);
   }
   .pt-tl__node {
     display: grid;
@@ -1148,7 +1334,7 @@
     height: 1.6rem;
     border-radius: 50%;
     border: 2px solid var(--border-strong);
-    background: var(--bg-raised);
+    background: var(--surface-solid);
     color: var(--accent-contrast);
   }
   .pt-tl[data-status="done"] .pt-tl__node {
@@ -1218,7 +1404,7 @@
     display: grid;
     gap: 0.6rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--etch-shade);
   }
   .pt-composer__row {
     display: flex;
@@ -1266,11 +1452,13 @@
     grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
     gap: 0.75rem;
     padding: 0.7rem 0;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--etch-shade);
+    box-shadow: 0 1px 0 var(--etch-lit);
     font-size: 0.94rem;
   }
   .pt-dl > div:last-child {
     border-bottom: 0;
+    box-shadow: none;
   }
   .pt-dl dt {
     color: var(--text-muted);
@@ -1314,7 +1502,8 @@
   }
   .pt-money .pt-money__total {
     padding-top: 0.6rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--etch-shade);
+    box-shadow: inset 0 1px 0 var(--etch-lit);
     font-size: 1.05rem;
   }
 
@@ -1322,17 +1511,16 @@
   .pt-frame {
     display: grid;
     gap: 1rem;
-    border: 1px solid var(--border-strong);
     border-radius: var(--radius-card);
     overflow: hidden;
-    background: var(--pt-card);
   }
   .pt-frame__bar {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.7rem 1rem;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid var(--etch-shade);
+    box-shadow: 0 1px 0 var(--etch-lit);
     background: var(--pt-tint);
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -1379,14 +1567,19 @@
   .pt-dialog {
     width: min(28rem, calc(100vw - 2rem));
     padding: 1.5rem;
-    border: 1px solid var(--border-strong);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-card);
-    background: var(--bg-raised);
+    background: radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%), var(--nav-sheet-bg);
     color: var(--text);
-    box-shadow: var(--shadow-lg);
+    box-shadow:
+      inset 1px 1px 0 var(--glass-edge-lit),
+      inset -1px -1px 0 var(--glass-edge-shade),
+      var(--shadow-lg);
   }
   .pt-dialog::backdrop {
-    background: rgb(10 12 16 / 0.5);
+    background: rgb(10 12 16 / 0.42);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
   .pt-dialog h2 {
     font-size: 1.15rem;
@@ -1409,10 +1602,25 @@
       transition: none;
     }
   }
-  :root[data-power="low"] .pt-top,
-  :root[data-power="low"] .pt-tabbar {
+  /* Solid panes where blur is unavailable, unwanted, or too costly (same layout, same contrast). */
+  :root[data-power="low"] :is(.pt-top, .pt-tabbar, .pt-side, .pt-card, .pt-stat, .pt-frame, .pt-tabs, .pt-banner, .pt-prompt, .pt-hero) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--surface-solid);
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    :is(.pt-top, .pt-tabbar, .pt-side, .pt-card, .pt-stat, .pt-frame, .pt-tabs, .pt-hero) {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--surface-solid);
+    }
+    .pt-app::before {
+      background: var(--bg);
+    }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :is(.pt-top, .pt-tabbar, .pt-side, .pt-card, .pt-stat, .pt-frame, .pt-tabs) {
+      background: var(--surface-solid);
+    }
   }
 }
