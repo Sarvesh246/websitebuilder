@@ -13,7 +13,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  experimental: { serverActions: { bodySizeLimit: "26mb" } },
+  // staleTimes: a portal tab visited in the last 30s reopens from the client cache (server actions still refresh it).
+  experimental: { serverActions: { bodySizeLimit: "26mb" }, staleTimes: { dynamic: 30 } },
   poweredByHeader: false,
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
