@@ -30,7 +30,7 @@ const Nav = ({ burger }: { burger?: boolean }) => (
   </div>
 );
 
-export const ScreenIdeas = () => (
+export const ScreenIdeas = ({ photo = "portal" }: { photo?: Photo }) => (
   <div className="scr scr--split">
     <Nav />
     <div className="scr__body">
@@ -41,7 +41,7 @@ export const ScreenIdeas = () => (
           Explore <ArrowRight size="1.2em" strokeWidth={1.6} />
         </span>
       </div>
-      <Photo src="portal" />
+      <Photo src={photo} />
     </div>
   </div>
 );
@@ -68,7 +68,7 @@ export const ScreenTall = ({ title = "Built for what's next.", photo = "range" }
   </div>
 );
 
-export const ScreenPage = () => (
+export const ScreenPage = ({ photo = "portal" }: { photo?: Photo }) => (
   <div className="scr scr--page">
     <Nav />
     <div className="scr__body">
@@ -79,7 +79,7 @@ export const ScreenPage = () => (
           Start a Project <ArrowUpRight size="1.2em" strokeWidth={1.6} />
         </span>
       </div>
-      <Photo src="portal" sizes="35vw" />
+      <Photo src={photo} sizes="35vw" />
     </div>
     <div className="scr__strip">
       <div>

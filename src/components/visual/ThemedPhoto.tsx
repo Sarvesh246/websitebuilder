@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export type PhotoName = "peak" | "range" | "portal" | "own";
+export type PhotoName = "peak" | "range" | "portal" | "own" | "vista" | "lake" | "hall";
 
 /** "own" is already a dusk scene, so it has no separate dark crop. */
 const hasDark = (name: PhotoName) => name !== "own";
