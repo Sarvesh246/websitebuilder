@@ -49,9 +49,9 @@
   .plate--about { --plate-l: url("/images/backdrops/about-light.webp"); --plate-d: url("/images/backdrops/about-dark.webp"); }
   .plate--intake { --plate-l: url("/images/backdrops/intake-light.webp"); --plate-d: url("/images/backdrops/intake-dark.webp"); }
   .plate--process { --plate-l: url("/images/backdrops/b-light.webp"); --plate-d: url("/images/backdrops/b-dark.webp"); }
-  .plate--services,
-  .plate--cta { --plate-l: url("/images/backdrops/c-light.webp"); --plate-d: url("/images/backdrops/c-dark.webp"); }
-  .plate--why { --plate-l: url("/images/backdrops/d-light.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); }
+  .plate--services { --plate-l: url("/images/backdrops/e-light.webp"); --plate-d: url("/images/backdrops/e-dark.webp"); }
+  .plate--why { --plate-l: url("/images/backdrops/f-light.webp"); --plate-d: url("/images/backdrops/f-dark.webp"); }
+  .plate--cta { --plate-l: url("/images/backdrops/g-light.webp"); --plate-d: url("/images/backdrops/g-dark.webp"); }
   .plate--ownership { --plate-l: url("/images/backdrops/d-dark.webp"); --plate-d: url("/images/backdrops/d-dark.webp"); }
 
   /* Slow or Save-Data connections get the same photos at half the pixels (scripts/backdrops.mjs). */
@@ -61,9 +61,9 @@
     .plate--about { --plate-l: url("/images/backdrops/about-light-lite.webp"); --plate-d: url("/images/backdrops/about-dark-lite.webp"); }
     .plate--intake { --plate-l: url("/images/backdrops/intake-light-lite.webp"); --plate-d: url("/images/backdrops/intake-dark-lite.webp"); }
     .plate--process { --plate-l: url("/images/backdrops/b-light-lite.webp"); --plate-d: url("/images/backdrops/b-dark-lite.webp"); }
-    .plate--services,
-    .plate--cta { --plate-l: url("/images/backdrops/c-light-lite.webp"); --plate-d: url("/images/backdrops/c-dark-lite.webp"); }
-    .plate--why { --plate-l: url("/images/backdrops/d-light-lite.webp"); --plate-d: url("/images/backdrops/d-dark-lite.webp"); }
+    .plate--services { --plate-l: url("/images/backdrops/e-light-lite.webp"); --plate-d: url("/images/backdrops/e-dark-lite.webp"); }
+    .plate--why { --plate-l: url("/images/backdrops/f-light-lite.webp"); --plate-d: url("/images/backdrops/f-dark-lite.webp"); }
+    .plate--cta { --plate-l: url("/images/backdrops/g-light-lite.webp"); --plate-d: url("/images/backdrops/g-dark-lite.webp"); }
     .plate--ownership { --plate-l: url("/images/backdrops/d-dark-lite.webp"); --plate-d: url("/images/backdrops/d-dark-lite.webp"); }
   }
 

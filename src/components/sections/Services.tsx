@@ -9,7 +9,7 @@ import { ThemedPhoto } from "@/components/visual/ThemedPhoto";
 import { services } from "@/config/about";
 
 const icons = [UserRound, MonitorSmartphone, Briefcase, Code2] as const;
-const art = ["range", "portal", "range", "peak"] as const;
+const art = ["vista", "portal", "hall", "lake"] as const;
 
 /**
  * What Northframe builds (reference 4): four standing glass cards rising like steps along the

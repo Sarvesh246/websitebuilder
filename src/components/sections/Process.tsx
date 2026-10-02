@@ -9,7 +9,7 @@ import { ScreenCode, ScreenIdeas, ScreenPhoto, ScreenWire } from "@/components/v
 import { processSteps } from "@/config/about";
 
 /** The same site as a wireframe, a design, code, and a live page: the work in order. */
-const screens: readonly ReactNode[] = [<ScreenWire key="w" />, <ScreenIdeas key="d" />, <ScreenCode key="c" />, <ScreenPhoto key="l" title="Cleaner websites. Bigger ideas." />];
+const screens: readonly ReactNode[] = [<ScreenWire key="w" />, <ScreenIdeas key="d" photo="vista" />, <ScreenCode key="c" />, <ScreenPhoto key="l" title="Cleaner websites. Bigger ideas." photo="lake" />];
 
 /**
  * Process (reference 5): centred header, four numbered steps, each over a framed glass pane; the
