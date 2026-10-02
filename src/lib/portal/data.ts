@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { demoMode } from "@/lib/auth/session";
 import { createAdminClient } from "@/utils/supabase/server";
 import {
@@ -39,8 +40,12 @@ type Batches = { payments: PaymentDb[]; milestones: Pick<MilestoneDb, "project_i
 
 const PAYMENT_COLUMNS = "id, project_id, type, status, amount, currency, created_at, paid_at";
 
-/** One query per table for a whole list (no N+1). Admins fetch unfiltered, clients by their project ids. */
-const fetchBatches = async (projectIds: string[], perspective: Perspective): Promise<Batches> => {
+/**
+ * One query per table for a whole list (no N+1). Admins fetch unfiltered (so it runs alongside the
+ * project query), clients by their project ids. Memoized per request: shell, page and overview share it.
+ */
+const fetchBatches = cache(async (viewer: Viewer, perspective: Perspective): Promise<Batches> => {
+  const projectIds = perspective === "admin" ? [] : (await fetchProjectRows(viewer, perspective)).map((r) => r.id);
   if (perspective === "client" && projectIds.length === 0) return { payments: [], milestones: [], unread: new Map() };
   const client = db();
   const scope = <Q extends { in: (col: string, vals: string[]) => Q }>(q: Q) => (perspective === "admin" ? q : q.in("project_id", projectIds));
@@ -54,7 +59,7 @@ const fetchBatches = async (projectIds: string[], perspective: Perspective): Pro
   const unread = new Map<string, number>();
   for (const m of unreadRows) unread.set(m.project_id, (unread.get(m.project_id) ?? 0) + 1);
   return { payments, milestones, unread };
-};
+});
 
 const group = <T extends { project_id: string }>(items: T[]) => {
   const map = new Map<string, T[]>();
@@ -62,20 +67,21 @@ const group = <T extends { project_id: string }>(items: T[]) => {
   return map;
 };
 
-const fetchProjectRows = async (viewer: Viewer, perspective: Perspective): Promise<ProjectRow[]> => {
+/** Memoized per request (React cache), so one navigation never asks for the same rows twice. */
+const fetchProjectRows = cache(async (viewer: Viewer, perspective: Perspective): Promise<ProjectRow[]> => {
   let query = db().from("project_requests").select(PROJECT_COLUMNS).order("created_at", { ascending: false }).limit(500);
   if (perspective === "client") query = query.eq("user_id", viewer.userId);
   const found = await rowsOf<ProjectRow>(query);
   // Belt and braces: enforce ownership in code as well as in the query.
   return perspective === "client" ? found.filter((r) => r.user_id === viewer.userId) : found;
-};
+});
 
-const summarize = async (project: ProjectRow[], perspective: Perspective): Promise<ProjectSummary[]> => {
-  const b = await fetchBatches(project.map((r) => r.id), perspective);
+const summarize = cache(async (viewer: Viewer, perspective: Perspective): Promise<ProjectSummary[]> => {
+  const [project, b] = await Promise.all([fetchProjectRows(viewer, perspective), fetchBatches(viewer, perspective)]);
   const pay = group(b.payments);
   const mil = group(b.milestones);
   return project.map((r) => toSummary(r, { payments: pay.get(r.id) ?? [], milestones: mil.get(r.id) ?? [], unread: b.unread.get(r.id) ?? 0 }));
-};
+});
 
 export type ProjectAccess = {
   id: string; user_id: string | null; status: string; remaining_amount: number | null; total_amount: number | null;
@@ -99,7 +105,7 @@ export const assertProjectAccess = async (viewer: Viewer, perspective: Perspecti
 export const listProjects = async (viewer: Viewer, perspective: Perspective, opts?: ListOpts): Promise<ProjectSummary[]> => {
   authorize(viewer, perspective);
   if (demoMode()) return (await loadDemo()).demoListProjects(perspective, opts);
-  return filterAndSort(await summarize(await fetchProjectRows(viewer, perspective), perspective), opts);
+  return filterAndSort(await summarize(viewer, perspective), opts);
 };
 
 export const getProject = async (viewer: Viewer, perspective: Perspective, id: string): Promise<ProjectDetail | null> => {
@@ -121,19 +127,20 @@ export const getProject = async (viewer: Viewer, perspective: Perspective, id: s
 export const getAdminOverview = async (viewer: Viewer): Promise<AdminOverview> => {
   requireAdminViewer(viewer);
   if (demoMode()) return (await loadDemo()).demoOverview();
-  const client = db();
-  const rows = await fetchProjectRows(viewer, "admin");
-  const projects = await summarize(rows, "admin");
-  const [payments, unread, events] = await Promise.all([
-    rowsOf<PaymentDb>(client.from("payments").select(PAYMENT_COLUMNS).limit(5000)),
-    rowsOf<{ id: string }>(client.from("messages").select("id").is("read_at", null).eq("sender_role", "client").limit(5000)),
-    rowsOf<EventDb>(client.from("project_events").select("id, project_id, kind, title, actor_role, created_at").order("created_at", { ascending: false }).limit(20)),
+  // Payments and unread counts are the same rows the summaries already load, so only the activity feed is extra.
+  const [rows, projects, { payments, unread: unreadBy }, events] = await Promise.all([
+    fetchProjectRows(viewer, "admin"),
+    summarize(viewer, "admin"),
+    fetchBatches(viewer, "admin"),
+    rowsOf<EventDb>(db().from("project_events").select("id, project_id, kind, title, actor_role, created_at").order("created_at", { ascending: false }).limit(20)),
   ]);
+  let unread = 0;
+  for (const n of unreadBy.values()) unread += n;
   const nameOf = new Map(rows.map((r) => [r.id, r.client_name]));
   return buildOverview({
     projects,
     payments: payments.map((p) => ({ type: p.type, status: p.status, amount: p.amount, createdAt: p.created_at, paidAt: p.paid_at })),
-    unread: unread.length,
+    unread,
     activity: events.map((e) => ({ id: e.id, projectId: e.project_id, clientName: nameOf.get(e.project_id) ?? "", title: e.title, createdAt: e.created_at })),
   });
 };
@@ -153,12 +160,12 @@ export const listInbox = async (viewer: Viewer, perspective: Perspective): Promi
   authorize(viewer, perspective);
   if (demoMode()) return (await loadDemo()).demoInbox(perspective);
   const rows = await fetchProjectRows(viewer, perspective);
-  const projects = await summarize(rows, perspective);
   if (rows.length === 0) return [];
   let query = db().from("messages").select("id, project_id, sender_role, body, created_at, read_at").order("created_at", { ascending: false }).limit(2000);
   if (perspective === "client") query = query.in("project_id", rows.map((r) => r.id));
+  const [projects, messages] = await Promise.all([summarize(viewer, perspective), rowsOf<MessageDb>(query)]);
   const latest = new Map<string, MessageDb>();
-  for (const m of await rowsOf<MessageDb>(query)) if (!latest.has(m.project_id)) latest.set(m.project_id, m);
+  for (const m of messages) if (!latest.has(m.project_id)) latest.set(m.project_id, m);
   return projects
     .map((project) => {
       const m = latest.get(project.id);
