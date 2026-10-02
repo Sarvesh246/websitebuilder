@@ -22,6 +22,8 @@ const themes = {
     btnBg: "#17191d", btnText: "#f7f7f5", glassWhite: 0.55,
     danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92, footerBg: "#f3f3f1",
     pillBg: "#dfe8f6", pillInk: "#2c4d85",
+    // portal: worst-case scene pixel (5th percentile of c-light-lite) under --pt-veil, then --pt-pane
+    sceneWorst: [171, 176, 179], veilBg: [243, 243, 241], veil: 0.74, paneTint: [255, 255, 255], pane: 0.6,
   },
   dark: {
     bg: "#0c0e11", strong: "#f3f4f6", text: "#c9cdd3", muted: "#a0a6ae", subtle: "#8d939b",
@@ -29,6 +31,8 @@ const themes = {
     btnBg: "#f3f4f6", btnText: "#0c0e11", glassWhite: 0.06,
     danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08, footerBg: "#0c0e11",
     pillBg: "#1f2733", pillInk: "#c3d4f3",
+    // portal: worst-case scene pixel (98th percentile of c-dark-lite, the wall lights) under --pt-veil, then --pt-pane
+    sceneWorst: [172, 131, 101], veilBg: [10, 12, 15], veil: 0.7, paneTint: [34, 38, 46], pane: 0.45,
   },
 };
 
@@ -38,6 +42,8 @@ for (const [name, t] of Object.entries(themes)) {
   const glass = mix([255, 255, 255], bg, t.glassWhite);
   const badgeBg = mix(t.accentSoftBase.slice(0, 3), bg, t.accentSoftBase[3]);
   const field = mix([255, 255, 255], glass, t.fieldWhite);
+  const scene = mix(t.veilBg, t.sceneWorst, t.veil);
+  const pane = mix(t.paneTint, scene, t.pane);
   const checks = [
     ["text-strong on bg", t.strong, bg, 4.5],
     ["text on bg", t.text, bg, 4.5],
@@ -54,6 +60,10 @@ for (const [name, t] of Object.entries(themes)) {
     ["text on footer", t.text, t.footerBg, 4.5],
     ["text-muted on footer", t.muted, t.footerBg, 4.5],
     ["pricing pill (Founding Client Pricing)", t.pillInk, t.pillBg, 4.5],
+    ["portal: text-muted on veiled scene", t.muted, scene, 4.5],
+    ["portal: text-muted on pane", t.muted, pane, 4.5],
+    ["portal: danger on pane", t.danger, pane, 4.5],
+    ["portal: accent-ink on pane", t.accentInk, pane, 4.5],
   ].map(([label, fg, back, min]) => [label, ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back), min]);
 
   console.log(`\n${name}`);

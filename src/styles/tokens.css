@@ -123,6 +123,21 @@
   --glass-blur-sm: 12px;
   --glass-saturate: 1.4;
 
+  /* ---------- Portal glass (styles/portal.css): panes over a veiled scene, data engraved into them ---------- */
+  --pt-pane: light-dark(rgb(255 255 255 / 0.6), rgb(34 38 46 / 0.45)); /* dusk panes are smoked, so wall lights behind never wash out text */
+  --pt-pane-raised: light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.1));
+  --pt-rail: light-dark(rgb(255 255 255 / 0.48), rgb(255 255 255 / 0.035));
+  --pt-sheen: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.045));
+  --pt-specular: light-dark(rgb(255 255 255 / 0.72), rgb(255 255 255 / 0.06));
+  --pt-veil: light-dark(rgb(243 243 241 / 0.74), rgb(10 12 15 / 0.7));
+  --pt-veil-deep: light-dark(rgb(243 243 241 / 0.93), rgb(10 12 15 / 0.92));
+  --pt-groove: light-dark(rgb(36 52 82 / 0.09), rgb(0 0 0 / 0.3));
+  --etch-shade: light-dark(rgb(36 52 82 / 0.15), rgb(0 0 0 / 0.62)); /* the cut: dark upper wall of an engraved line */
+  --etch-lit: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.09)); /* the lip: light caught on its lower edge */
+  --etch-text-lit: light-dark(rgb(255 255 255 / 0.85), transparent);
+  --etch-text-shade: light-dark(transparent, rgb(0 0 0 / 0.6));
+  --pt-line-glow: light-dark(transparent, rgb(169 192 234 / 0.4)); /* dusk: light caught in the cut */
+
   --nav-bg: light-dark(rgb(243 243 241 / 0.72), rgb(12 14 17 / 0.72));
   --nav-sheet-bg: light-dark(rgb(243 243 241 / 0.96), rgb(12 14 17 / 0.96));
 
