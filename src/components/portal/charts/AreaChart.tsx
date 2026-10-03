@@ -60,7 +60,9 @@ export const AreaChart = ({ data, title }: AreaChartProps) => {
           </g>
         ))}
       </svg>
-      <table className="sr-only">
+      {/* sr-only on the wrapper: on a <table> itself it does not clip the <caption>, which then shows under the chart. */}
+      <div className="sr-only">
+      <table>
         <caption>{title}</caption>
         <thead>
           <tr>
@@ -77,6 +79,7 @@ export const AreaChart = ({ data, title }: AreaChartProps) => {
           ))}
         </tbody>
       </table>
+      </div>
     </figure>
   );
 };
