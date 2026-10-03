@@ -20,64 +20,62 @@ export default async function SettingsPage() {
           Demo mode: this portal shows sample data and saving is turned off.
         </p>
       )}
-      <div className="pt-grid pt-cols-2" style={{ alignItems: "start" }}>
-        <div className="pt-stack">
-          <Card title="Profile">
-            <div className="pt-stack">
-              <NameForm initial={viewer.fullName ?? ""} />
-              <dl className="pt-dl">
-                <div>
-                  <dt>Email</dt>
-                  <dd>{viewer.email}</dd>
-                </div>
-                <div>
-                  <dt>Role</dt>
-                  <dd>{viewer.role === "admin" ? "Studio admin" : "Client"}</dd>
-                </div>
-              </dl>
-            </div>
-          </Card>
-          <Card title="Appearance" note="Light by default, dusk at night. Saved in this browser.">
-            <div className="pt-form-row" style={{ alignItems: "center" }}>
-              <ThemeToggle />
-              <span className="pt-small">Switch between light and dark.</span>
-            </div>
-          </Card>
-        </div>
-
-        <div className="pt-stack">
-          {viewer.role === "admin" && (
-            <Card title="Preview as client" note="Studio admins only">
-              <div className="pt-stack">
-                <p className="pt-small">
-                  See the portal exactly as a client sees it: their overview, tabs and payment screens. Studio controls are hidden and changes are disabled while previewing. This does not
-                  change any data or sign you out.
-                </p>
-                <ViewAsToggle active={perspective === "client"} />
+      {/* One grid, cards as direct children: each row's pair shares a top edge and a height, so the two
+          columns stay level. Pairs are matched by content size; on phones it is a single column. */}
+      <div className="pt-grid pt-cols-2 pt-settings">
+        <Card title="Profile" note="Your name as the studio sees it">
+          <div className="pt-stack">
+            <NameForm initial={viewer.fullName ?? ""} />
+            <dl className="pt-dl">
+              <div>
+                <dt>Email</dt>
+                <dd>{viewer.email}</dd>
               </div>
-            </Card>
-          )}
-          <Card title="Password" note="Change the password you sign in with">
-            <PasswordForm disabled={demo} />
+              <div>
+                <dt>Role</dt>
+                <dd>{viewer.role === "admin" ? "Studio admin" : "Client"}</dd>
+              </div>
+            </dl>
+          </div>
+        </Card>
+        <Card title="Password" note="Change the password you sign in with">
+          <PasswordForm disabled={demo} />
+        </Card>
+
+        <Card title="Appearance" note="Light by default, dusk at night. Saved in this browser.">
+          <div className="pt-form-row" style={{ alignItems: "center" }}>
+            <ThemeToggle />
+            <span className="pt-small">Switch between light and dark.</span>
+          </div>
+        </Card>
+        <Card title="Sign-in methods" note="Ways you can get into the portal">
+          <ConnectedAccounts disabled={demo} />
+        </Card>
+
+        {viewer.role === "admin" ? (
+          <Card title="Preview as client" note="Studio admins only">
+            <div className="pt-stack">
+              <p className="pt-small">
+                See the portal exactly as a client sees it: their overview, tabs and payment screens. Studio controls are hidden and changes are disabled while previewing. This does not change
+                any data or sign you out.
+              </p>
+              <ViewAsToggle active={perspective === "client"} />
+            </div>
           </Card>
-          <Card title="Sign-in methods" note="Ways you can get into the portal">
-            <ConnectedAccounts disabled={demo} />
+        ) : (
+          <Card title="Delete account" note="Permanent">
+            <DeleteAccount disabled={demo} />
           </Card>
-          <Card title="Sign out">
-            <form action="/auth/signout" method="post" className="pt-stack">
-              <p className="pt-small">You will need to sign in again to see your projects.</p>
-              <button type="submit" className="btn btn-secondary" style={{ justifySelf: "start" }}>
-                <LogOut aria-hidden size={16} strokeWidth={1.9} />
-                Sign out
-              </button>
-            </form>
-          </Card>
-          {viewer.role !== "admin" && (
-            <Card title="Delete account" note="Permanent">
-              <DeleteAccount disabled={demo} />
-            </Card>
-          )}
-        </div>
+        )}
+        <Card title="Sign out" note="End this session on this device">
+          <form action="/auth/signout" method="post" className="pt-stack">
+            <p className="pt-small">You will need to sign in again to see your projects.</p>
+            <button type="submit" className="btn btn-secondary" style={{ justifySelf: "start" }}>
+              <LogOut aria-hidden size={16} strokeWidth={1.9} />
+              Sign out
+            </button>
+          </form>
+        </Card>
       </div>
     </>
   );

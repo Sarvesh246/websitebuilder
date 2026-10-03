@@ -18,7 +18,14 @@ export const ViewAsToggle = ({ active }: { active: boolean }) => {
   const { pending, error, run } = useAction();
   return (
     <div className="pt-stack">
-      <button type="button" className={active ? "btn btn-secondary" : "btn btn-primary"} disabled={pending} aria-busy={pending} onClick={() => run(() => setViewAs(!active))}>
+      <button
+        type="button"
+        className={active ? "btn btn-secondary" : "btn btn-primary"}
+        style={{ justifySelf: "start" }}
+        disabled={pending}
+        aria-busy={pending}
+        onClick={() => run(() => setViewAs(!active))}
+      >
         {active ? <EyeOff aria-hidden size={16} /> : <Eye aria-hidden size={16} />}
         {active ? "Exit client preview" : "Preview as client"}
       </button>

@@ -677,6 +677,12 @@
     color: var(--text-muted);
   }
 
+  /* ---------- Settings ---------- */
+  /* Paired rows: both cards in a row stretch to the taller one, so edges line up across the columns. */
+  .pt-settings {
+    align-items: stretch;
+  }
+
   /* ---------- Danger zone ---------- */
   .pt-danger > summary {
     display: flex;
