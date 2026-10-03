@@ -44,7 +44,7 @@ const themeScript = `var d=document.documentElement;d.dataset.js="";try{var c=na
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${figtree.variable} ${nunito.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={`${figtree.variable} ${nunito.variable}`}>
       <head>
         {/* Scroll reveals start hidden; without JS they must still be visible. */}
         <noscript>
