@@ -104,7 +104,8 @@
     }
   }
   @media (prefers-reduced-motion: no-preference) {
-    .hero__scroll svg {
+    .hero__scroll-icon {
+      display: block;
       animation: hero-bob 2.4s var(--ease-in-out) infinite alternate;
     }
   }
