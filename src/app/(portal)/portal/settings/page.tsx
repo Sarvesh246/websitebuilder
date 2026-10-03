@@ -2,6 +2,7 @@ import { LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/nav/ThemeToggle";
 import { getContext, portalMeta } from "@/components/portal/loaders";
 import { Card, PageHeader } from "@/components/portal/parts";
+import { ConnectedAccounts, DeleteAccount, PasswordForm } from "@/components/portal/AccountSecurity";
 import { NameForm, ViewAsToggle } from "@/components/portal/SettingsTools";
 import { demoMode } from "@/lib/auth/session";
 
@@ -9,11 +10,12 @@ export const metadata = portalMeta("Settings");
 
 export default async function SettingsPage() {
   const { viewer, perspective } = await getContext("/portal/settings");
+  const demo = demoMode();
 
   return (
     <>
-      <PageHeader eyebrow="Account" title="Settings" sub="Your profile, appearance and sign-in." />
-      {demoMode() && (
+      <PageHeader eyebrow="Account" title="Settings" sub="Your profile, appearance, sign-in and account." />
+      {demo && (
         <p className="pt-banner" role="note">
           Demo mode: this portal shows sample data and saving is turned off.
         </p>
@@ -55,6 +57,12 @@ export default async function SettingsPage() {
               </div>
             </Card>
           )}
+          <Card title="Password" note="Change the password you sign in with">
+            <PasswordForm disabled={demo} />
+          </Card>
+          <Card title="Sign-in methods" note="Ways you can get into the portal">
+            <ConnectedAccounts disabled={demo} />
+          </Card>
           <Card title="Sign out">
             <form action="/auth/signout" method="post" className="pt-stack">
               <p className="pt-small">You will need to sign in again to see your projects.</p>
@@ -64,6 +72,11 @@ export default async function SettingsPage() {
               </button>
             </form>
           </Card>
+          {viewer.role !== "admin" && (
+            <Card title="Delete account" note="Permanent">
+              <DeleteAccount disabled={demo} />
+            </Card>
+          )}
         </div>
       </div>
     </>

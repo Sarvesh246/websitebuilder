@@ -55,6 +55,8 @@ export type LedgerRow = {
   idempotency_key: string;
   created_at: string;
   paid_at: string | null;
+  /** Write-only here (Stripe's hosted receipt); read by the portal, not by the money logic. */
+  receipt_url?: string | null;
 };
 
 export type LedgerInsert = Omit<LedgerRow, "id" | "created_at" | "paid_at" | "stripe_session_id" | "stripe_payment_intent_id" | "stripe_refund_id" | "failure_reason"> &

@@ -18,6 +18,28 @@ const note = (kind: string, projectId: string) => console.error(`[payments] ${ki
 
 const CLOSED = ["cancelled", "completed"];
 
+/**
+ * The saved payment method and Stripe's hosted receipt for a PaymentIntent. Best effort: a failed lookup
+ * never blocks recording the payment (the receipt link is a convenience, the ledger is the record).
+ */
+export const intentDetails = async (
+  stripe: PaymentsDeps["stripe"],
+  paymentIntentId: string,
+): Promise<{ paymentMethodId: string | null; receiptUrl: string | null } | null> => {
+  try {
+    const intent = await stripe.paymentIntents.retrieve(paymentIntentId, { expand: ["latest_charge"] });
+    const pm = intent.payment_method;
+    const charge = intent.latest_charge;
+    const receipt = typeof charge === "object" && charge ? charge.receipt_url : null;
+    return {
+      paymentMethodId: typeof pm === "string" ? pm : (pm?.id ?? null),
+      receiptUrl: typeof receipt === "string" && receipt.startsWith("https://") && receipt.length <= 500 ? receipt : null,
+    };
+  } catch {
+    return null;
+  }
+};
+
 export const finalizeDeposit = async (
   deps: PaymentsDeps,
   input: { projectId: string; paymentIntentId: string; amountReceived: number; sessionId?: string | null; paymentMethodId?: string | null },
@@ -32,15 +54,10 @@ export const finalizeDeposit = async (
 
   const remaining = project.remaining_amount ?? 0;
   const split = remaining > 0;
-  let paymentMethodId = input.paymentMethodId ?? null;
-  if (!paymentMethodId && split) {
-    try {
-      const intent = await stripe.paymentIntents.retrieve(input.paymentIntentId);
-      paymentMethodId = typeof intent.payment_method === "string" ? intent.payment_method : (intent.payment_method?.id ?? null);
-    } catch {
-      note("payment_method_lookup_failed", input.projectId);
-    }
-  }
+  // One lookup serves both the saved card (split packages) and the Stripe receipt link.
+  const details = await intentDetails(stripe, input.paymentIntentId);
+  if (!details) note("payment_intent_lookup_failed", input.projectId);
+  const paymentMethodId = input.paymentMethodId ?? details?.paymentMethodId ?? null;
 
   const paidAt = now().toISOString();
   const patch: Partial<ProjectPayRow> = {
@@ -71,6 +88,7 @@ export const finalizeDeposit = async (
     stripe_session_id: input.sessionId ?? row.stripe_session_id,
     failure_reason: null,
     paid_at: paidAt,
+    receipt_url: details?.receiptUrl ?? null,
   });
   await repo.addEvent(input.projectId, "payment_received", split ? "Initial payment received" : "Payment received in full", "system");
   return "applied";
@@ -80,7 +98,7 @@ export const finalizeFinal = async (
   deps: PaymentsDeps,
   input: { projectId: string; paymentIntentId: string; amountReceived: number; sessionId?: string | null },
 ): Promise<FinalizeResult> => {
-  const { repo, now } = deps;
+  const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
   if (!project || project.final_payment_status === "paid") return "noop";
   if (project.initial_payment_status !== "paid") {
@@ -123,6 +141,7 @@ export const finalizeFinal = async (
     stripe_session_id: input.sessionId ?? row.stripe_session_id,
     failure_reason: null,
     paid_at: paidAt,
+    receipt_url: (await intentDetails(stripe, input.paymentIntentId))?.receiptUrl ?? null,
   });
   await repo.addEvent(input.projectId, "final_payment_received", "Final payment received. Ready for launch", "system");
   return "applied";

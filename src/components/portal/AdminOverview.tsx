@@ -69,7 +69,7 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
         >
           {o.newRequests.length === 0 ? (
             <EmptyState icon={Inbox} title="No new requests">
-              New project requests from the intake form will land here.
+              New requests from the intake form land here. Open one to accept it, set a deadline and plan milestones.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -99,7 +99,7 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
         <Card title="Upcoming deadlines" note="Open projects, soonest first">
           {o.deadlines.length === 0 ? (
             <EmptyState icon={AlarmClock} title="No deadlines set">
-              Set a deadline on a project and it will appear here.
+              Set a target date in a project’s studio controls and it is tracked here, soonest first.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -127,7 +127,7 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
         <Card title="Recent activity" note="The latest changes across projects">
           {o.activity.length === 0 ? (
             <EmptyState icon={FolderKanban} title="Nothing yet">
-              Stage changes, payments and messages will show up here.
+              Payments, uploads, feedback rounds and stage changes across all projects are listed here as they happen.
             </EmptyState>
           ) : (
             <ul className="pt-list pt-feed">

@@ -10,6 +10,8 @@ import { CANCELLATION_WINDOW_DAYS, cancellationPolicy } from "@/config/payments"
 import { formatUsd } from "@/lib/money";
 import { shortDate } from "@/lib/portal/format";
 import type { ProjectDetail } from "@/lib/portal/types";
+import { balanceDue } from "@/lib/portal/workflow";
+import { ReceiptLinks } from "@/components/portal/ReceiptLinks";
 
 export const metadata = portalMeta("Payments");
 
@@ -57,7 +59,7 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
   const previewing = viewer.role === "admin" && perspective === "client";
   const due = dueFor(p);
   const rows = obligations(p);
-  const needsBalance = !isAdmin && (p.finalPayment === "failed" || p.finalPayment === "requires_action" || (p.stage === "awaiting_final_payment" && p.finalPayment !== "processing")) && (p.money.remaining ?? 0) > 0 && p.finalPayment !== "paid";
+  const needsBalance = !isAdmin && balanceDue(p);
   const withinWindow = inCancellationWindow(p.initialPaidAt);
   const canCancel = !isAdmin && !previewing && withinWindow && !p.cancellationRequestedAt && !p.cancelledAt;
 
@@ -67,7 +69,7 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
         <Card title="Payment schedule" note={due.label}>
           {rows.length === 0 ? (
             <EmptyState icon={Receipt} title="Awaiting a quote">
-              The studio will set a price for this custom project. It will show up here.
+              The studio is pricing this custom project. Once the quote is set, the payment schedule appears here and you can pay from this tab.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -105,7 +107,7 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
         <Card title="Receipts and history" note="Every payment on this project">
           {p.payments.length === 0 ? (
             <EmptyState icon={Receipt} title="No payments yet">
-              Payments and receipts will be listed here.
+              Each payment shows up here once Stripe confirms it, with an invoice you can download and Stripe&rsquo;s receipt.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -116,6 +118,7 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
                     <p className="pt-row__meta">
                       <span>{shortDate(x.paidAt ?? x.createdAt)}</span>
                     </p>
+                    <ReceiptLinks projectId={p.id} payment={x} />
                   </div>
                   <div className="pt-row__aside">
                     <span className="pt-strong pt-num">

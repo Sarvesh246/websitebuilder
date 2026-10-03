@@ -28,7 +28,10 @@ export type MilestoneStatus = "pending" | "active" | "done";
 export type Milestone = { id: string; title: string; detail: string | null; position: number; status: MilestoneStatus; dueDate: string | null; completedAt: string | null };
 
 export type PaymentStatus = "pending" | "processing" | "succeeded" | "failed" | "requires_action" | "cancelled" | "refunded" | "partially_refunded";
-export type PaymentRow = { id: string; type: "full" | "deposit" | "final_balance" | "refund"; status: PaymentStatus; amount: number; currency: string; createdAt: string; paidAt: string | null };
+export type PaymentRow = {
+  id: string; type: "full" | "deposit" | "final_balance" | "refund"; status: PaymentStatus; amount: number; currency: string;
+  createdAt: string; paidAt: string | null; receiptUrl: string | null;
+};
 
 export type Money = { total: number | null; deposit: number | null; remaining: number | null; paid: number; currency: string };
 
@@ -74,8 +77,27 @@ export type ProjectDetail = ProjectSummary & {
 };
 
 export type Message = { id: string; projectId: string; senderRole: "client" | "admin"; body: string; createdAt: string; readAt: string | null; mine: boolean };
-export type ProjectFile = { id: string; projectId: string; name: string; sizeBytes: number; mimeType: string | null; uploaderRole: "client" | "admin"; createdAt: string };
+export type ProjectFile = {
+  id: string; projectId: string; name: string; sizeBytes: number; mimeType: string | null; uploaderRole: "client" | "admin"; createdAt: string;
+  /** Short-lived signed link for image thumbnails; null for other types or when it could not be made. */
+  thumbUrl: string | null;
+};
 export type ProjectNote = { id: string; body: string; createdAt: string };
+
+export type FeedbackItem = { id: string; page: string | null; body: string; fileId: string | null; fileName: string | null; status: "open" | "done"; createdAt: string };
+export type FeedbackRound = {
+  id: string; number: number; status: "draft" | "submitted" | "resolved"; extra: boolean;
+  submittedAt: string | null; resolvedAt: string | null; createdAt: string; items: FeedbackItem[];
+};
+
+export type ChecklistStatus = "needed" | "provided" | "skipped";
+export type ChecklistItem = {
+  key: string; label: string; hint: string | null; kind: "upload" | "answer"; options: readonly string[]; optional: boolean; custom: boolean;
+  status: ChecklistStatus; answer: string | null; fileId: string | null; fileName: string | null; updatedAt: string | null;
+};
+
+/** One thing the client needs to do next, with a link straight to where they do it. */
+export type WaitingItem = { key: string; title: string; detail: string; href: string; cta: string; tone: "accent" | "warn" };
 
 export type AdminOverview = {
   kpis: { activeProjects: number; newRequests: number; collected: number; outstanding: number; overdue: number; unread: number };

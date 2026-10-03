@@ -100,7 +100,11 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
               ) : undefined
             }
           >
-            {filtered ? "Try a different search or clear the filters." : isAdmin ? "New requests will appear here." : "When you start a project it will show up here."}
+            {filtered
+              ? "Try a different search or clear the filters to see every project."
+              : isAdmin
+                ? "Requests from the intake form appear here the moment they are sent, ready for you to review and accept."
+                : "Start a project to choose a package and describe what you need. It shows up here right away, with its progress and next steps."}
           </EmptyState>
         </Card>
       ) : isAdmin ? (

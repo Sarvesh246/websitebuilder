@@ -1,7 +1,11 @@
 import { ExternalLink, Globe } from "lucide-react";
 import { notFound } from "next/navigation";
-import { getContext, loadProject, portalMeta } from "@/components/portal/loaders";
+import { getContext, loadProject, loadWorkflow, portalMeta } from "@/components/portal/loaders";
+import { FeedbackPanel } from "@/components/portal/Feedback";
+import { ApproveButton } from "@/components/portal/ProjectActions";
 import { Card, EmptyState } from "@/components/portal/parts";
+import { shortDate } from "@/lib/portal/format";
+import { canGiveFeedback, draftRound, roundInProgress } from "@/lib/portal/workflow";
 
 export const metadata = portalMeta("Preview");
 
@@ -22,40 +26,81 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
   const p = await loadProject(viewer, perspective, id);
   if (!p) notFound();
   const url = safeUrl(p.previewUrl);
+  const { rounds } = await loadWorkflow(viewer, perspective, p);
+  const isAdmin = perspective === "admin";
+  const previewing = viewer.role === "admin" && perspective === "client";
+  const open = canGiveFeedback(p);
+  const busy = Boolean(roundInProgress(rounds));
+  const drafted = (draftRound(rounds)?.items.length ?? 0) > 0;
+  const showApprove = !isAdmin && open && !busy && !drafted;
 
   return (
-    <div style={{ maxWidth: "52rem" }}>
-      {url ? (
-        <div className="pt-frame">
-          <div className="pt-frame__bar">
-            <span className="pt-frame__dots" aria-hidden>
-              <i />
-              <i />
-              <i />
-            </span>
-            <span className="pt-frame__url">{url.host}</span>
+    <div className="pt-grid pt-cols-side">
+      <div className="pt-stack">
+        {url ? (
+          <div className="pt-frame">
+            <div className="pt-frame__bar">
+              <span className="pt-frame__dots" aria-hidden>
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="pt-frame__url">{url.host}</span>
+            </div>
+            <div className="pt-frame__body">
+              <span className="pt-empty__icon">
+                <Globe aria-hidden size={22} strokeWidth={1.7} />
+              </span>
+              <p className="pt-empty__title">{p.approvedAt ? "Approved version" : "Your preview is ready"}</p>
+              <p className="pt-small" style={{ maxWidth: "30rem" }}>
+                {isAdmin
+                  ? "This is the link the client reviews. Their comments arrive below once they send a round."
+                  : open
+                    ? "Open it in a new tab, look through every page (on your phone too), then leave comments below."
+                    : "It opens in a new tab. A preview is a work in progress until launch."}
+              </p>
+              <a href={url.href} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                Open preview
+                <ExternalLink aria-hidden size={16} strokeWidth={1.9} />
+              </a>
+            </div>
           </div>
-          <div className="pt-frame__body">
-            <span className="pt-empty__icon">
-              <Globe aria-hidden size={22} strokeWidth={1.7} />
-            </span>
-            <p className="pt-empty__title">Your preview is ready</p>
-            <p className="pt-small" style={{ maxWidth: "28rem" }}>
-              It opens in a new tab. Share what you would like changed in Messages, and note that a preview is a work in progress.
-            </p>
-            <a href={url.href} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-              Open preview
-              <ExternalLink aria-hidden size={16} strokeWidth={1.9} />
-            </a>
+        ) : (
+          <Card>
+            <EmptyState icon={Globe} title="No preview yet">
+              {isAdmin
+                ? "Add a preview link in the studio controls on the Overview tab. The client is then asked to review it."
+                : "When the first version is ready, a preview link appears here and you can comment on it page by page."}
+            </EmptyState>
+          </Card>
+        )}
+        <FeedbackPanel projectId={p.id} rounds={rounds} admin={isAdmin} canGive={open} used={p.revisionsUsed} included={p.revisionsIncluded} previewing={previewing} />
+      </div>
+
+      <div className="pt-stack">
+        {showApprove && (
+          <div className="pt-prompt pt-prompt--stack">
+            <div>
+              <p className="pt-strong">Happy with it as it is?</p>
+              <p className="pt-small">Approving tells the studio the design is final and ends the revision rounds. It never charges anything.</p>
+            </div>
+            <ApproveButton projectId={p.id} />
           </div>
-        </div>
-      ) : (
-        <Card>
-          <EmptyState icon={Globe} title="No preview yet">
-            {perspective === "admin" ? "Add a preview URL in the studio controls when there is something to show." : "When the first version is ready, the studio will add a preview link here."}
-          </EmptyState>
+        )}
+        {p.approvedAt && (
+          <p className="pt-msg" role="status">
+            Final version approved {shortDate(p.approvedAt)}.
+          </p>
+        )}
+        <Card title="How feedback works">
+          <ol className="pt-steps">
+            <li>Open the preview and note anything to change.</li>
+            <li>Add one comment per change, with the page and a screenshot if it helps.</li>
+            <li>Send the round. Each round uses one of your {p.revisionsIncluded} included revisions.</li>
+            <li>The studio works through it and lets you know when the round is addressed.</li>
+          </ol>
         </Card>
-      )}
+      </div>
     </div>
   );
 }

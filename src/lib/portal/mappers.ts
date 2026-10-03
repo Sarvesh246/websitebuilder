@@ -1,7 +1,7 @@
 /** Pure row-to-DTO mapping and aggregation. No I/O, safe to unit test. Money is integer cents. */
 import {
   normalizeStage, projectStages, stageProgress,
-  type AdminOverview, type Message, type Milestone, type PaymentRow, type ProjectDetail, type ProjectFile,
+  type AdminOverview, type FeedbackRound, type Message, type Milestone, type PaymentRow, type ProjectDetail, type ProjectFile,
   type ProjectStage, type ProjectSummary,
 } from "./types";
 
@@ -32,7 +32,7 @@ export type ProjectRow = {
 
 export type PaymentDb = {
   id: string; project_id: string; type: PaymentRow["type"]; status: PaymentRow["status"]; amount: number;
-  currency: string; created_at: string; paid_at: string | null;
+  currency: string; created_at: string; paid_at: string | null; receipt_url?: string | null;
 };
 export type MilestoneDb = {
   id: string; project_id: string; title: string; detail: string | null; position: number;
@@ -43,7 +43,14 @@ export type MessageDb = {
 };
 export type FileDb = {
   id: string; project_id: string; name: string; size_bytes: number; mime_type: string | null;
-  uploader_role: "client" | "admin"; created_at: string;
+  uploader_role: "client" | "admin"; created_at: string; path?: string;
+};
+export type FeedbackRoundDb = {
+  id: string; project_id: string; number: number; status: FeedbackRound["status"]; extra: boolean;
+  submitted_at: string | null; resolved_at: string | null; created_at: string;
+};
+export type FeedbackItemDb = {
+  id: string; round_id: string; page: string | null; body: string; file_id: string | null; status: "open" | "done"; created_at: string;
 };
 export type EventDb = {
   id: string; project_id: string; kind: string; title: string; actor_role: "client" | "admin" | "system" | null; created_at: string;
@@ -83,6 +90,7 @@ export const sumPaid = (payments: { type: string; status: string; amount: number
 
 export const toPaymentRow = (p: PaymentDb): PaymentRow => ({
   id: p.id, type: p.type, status: p.status, amount: p.amount, currency: p.currency, createdAt: p.created_at, paidAt: p.paid_at,
+  receiptUrl: p.receipt_url ?? null,
 });
 
 export const toMilestone = (m: MilestoneDb): Milestone => ({
@@ -94,10 +102,25 @@ export const toMessage = (m: MessageDb, perspective: Perspective): Message => ({
   mine: m.sender_role === perspective,
 });
 
-export const toFile = (f: FileDb): ProjectFile => ({
+export const toFile = (f: FileDb, thumbUrl: string | null = null): ProjectFile => ({
   id: f.id, projectId: f.project_id, name: f.name, sizeBytes: f.size_bytes, mimeType: f.mime_type,
-  uploaderRole: f.uploader_role, createdAt: f.created_at,
+  uploaderRole: f.uploader_role, createdAt: f.created_at, thumbUrl,
 });
+
+/** Rounds newest first, each with its comments oldest first. */
+export const toRounds = (rounds: FeedbackRoundDb[], items: FeedbackItemDb[], fileNames: Map<string, string>): FeedbackRound[] =>
+  [...rounds]
+    .sort((a, b) => b.number - a.number)
+    .map((r) => ({
+      id: r.id, number: r.number, status: r.status, extra: r.extra, submittedAt: r.submitted_at, resolvedAt: r.resolved_at, createdAt: r.created_at,
+      items: items
+        .filter((i) => i.round_id === r.id)
+        .sort((a, b) => a.created_at.localeCompare(b.created_at))
+        .map((i) => ({
+          id: i.id, page: i.page, body: i.body, fileId: i.file_id, fileName: i.file_id ? (fileNames.get(i.file_id) ?? null) : null,
+          status: i.status, createdAt: i.created_at,
+        })),
+    }));
 
 export const toSummary = (
   row: ProjectRow,

@@ -99,32 +99,32 @@ export const validateInquiry = (input: unknown): Result => {
   const errors: FieldErrors = {};
 
   const pkg = typeof raw.package === "string" ? raw.package : "";
-  if (!isPackageId(pkg)) errors.package = "Choose a package to continue.";
+  if (!isPackageId(pkg)) errors.package = "Please choose a package to continue.";
 
   const projectType = clean(raw.projectType, 40);
-  if (!oneOf(projectTypes, projectType)) errors.projectType = "Pick what the site is for.";
+  if (!oneOf(projectTypes, projectType)) errors.projectType = "Please select what the website is for.";
   const projectTypeOther = projectType === "other" ? line(raw.projectTypeOther, limits.other) : "";
   if (projectType === "other") {
-    if (!projectTypeOther) errors.projectTypeOther = "Tell me what the website is for.";
+    if (!projectTypeOther) errors.projectTypeOther = "Please briefly describe what the website is for.";
     else if (projectTypeOther.length > limits.other) errors.projectTypeOther = `Please keep this under ${limits.other} characters.`;
   }
 
   const description = clean(raw.description, limits.descriptionMax);
   if (description.length < limits.descriptionMin) {
-    errors.description = `Add a little more detail (at least ${limits.descriptionMin} characters).`;
+    errors.description = `Please add a little more detail (at least ${limits.descriptionMin} characters).`;
   } else if (description.length > limits.descriptionMax) {
     errors.description = `Please keep this under ${limits.descriptionMax.toLocaleString("en-US")} characters.`;
   }
 
   const hasSite = clean(raw.hasSite, 3);
-  if (!oneOf(siteAnswers, hasSite)) errors.hasSite = "Let me know if you already have a website.";
+  if (!oneOf(siteAnswers, hasSite)) errors.hasSite = "Please indicate whether you already have a website.";
 
   let siteUrl = "";
   const siteRaw = line(raw.siteUrl, limits.url);
   if (hasSite === "yes" && siteRaw) {
     const normalized = siteRaw.length > limits.url ? null : normalizeUrl(siteRaw);
     if (normalized) siteUrl = normalized;
-    else errors.siteUrl = "That doesn't look like a web address. Try something like example.com.";
+    else errors.siteUrl = "Please enter a valid web address, such as example.com.";
   }
 
   const linkList = Array.isArray(raw.links) ? raw.links.slice(0, limits.links) : [];
@@ -134,45 +134,45 @@ export const validateInquiry = (input: unknown): Result => {
     if (!value) return;
     const normalized = value.length > limits.url ? null : normalizeUrl(value);
     if (normalized) links.push(normalized);
-    else errors[`links.${index}`] = "That doesn't look like a web address. Try something like example.com.";
+    else errors[`links.${index}`] = "Please enter a valid web address, such as example.com.";
   });
-  if (Array.isArray(raw.links) && raw.links.length > limits.links) errors.links = `Up to ${limits.links} links, please.`;
+  if (Array.isArray(raw.links) && raw.links.length > limits.links) errors.links = `Please include no more than ${limits.links} links.`;
 
   // Lists must be arrays when present (the form always sends arrays); other shapes are malformed.
-  if (raw.links !== undefined && !Array.isArray(raw.links)) errors.links = "Please re-enter your links.";
-  if (raw.features !== undefined && !Array.isArray(raw.features)) errors.features = "One of the selected features isn't recognised. Please reselect.";
+  if (raw.links !== undefined && !Array.isArray(raw.links)) errors.links = "Please re-enter your reference links.";
+  if (raw.features !== undefined && !Array.isArray(raw.features)) errors.features = "One of the selected features was not recognized. Please select it again.";
   const featureList = Array.isArray(raw.features) ? raw.features : [];
   const selected = [...new Set(featureList.filter((f): f is string => typeof f === "string"))];
   if (selected.some((id) => !featureIds.includes(id)) || selected.length > featureIds.length) {
-    errors.features = "One of the selected features isn't recognised. Please reselect.";
+    errors.features = "One of the selected features was not recognized. Please select it again.";
   }
 
   const timeline = clean(raw.timeline, 20);
-  if (!oneOf(timelines, timeline)) errors.timeline = "Pick when you'd like the site live.";
+  if (!oneOf(timelines, timeline)) errors.timeline = "Please select when you would like the website to launch.";
   const timelineOther = timeline === "other" ? line(raw.timelineOther, limits.other) : "";
   if (timeline === "other") {
-    if (!timelineOther) errors.timelineOther = "Tell me when you'd like it live.";
+    if (!timelineOther) errors.timelineOther = "Please briefly describe your preferred launch timing.";
     else if (timelineOther.length > limits.other) errors.timelineOther = `Please keep this under ${limits.other} characters.`;
   }
 
   // Budget only applies to Custom; ignore anything sent for fixed packages.
   const budgetRaw = clean(raw.budget, 20);
-  if (pkg === "custom" && budgetRaw && !oneOf(budgets, budgetRaw)) errors.budget = "Pick one of the budget ranges.";
+  if (pkg === "custom" && budgetRaw && !oneOf(budgets, budgetRaw)) errors.budget = "Please select one of the budget ranges.";
   const budget = pkg === "custom" && oneOf(budgets, budgetRaw) ? budgetRaw : "";
 
   const name = line(raw.name, limits.name);
-  if (!name) errors.name = "Add your name so I know who I'm talking to.";
+  if (!name) errors.name = "Please enter your name.";
   else if (name.length > limits.name) errors.name = `Please keep your name under ${limits.name} characters.`;
 
   const email = line(raw.email, limits.email);
-  if (!email) errors.email = "Add an email address so I can reply.";
+  if (!email) errors.email = "Please enter your email address.";
   else if (email.length > limits.email || !EMAIL.test(email)) {
-    errors.email = "That email doesn't look right. Check for typos, like name@example.com.";
+    errors.email = "Please enter a valid email address, such as name@example.com.";
   }
 
   const phone = line(raw.phone, limits.phone);
   if (phone && (phone.length > limits.phone || !PHONE.test(phone))) {
-    errors.phone = "Use digits, spaces, and + ( ) - only, or leave this blank.";
+    errors.phone = "Please use only digits, spaces, and + ( ) -, or leave this field blank.";
   }
 
   const organization = line(raw.organization, limits.organization);

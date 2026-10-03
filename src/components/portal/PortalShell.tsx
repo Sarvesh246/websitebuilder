@@ -4,6 +4,8 @@ import { BrandLogo } from "@/components/brand/BrandLogo";
 import type { ReactNode } from "react";
 import { ThemeToggle } from "@/components/nav/ThemeToggle";
 import type { Viewer } from "@/lib/portal/types";
+import { demoMode } from "@/lib/auth/session";
+import { LiveUpdates } from "./LiveUpdates";
 import { ExitPreviewButton } from "./SettingsTools";
 import { PortalNav } from "./PortalNav";
 import { Avatar } from "./parts";
@@ -53,6 +55,7 @@ export const PortalShell = ({ viewer, perspective, unreadMessages, children }: S
   return (
     <div className="pt-app">
       <EngraveFilter />
+      <LiveUpdates enabled={!demoMode()} viewerId={viewer.userId} />
       <div className="pt-shell">
         <aside className="pt-side" aria-label="Portal sidebar">
           <Brand />
