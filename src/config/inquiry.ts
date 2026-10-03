@@ -100,6 +100,8 @@ export const limits = {
   descriptionMax: 4000,
   url: 300,
   links: 3,
+  /** "Other" answers are stored in the 40-char website_type / timeline columns. */
+  other: 40,
   /** Hard cap on the request body, bytes. */
   body: 24_000,
 } as const;

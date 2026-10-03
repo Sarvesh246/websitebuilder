@@ -9,12 +9,16 @@ import type { PackageId } from "@/config/pricing";
 export type InquiryValues = {
   package: PackageId | "";
   projectType: string;
+  /** Free text when projectType is "other". */
+  projectTypeOther: string;
   description: string;
   hasSite: "yes" | "no" | "";
   siteUrl: string;
   links: string[];
   features: string[];
   timeline: string;
+  /** Free text when timeline is "other". */
+  timelineOther: string;
   budget: string;
   name: string;
   email: string;
@@ -28,12 +32,14 @@ export type FieldErrors = Partial<Record<FieldName | `links.${number}`, string>>
 export const emptyValues: InquiryValues = {
   package: "",
   projectType: "",
+  projectTypeOther: "",
   description: "",
   hasSite: "",
   siteUrl: "",
   links: [""],
   features: [],
   timeline: "",
+  timelineOther: "",
   budget: "",
   name: "",
   email: "",
@@ -44,6 +50,10 @@ export const emptyValues: InquiryValues = {
 const ids = (list: readonly { id: string }[]) => list.map((item) => item.id);
 const featureIds = ids(features);
 const oneOf = (list: readonly { id: string }[], value: string) => ids(list).includes(value);
+
+/** Display label for a choice; "other" shows the person's own words when given. */
+export const choiceLabel = (list: readonly { id: string; label: string }[], id: string, other = "") =>
+  id === "other" && other ? other : (list.find((item) => item.id === id)?.label ?? "");
 
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
 const PHONE = /^[+()\-.\s\d]{7,}$/;
@@ -76,9 +86,9 @@ export const normalizeUrl = (raw: string): string | null => {
 
 /** Which fields belong to which step, so the form can validate one step at a time. */
 export const stepFields: Record<"project" | "details" | "scope" | "contact", readonly FieldName[]> = {
-  project: ["package", "projectType"],
+  project: ["package", "projectType", "projectTypeOther"],
   details: ["description", "hasSite", "siteUrl", "links"],
-  scope: ["features", "timeline", "budget"],
+  scope: ["features", "timeline", "timelineOther", "budget"],
   contact: ["name", "email", "phone", "organization"],
 };
 
@@ -93,6 +103,11 @@ export const validateInquiry = (input: unknown): Result => {
 
   const projectType = clean(raw.projectType, 40);
   if (!oneOf(projectTypes, projectType)) errors.projectType = "Pick what the site is for.";
+  const projectTypeOther = projectType === "other" ? line(raw.projectTypeOther, limits.other) : "";
+  if (projectType === "other") {
+    if (!projectTypeOther) errors.projectTypeOther = "Tell me what the website is for.";
+    else if (projectTypeOther.length > limits.other) errors.projectTypeOther = `Please keep this under ${limits.other} characters.`;
+  }
 
   const description = clean(raw.description, limits.descriptionMax);
   if (description.length < limits.descriptionMin) {
@@ -133,7 +148,12 @@ export const validateInquiry = (input: unknown): Result => {
   }
 
   const timeline = clean(raw.timeline, 20);
-  if (timeline && !oneOf(timelines, timeline)) errors.timeline = "Pick one of the timing options.";
+  if (!oneOf(timelines, timeline)) errors.timeline = "Pick when you'd like the site live.";
+  const timelineOther = timeline === "other" ? line(raw.timelineOther, limits.other) : "";
+  if (timeline === "other") {
+    if (!timelineOther) errors.timelineOther = "Tell me when you'd like it live.";
+    else if (timelineOther.length > limits.other) errors.timelineOther = `Please keep this under ${limits.other} characters.`;
+  }
 
   // Budget only applies to Custom; ignore anything sent for fixed packages.
   const budgetRaw = clean(raw.budget, 20);
@@ -167,12 +187,14 @@ export const validateInquiry = (input: unknown): Result => {
     data: {
       package: pkg as PackageId,
       projectType,
+      projectTypeOther,
       description,
       hasSite: hasSite as "yes" | "no",
       siteUrl,
       links,
       features: selected,
       timeline,
+      timelineOther,
       budget,
       name,
       email,
