@@ -17,7 +17,14 @@ const nextConfig: NextConfig = {
   experimental: { serverActions: { bodySizeLimit: "26mb" }, staleTimes: { dynamic: 30 } },
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // public/ files are served with max-age=0 by default, so every visit revalidated each backdrop and logo.
+    // The names are not hashed: cache for a day, then refresh in the background for up to a week.
+    const assetCache = [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }];
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      { source: "/images/:path*", headers: assetCache },
+      { source: "/brand/:path*", headers: assetCache },
+    ];
   },
 };
 

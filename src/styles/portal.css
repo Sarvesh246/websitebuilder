@@ -10,6 +10,18 @@
  * Solid surfaces replace the blur under data-power="low", reduced transparency and no backdrop-filter.
  */
 @layer components {
+  /* The site's scroll padding clears the marketing header, which the portal does not have. Left as is,
+     Next sees every portal page's heading as hidden under a nav and scrolls each block of the new page
+     into view after a navigation (visible as the page sliding down on tall pages such as Payments). */
+  html:has(.pt-app) {
+    scroll-padding-top: calc(3.5rem + env(safe-area-inset-top));
+  }
+  @media (min-width: 1024px) {
+    html:has(.pt-app) {
+      scroll-padding-top: 0px;
+    }
+  }
+
   /* ---------- App frame ---------- */
   .pt-app {
     --pt-side-w: 16rem;

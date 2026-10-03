@@ -5,6 +5,20 @@
     scroll-padding-top: calc(var(--nav-h) + 1rem);
     /* No rubber-band past the top or bottom of the page. */
     overscroll-behavior-y: none;
+    /* Keep the scrollbar track on short pages too, so the layout never shifts sideways between pages. */
+    scrollbar-gutter: stable;
+  }
+
+  /* Taps act at once (no double-tap-zoom wait) and show the control state, not the grey flash. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  label,
+  summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* Nav links land with the section's content just under the header, not its empty top padding. */
