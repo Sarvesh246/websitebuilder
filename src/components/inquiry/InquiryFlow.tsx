@@ -314,6 +314,17 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
                 selected={values.projectType ? [values.projectType] : []}
                 onToggle={(id) => set("projectType", id)}
               />
+              {values.projectType === "other" && (
+                <TextField
+                  label="What is the website for?"
+                  name="projectTypeOther"
+                  placeholder="A wedding site, a band page, a club"
+                  maxLength={limits.other}
+                  value={values.projectTypeOther}
+                  onValueChange={(v) => set("projectTypeOther", v)}
+                  error={errors.projectTypeOther}
+                />
+              )}
             </div>
           )}
 
@@ -442,12 +453,22 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
                 legend="When would you like this live?"
                 name="timeline"
                 type="radio"
-                optional
                 error={errors.timeline}
                 choices={timelines}
                 selected={values.timeline ? [values.timeline] : []}
-                onToggle={(id) => set("timeline", values.timeline === id ? "" : id)}
+                onToggle={(id) => set("timeline", id)}
               />
+              {values.timeline === "other" && (
+                <TextField
+                  label="When would you like it live?"
+                  name="timelineOther"
+                  placeholder="Before the fall semester, by June 1"
+                  maxLength={limits.other}
+                  value={values.timelineOther}
+                  onValueChange={(v) => set("timelineOther", v)}
+                  error={errors.timelineOther}
+                />
+              )}
               {pkg === "custom" && (
                 <ChoiceGroup
                   legend="What's the approximate budget range?"

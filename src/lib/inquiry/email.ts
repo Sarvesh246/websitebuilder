@@ -2,7 +2,7 @@ import "server-only";
 import { budgets, features, projectTypes, timelines } from "@/config/inquiry";
 import { customTier, packageTiers } from "@/config/pricing";
 import { siteConfig } from "@/config/site";
-import type { InquiryValues } from "@/lib/inquiry/schema";
+import { choiceLabel, type InquiryValues } from "@/lib/inquiry/schema";
 
 /**
  * Delivery via Resend's HTTP API (plain fetch, no SDK). All config comes from env vars:
@@ -39,9 +39,9 @@ const rows = (d: InquiryValues): [string, string][] => [
   ["Phone", d.phone || "-"],
   ["Organization", d.organization || "-"],
   ["Package", packageLabel(d.package)],
-  ["Project type", label(projectTypes, d.projectType)],
+  ["Project type", choiceLabel(projectTypes, d.projectType, d.projectTypeOther)],
   ["Features", d.features.map((id) => label(features, id)).join(", ") || "-"],
-  ["Timeline", label(timelines, d.timeline) || "-"],
+  ["Timeline", choiceLabel(timelines, d.timeline, d.timelineOther) || "-"],
   ["Budget", d.package === "custom" ? label(budgets, d.budget) || "-" : "n/a"],
   ["Current website", d.hasSite === "yes" ? d.siteUrl || "Yes (no URL given)" : "None"],
   ["Links", d.links.join("\n") || "-"],
