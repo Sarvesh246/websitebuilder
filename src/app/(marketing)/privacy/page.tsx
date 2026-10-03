@@ -47,8 +47,14 @@ export default function PrivacyPage() {
         <p>
           Payments are processed by Stripe. Your card details are entered on Stripe&apos;s hosted checkout page and are handled
           by Stripe. Northframe never sees or stores card numbers. Northframe keeps only Stripe reference IDs, the amount,
-          and the payment status of each payment. If you pay in two parts, Stripe securely saves your payment method so the
-          remaining balance can be charged as you authorized at checkout.
+          and the payment status of each payment, plus the link to Stripe&apos;s receipt so you can open it from your portal.
+          If you pay in two parts, Stripe securely saves your payment method so the remaining balance can be charged as you
+          authorized at checkout.
+        </p>
+        <p>
+          Inside the portal, the files, messages, preview feedback and checklist answers you send are stored in the project
+          database and a private file store, visible only to you and the studio. While you have the portal open, your browser
+          keeps a live connection to Supabase so new messages appear without a refresh; it carries no tracking.
         </p>
       </LegalSection>
 
@@ -82,6 +88,12 @@ export default function PrivacyPage() {
           project goes ahead, to carry it out. It is not publicly accessible. You can ask for it to be deleted at any
           time.
         </p>
+        <p>
+          You can delete your account yourself from Settings in the portal. That removes your sign-in, profile, messages and
+          files, and any request you never paid for. Records of payments you made (amounts, dates and Stripe references) are
+          kept, unlinked from your account, because they are needed for accounting. Account deletion is not available while a
+          paid project is still in progress.
+        </p>
       </LegalSection>
 
       <LegalSection title="Cookies and analytics">
@@ -107,7 +119,7 @@ export default function PrivacyPage() {
       </LegalSection>
 
       <LegalSection title="Your choices and contact">
-        <p>You can ask to see, correct, or delete the information you sent.</p>
+        <p>You can ask to see, correct, or delete the information you sent, or delete your account yourself from portal Settings.</p>
         <ContactLine />
       </LegalSection>
 

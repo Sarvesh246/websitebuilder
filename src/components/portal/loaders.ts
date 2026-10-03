@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import type { Metadata } from "next";
 import { getPerspective, requireViewer } from "@/lib/auth/session";
-import { getProject, listProjects } from "@/lib/portal/data";
+import { getProject, getWorkflow, listProjects, type Workflow } from "@/lib/portal/data";
 import type { ProjectDetail, ProjectSummary, Viewer } from "@/lib/portal/types";
 
 /** Every portal page is private: noindex, and the title template supplies "| Northframe". */
@@ -23,6 +23,15 @@ export const loadProject = cache(async (viewer: Viewer, perspective: "admin" | "
     return null;
   }
 });
+
+/** Feedback rounds + checklist for a project the page already loaded. Empty (never throws) when unavailable. */
+export const loadWorkflow = async (viewer: Viewer, perspective: "admin" | "client", project: Pick<ProjectSummary, "id" | "package">): Promise<Workflow> => {
+  try {
+    return await getWorkflow(viewer, perspective, project);
+  } catch {
+    return { rounds: [], checklist: [] };
+  }
+};
 
 /** The viewer's project list, shared between the shell (unread badge) and the page within one request. */
 export const loadProjects = cache(async (viewer: Viewer, perspective: "admin" | "client"): Promise<ProjectSummary[]> => {

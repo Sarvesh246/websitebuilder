@@ -1,13 +1,15 @@
 import { notFound } from "next/navigation";
 import { AdminControls } from "@/components/portal/AdminSection";
-import { getContext, loadProject, portalMeta } from "@/components/portal/loaders";
+import { getContext, loadProject, loadWorkflow, portalMeta } from "@/components/portal/loaders";
 import { ApproveButton } from "@/components/portal/ProjectActions";
 import { ActivityList, MoneySummary, Requirements } from "@/components/portal/ProjectBlocks";
 import { Ring } from "@/components/portal/charts/Ring";
 import { stageSentence } from "@/components/portal/copy";
 import { Card, Timeline } from "@/components/portal/parts";
 import { ProgressBar } from "@/components/portal/charts/ProgressBar";
+import { WaitingOn } from "@/components/portal/WaitingOn";
 import { shortDate } from "@/lib/portal/format";
+import { waitingOn } from "@/lib/portal/workflow";
 import { stageLabel } from "@/lib/portal/types";
 
 export const metadata = portalMeta("Project");
@@ -19,6 +21,8 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
   if (!p) notFound();
   const isAdmin = perspective === "admin";
   const needsApproval = perspective === "client" && (p.stage === "client_review" || p.stage === "revisions") && !p.approvedAt;
+  const work = await loadWorkflow(viewer, perspective, p);
+  const todo = waitingOn(p, work);
 
   return (
     <>
@@ -43,8 +47,10 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
           </div>
         </Card>
 
-        {needsApproval && (
-          <div className="pt-prompt">
+        {!isAdmin && <WaitingOn items={todo} stage={p.stage} />}
+
+        {needsApproval && !todo.some((t) => t.key === "feedback") && (
+          <div className="pt-prompt" id="approve">
             <div>
               <p className="pt-strong">Ready to sign off?</p>
               <p className="pt-small">Approving tells the studio the design is final. It never charges anything.</p>
@@ -63,7 +69,7 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
         <Card title="Timeline" note="Milestones and what is next">
           <Timeline milestones={p.milestones} />
         </Card>
-        <ActivityList events={p.events} />
+        <ActivityList events={p.events} admin={isAdmin} />
       </div>
       <div className="pt-stack">
         <Requirements p={p} admin={isAdmin} />

@@ -3,11 +3,13 @@ import Link from "next/link";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { formatUsd } from "@/lib/money";
 import { getProject, listInbox } from "@/lib/portal/data";
+import { loadWorkflow } from "./loaders";
+import { waitingOn } from "@/lib/portal/workflow";
 import { shortDate, timeAgo } from "@/lib/portal/format";
 import type { ProjectSummary, Viewer } from "@/lib/portal/types";
 import { Ring } from "./charts/Ring";
 import { ProjectCard } from "./ProjectCard";
-import { ApproveButton } from "./ProjectActions";
+import { WaitingOn } from "./WaitingOn";
 import { dueFor, projectTitle, stageSentence } from "./copy";
 import { Card, EmptyState, PageHeader, StageChip, Timeline, packageName } from "./parts";
 
@@ -31,7 +33,7 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
               </Link>
             }
           >
-            Tell the studio what you are building and choose a package. Your project and progress will appear here.
+            Tell the studio what you are building and choose a package. Once you send the request, this page shows your progress, what the studio needs from you, and every payment.
           </EmptyState>
         </Card>
       </>
@@ -40,11 +42,15 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
 
   const primary = projects.find(open) ?? projects[0];
   const others = projects.filter((p) => p.id !== primary.id);
-  const [detail, inbox] = await Promise.all([getProject(viewer, "client", primary.id), listInbox(viewer, "client")]);
+  const [detail, inbox, work] = await Promise.all([
+    getProject(viewer, "client", primary.id),
+    listInbox(viewer, "client"),
+    loadWorkflow(viewer, "client", primary),
+  ]);
+  const todo = detail ? waitingOn(detail, work) : [];
   const next = detail?.milestones.find((m) => m.status !== "done");
   const last = inbox.find((i) => i.project.id === primary.id)?.last ?? null;
   const due = dueFor(primary);
-  const needsApproval = (primary.stage === "client_review" || primary.stage === "revisions") && !detail?.approvedAt;
   const payAmount = due.dueNow > 0 ? due.dueNow : due.dueLater;
   const base = `/portal/projects/${primary.id}`;
 
@@ -91,15 +97,9 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
         </div>
       </GlassSurface>
 
-      {needsApproval && (
-        <div className="pt-prompt pt-section-gap">
-          <div>
-            <p className="pt-strong">Happy with how it looks?</p>
-            <p className="pt-small">Approving tells the studio the design is final. It never charges anything.</p>
-          </div>
-          <ApproveButton projectId={primary.id} />
-        </div>
-      )}
+      <div className="pt-section-gap">
+        <WaitingOn items={todo} stage={primary.stage} />
+      </div>
 
       <div className="pt-grid pt-cols-main pt-section-gap">
         <Card title="Milestones" note="What has happened and what is next">

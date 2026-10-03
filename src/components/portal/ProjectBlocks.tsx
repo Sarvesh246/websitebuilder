@@ -1,5 +1,9 @@
+import {
+  BadgeCheck, CalendarClock, Circle, CircleCheck, CreditCard, Flag, Globe, ListChecks, MessageSquareText, Paperclip, RotateCcw,
+  Sparkles, TriangleAlert, Undo2, UserRound, type LucideIcon,
+} from "lucide-react";
 import { formatUsd } from "@/lib/money";
-import { shortDate, timeAgo } from "@/lib/portal/format";
+import { clockTime, relativeDay, shortDate } from "@/lib/portal/format";
 import type { ProjectDetail } from "@/lib/portal/types";
 import { CollectFinalButton, RefundForm } from "./ProjectActions";
 import { dueFor, paymentTypeLabel } from "./copy";
@@ -137,22 +141,78 @@ export const Requirements = ({ p, admin }: { p: ProjectDetail; admin: boolean })
   </Card>
 );
 
-export const ActivityList = ({ events }: { events: ProjectDetail["events"] }) => (
-  <Card title="Activity">
+const eventIcon: Record<string, LucideIcon> = {
+  payment_received: CreditCard, final_payment_received: CreditCard, payment: CreditCard, payment_failed: TriangleAlert,
+  final_payment_failed: TriangleAlert, refund: Undo2, dispute: TriangleAlert, stage: Flag, milestone: CircleCheck,
+  file: Paperclip, preview: Globe, approval: BadgeCheck, feedback: MessageSquareText, checklist: ListChecks,
+  revision: RotateCcw, deadline: CalendarClock, account: UserRound, request: Sparkles,
+};
+
+const actorText = (role: ProjectDetail["events"][number]["actorRole"], admin: boolean) =>
+  role === "system" ? "Automatic" : role === "admin" ? (admin ? "You" : "Studio") : role === "client" ? (admin ? "Client" : "You") : null;
+
+const dayKey = (iso: string) => new Date(iso).toDateString();
+const dayLabel = (iso: string) => {
+  const rel = relativeDay(iso);
+  return rel === "Today" || rel === "Yesterday" ? rel : shortDate(iso);
+};
+
+/** Project history grouped by day, newest first. Older entries fold away behind "Show full history". */
+const EventGroups = ({ events, admin }: { events: ProjectDetail["events"]; admin: boolean }) => {
+  const groups: { key: string; label: string; items: ProjectDetail["events"] }[] = [];
+  for (const e of events) {
+    const key = dayKey(e.createdAt);
+    const last = groups.at(-1);
+    if (last?.key === key) last.items.push(e);
+    else groups.push({ key, label: dayLabel(e.createdAt), items: [e] });
+  }
+  return (
+    <>
+      {groups.map((g) => (
+        <div key={g.key} className="pt-history__day">
+          <p className="pt-history__date">{g.label}</p>
+          <ol className="pt-history__list">
+            {g.items.map((e) => {
+              const Icon = eventIcon[e.kind] ?? Circle;
+              const actor = actorText(e.actorRole, admin);
+              return (
+                <li key={e.id} className="pt-history__item" data-kind={e.kind}>
+                  <span className="pt-history__icon" aria-hidden>
+                    <Icon size={14} strokeWidth={1.9} />
+                  </span>
+                  <div>
+                    <p>{e.title}</p>
+                    <p className="pt-history__meta">
+                      <time dateTime={e.createdAt}>{clockTime(e.createdAt)}</time>
+                      {actor && <span>{actor}</span>}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      ))}
+    </>
+  );
+};
+
+const RECENT = 6;
+
+export const ActivityList = ({ events, admin = false }: { events: ProjectDetail["events"]; admin?: boolean }) => (
+  <Card title="Activity" note="Everything that has happened on this project">
     {events.length === 0 ? (
-      <p className="pt-small">Updates will be listed here.</p>
+      <p className="pt-small">Payments, files, feedback and stage changes are recorded here as they happen, starting with your request.</p>
     ) : (
-      <ul className="pt-list pt-feed">
-        {events.slice(0, 8).map((e) => (
-          <li key={e.id}>
-            <span className="pt-dot" aria-hidden />
-            <div>
-              {e.title}
-              <time dateTime={e.createdAt}>{timeAgo(e.createdAt)}</time>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div className="pt-history">
+        <EventGroups events={events.slice(0, RECENT)} admin={admin} />
+        {events.length > RECENT && (
+          <details className="pt-history__more">
+            <summary>Show full history ({events.length - RECENT} more)</summary>
+            <EventGroups events={events.slice(RECENT)} admin={admin} />
+          </details>
+        )}
+      </div>
     )}
   </Card>
 );

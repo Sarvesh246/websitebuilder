@@ -1,10 +1,11 @@
 import "server-only";
 import type {
-  AdminOverview, Message, ProjectDetail, ProjectFile, ProjectNote, ProjectSummary,
+  AdminOverview, ChecklistItem, FeedbackRound, Message, ProjectDetail, ProjectFile, ProjectNote, ProjectSummary,
 } from "./types";
+import { mergeChecklist, type ChecklistRow } from "./workflow";
 import {
-  buildOverview, filterAndSort, otherSide, toDetail, toFile, toMessage, toPaymentRow, toSummary,
-  type EventDb, type FileDb, type ListOpts, type MessageDb, type MilestoneDb, type Perspective, type PaymentDb, type ProjectRow,
+  buildOverview, filterAndSort, otherSide, toDetail, toFile, toMessage, toPaymentRow, toRounds, toSummary,
+  type EventDb, type FeedbackItemDb, type FeedbackRoundDb, type FileDb, type ListOpts, type MessageDb, type MilestoneDb, type Perspective, type PaymentDb, type ProjectRow,
 } from "./mappers";
 
 /**
@@ -68,6 +69,10 @@ const seeds: Seed[] = [
     created: 1, updated: 1, deadline: null, money: null, initial: "pending", final: "pending", owner: null,
     description: "Photographer wants client galleries with private links, downloads and online payments.",
     features: ["Database", "Payments", "Dashboard"], timeline: "No hard deadline" },
+  { n: 9, name: "Sarvesh", email: "owner@northframe.co", org: "Northside Climbing Club", pkg: "presence", type: "Student organization", stage: "client_review",
+    created: 26, updated: 0, deadline: 5, money: [20000, 10000, 10000], initial: "paid", final: "pending", owner: DEMO_USER,
+    description: "Three-page site for a university climbing club: session times, a gallery of trips and a membership enquiry form.",
+    features: ["Gallery", "Contact form", "SEO setup"], timeline: "2 to 4 weeks", preview: "https://preview.example.com/northside-climbing", rev: [2, 1] },
 ];
 
 const rowOf = (s: Seed): ProjectRow => ({
@@ -86,6 +91,7 @@ let pn = 0;
 const pay = (project: number, type: PaymentDb["type"], status: PaymentDb["status"], amount: number, daysAgo: number): PaymentDb => ({
   id: uid("c", ++pn), project_id: uid("a", project), type, status, amount, currency: "usd", created_at: ago(daysAgo),
   paid_at: status === "succeeded" ? ago(daysAgo) : null,
+  receipt_url: status === "succeeded" ? `https://pay.stripe.com/receipts/demo_${pn}` : null,
 });
 
 const payments: PaymentDb[] = [
@@ -97,6 +103,7 @@ const payments: PaymentDb[] = [
   pay(5, "deposit", "succeeded", 17500, 40),
   pay(6, "deposit", "succeeded", 17500, 48),
   pay(6, "final_balance", "failed", 17500, 1),
+  pay(9, "deposit", "succeeded", 10000, 24),
 ];
 
 let mn = 0;
@@ -111,6 +118,7 @@ const milestones: MilestoneDb[] = [
   ms(4, "Discovery and content", "done", 0), ms(4, "Design direction", "done", 1), ms(4, "Build pages", "done", 2), ms(4, "Forms and events", "done", 3),
   ms(4, "Client review", "active", 4, 6), ms(4, "Launch", "pending", 5, 10),
   ms(5, "Discovery and content", "done", 0), ms(5, "Design and build", "done", 1), ms(5, "Client review", "done", 2), ms(5, "Revisions", "active", 3, -3), ms(5, "Launch", "pending", 4, 2),
+  ms(9, "Discovery and content", "done", 0), ms(9, "Design and build", "done", 1), ms(9, "Client review", "active", 2, 3), ms(9, "Launch", "pending", 3, 5),
   ms(6, "Design and build", "done", 0), ms(6, "Client review", "done", 1), ms(6, "Revisions", "done", 2), ms(6, "Final payment", "active", 3, -1), ms(6, "Launch", "pending", 4, 3),
 ];
 
@@ -132,6 +140,7 @@ const messages: MessageDb[] = [
   msg(5, "client", "Thanks. Can the footer phone number be a tap-to-call link? That is revision two.", 2, false, 9),
   msg(6, "client", "Everything looks right to me, I approved the final version.", 4, true),
   msg(6, "admin", "Thank you. The final payment did not go through on the saved card. You can retry from the Payments tab.", 1, false, 13),
+  msg(9, "admin", "Round one is addressed: the session table now sits under the hero and the gallery loads faster. Have another look when you can.", 0.3, false, 10),
   msg(8, "client", "Hi, I would like galleries with private client links and payments. Not sure where to start, happy to talk it through.", 1, false, 8),
 ];
 
@@ -145,6 +154,8 @@ const files: FileDb[] = [
   file(3, "design-v1.pdf", 2_412_000, "application/pdf", "admin", 6),
   file(4, "brand-guidelines.pdf", 1_048_576, "application/pdf", "client", 28),
   file(5, "project-photos.zip", 18_874_368, "application/zip", "client", 30),
+  file(9, "club-logo.png", 96_000, "image/png", "client", 22),
+  file(9, "homepage-spacing.png", 410_000, "image/png", "client", 4),
   file(6, "menu-copy.docx", 42_000, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "client", 45),
 ];
 
@@ -166,6 +177,46 @@ const events: EventDb[] = [
   ev(6, "payment", "Final payment failed", "system", 1),
   ev(7, "stage", "Quote accepted", "admin", 2),
   ev(8, "request", "New project request", "client", 1),
+  ev(9, "request", "New project request", "client", 26),
+  ev(9, "payment_received", "Initial payment received", "system", 24),
+  ev(9, "checklist", "Sent: Logo", "client", 22),
+  ev(9, "checklist", "Sent: Page text", "client", 21),
+  ev(9, "preview", "Preview link shared", "admin", 6),
+  ev(9, "stage", "Ready for your review", "admin", 6),
+  ev(9, "feedback", "Feedback round 1 sent", "client", 4),
+  ev(9, "feedback", "Feedback round 1 addressed", "admin", 0.3),
+  ev(3, "checklist", "Sent: Logo", "client", 14),
+];
+
+const rounds: FeedbackRoundDb[] = [
+  { id: uid("7", 1), project_id: uid("a", 9), number: 1, status: "resolved", extra: false, submitted_at: ago(4), resolved_at: ago(0.3), created_at: ago(5) },
+  { id: uid("7", 2), project_id: uid("a", 9), number: 2, status: "draft", extra: false, submitted_at: null, resolved_at: null, created_at: ago(0.1) },
+  { id: uid("7", 3), project_id: uid("a", 4), number: 1, status: "submitted", extra: false, submitted_at: ago(1), resolved_at: null, created_at: ago(2) },
+];
+
+let fbn = 0;
+const fb = (round: number, project: number, page: string | null, body: string, status: "open" | "done", fileId: string | null = null) => ({
+  id: uid("6", ++fbn), project_id: uid("a", project), round_id: uid("7", round), page, body, file_id: fileId, status, created_at: ago(4 - fbn * 0.01),
+});
+
+const feedbackItems: (FeedbackItemDb & { project_id: string })[] = [
+  fb(1, 9, "Home, hero", "Could the weekly session times sit right under the headline? People mostly visit for those.", "done"),
+  fb(1, 9, "Gallery", "The gallery feels slow on my phone. Maybe fewer photos per row on mobile?", "done", uid("e", 6)),
+  fb(2, 9, "Footer", "Add our Instagram handle next to the email address.", "open"),
+  fb(3, 4, "Events", "The event calendar should show the room name, not just the time.", "done"),
+  fb(3, 4, "Team", "Swap the two officer photos, they are on the wrong bios.", "open"),
+  fb(3, 4, "Mobile layout", "The join form button is hidden behind the cookie bar on small phones.", "open"),
+];
+
+const checklistRows: (ChecklistRow & { project_id: string })[] = [
+  { project_id: uid("a", 3), key: "logo", label: null, status: "provided", answer: null, file_id: uid("e", 1), updated_at: ago(14) },
+  { project_id: uid("a", 3), key: "domain", label: null, status: "provided", answer: "I own a domain and can log in", file_id: null, updated_at: ago(13) },
+  { project_id: uid("a", 3), key: "brand", label: null, status: "skipped", answer: null, file_id: null, updated_at: ago(13) },
+  { project_id: uid("a", 3), key: "custom:shiptime", label: "Shipping times for the shop note", status: "needed", answer: null, file_id: null, updated_at: ago(1) },
+  ...["logo", "copy", "photos", "domain"].map((key, i) => ({
+    project_id: uid("a", 9), key, label: null, status: "provided" as const, answer: key === "domain" ? "I need a new domain" : null,
+    file_id: key === "logo" ? uid("e", 5) : null, updated_at: ago(22 - i),
+  })),
 ];
 
 const notes: (ProjectNote & { projectId: string })[] = [
@@ -226,8 +277,23 @@ export const demoInbox = (perspective: Perspective): { project: ProjectSummary; 
     })
     .sort((a, b) => (b.last?.createdAt ?? b.project.updatedAt).localeCompare(a.last?.createdAt ?? a.project.updatedAt));
 
+// Demo thumbnails reuse a bundled brand image so the thumbnail layout is visible without storage.
 export const demoFiles = (perspective: Perspective, projectId: string): ProjectFile[] =>
-  canSee(perspective, projectId) ? files.filter((f) => f.project_id === projectId).map(toFile) : [];
+  canSee(perspective, projectId)
+    ? files.filter((f) => f.project_id === projectId).map((f) => toFile(f, f.mime_type?.startsWith("image/") ? "/brand/mark-light.webp" : null))
+    : [];
+
+export const demoWorkflow = (perspective: Perspective, projectId: string): { rounds: FeedbackRound[]; checklist: ChecklistItem[] } => {
+  const r = scoped(perspective).find((x) => x.id === projectId);
+  if (!r) return { rounds: [], checklist: [] };
+  const names = new Map(files.filter((f) => f.project_id === projectId).map((f) => [f.id, f.name]));
+  const visible = rounds.filter((x) => x.project_id === projectId && (perspective === "client" || x.status !== "draft"));
+  const pkg = toSummary(r, { payments: [], milestones: [], unread: 0 }).package;
+  return {
+    rounds: toRounds(visible, feedbackItems.filter((i) => i.project_id === projectId), names),
+    checklist: mergeChecklist(pkg, checklistRows.filter((c) => c.project_id === projectId), names),
+  };
+};
 
 export const demoNotes = (projectId: string): ProjectNote[] =>
   notes.filter((n) => n.projectId === projectId).map(({ id, body, createdAt }) => ({ id, body, createdAt }));

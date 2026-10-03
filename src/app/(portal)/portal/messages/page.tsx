@@ -18,8 +18,20 @@ export default async function InboxPage() {
       <PageHeader eyebrow={isAdmin ? "Studio" : "Your portal"} title="Messages" sub={isAdmin ? "One conversation per project. Unread ones come first in your sidebar badge." : "Your conversations with the studio, one per project."} />
       {inbox.length === 0 ? (
         <Card>
-          <EmptyState icon={MessageSquare} title="No conversations yet">
-            {isAdmin ? "Messages from clients will appear here." : "Once you have a project you can message the studio from here."}
+          <EmptyState
+            icon={MessageSquare}
+            title="No conversations yet"
+            action={
+              isAdmin ? undefined : (
+                <Link href="/start" className="btn btn-primary btn-sm">
+                  Start a project
+                </Link>
+              )
+            }
+          >
+            {isAdmin
+              ? "Each project gets its own conversation. Client messages appear here as they arrive, with unread ones counted in the sidebar."
+              : "Every project comes with a private conversation with the studio. Start a project and you can message from here straight away."}
           </EmptyState>
         </Card>
       ) : (

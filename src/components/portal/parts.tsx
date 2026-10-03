@@ -107,7 +107,7 @@ export const Avatar = ({ name }: { name: string | null | undefined }) => (
 );
 
 export const Timeline = ({ milestones, empty }: { milestones: Milestone[]; empty?: ReactNode }) => {
-  if (milestones.length === 0) return <>{empty ?? <p className="pt-small">Milestones will appear here as the studio plans the work.</p>}</>;
+  if (milestones.length === 0) return <>{empty ?? <p className="pt-small">The studio maps out the milestones once your project is accepted. Each step, and when it is due, appears here.</p>}</>;
   return (
     <ol className="pt-timeline">
       {milestones.map((m) => (

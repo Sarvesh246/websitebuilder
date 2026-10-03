@@ -39,6 +39,9 @@ export const shortDate = (iso: string | null | undefined): string => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
 };
 
+/** "3:05 PM". */
+export const clockTime = (iso: string): string => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+
 export const timeAgo = (iso: string | null | undefined): string => {
   if (!iso) return "";
   const t = new Date(iso).getTime();

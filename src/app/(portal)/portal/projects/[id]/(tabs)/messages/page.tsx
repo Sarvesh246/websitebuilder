@@ -1,6 +1,7 @@
 import { MessageSquare } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getContext, loadProject, portalMeta } from "@/components/portal/loaders";
+import { Thread } from "@/components/portal/LiveUpdates";
 import { MarkRead, MessageComposer } from "@/components/portal/MessageComposer";
 import { Card, EmptyState } from "@/components/portal/parts";
 import { listMessages } from "@/lib/portal/data";
@@ -23,10 +24,12 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
         {!previewing && <MarkRead projectId={id} unread={unread} />}
         {messages.length === 0 ? (
           <EmptyState icon={MessageSquare} title="No messages yet">
-            {perspective === "admin" ? "Start the conversation with a quick hello." : "Ask a question or share an update. The studio will reply here."}
+            {perspective === "admin"
+              ? "Start the conversation with a quick hello. New replies show up here as they arrive."
+              : "Ask a question or share an update below. Replies appear here as soon as they are sent, no refresh needed."}
           </EmptyState>
         ) : (
-          <div className="pt-thread" role="log" aria-label="Messages" tabIndex={0}>
+          <Thread count={messages.length}>
             {messages.map((m) => (
               <div key={m.id} className="pt-bubble" data-mine={m.mine || undefined}>
                 <span className="pt-bubble__meta">
@@ -35,7 +38,7 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
                 {m.body}
               </div>
             ))}
-          </div>
+          </Thread>
         )}
         <MessageComposer projectId={id} disabledReason={previewing ? "Preview mode: sending is disabled." : undefined} />
       </Card>

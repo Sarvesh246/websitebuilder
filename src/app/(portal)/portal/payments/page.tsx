@@ -6,6 +6,7 @@ import { StatTile } from "@/components/portal/charts/StatTile";
 import { getContext, portalMeta } from "@/components/portal/loaders";
 import { monthLabel, paymentStatusLabel, paymentTypeLabel } from "@/components/portal/copy";
 import { Card, EmptyState, PageHeader } from "@/components/portal/parts";
+import { ReceiptLinks } from "@/components/portal/ReceiptLinks";
 import { formatUsd } from "@/lib/money";
 import { getAdminOverview, listPayments } from "@/lib/portal/data";
 import { shortDate } from "@/lib/portal/format";
@@ -34,6 +35,7 @@ export default async function PaymentsPage() {
               {isAdmin && <span>{paymentTypeLabel[x.type]}</span>}
               <span>{shortDate(x.paidAt ?? x.createdAt)}</span>
             </p>
+            <ReceiptLinks projectId={x.projectId} payment={x} />
           </div>
           <div className="pt-row__aside">
             <span className="pt-strong pt-num">
@@ -76,7 +78,9 @@ export default async function PaymentsPage() {
       <Card title={isAdmin ? "All payments" : "Receipts"} className="pt-section-gap" flush={isAdmin && payments.length > 0}>
         {payments.length === 0 ? (
           <EmptyState icon={Receipt} title="No payments yet">
-            {isAdmin ? "Payments appear here once clients start paying." : "Receipts for your payments will appear here."}
+            {isAdmin
+              ? "Payments appear here as soon as Stripe confirms them, each with an invoice and a receipt."
+              : "Once you pay for a project, each payment is listed here with a downloadable invoice and a Stripe receipt."}
           </EmptyState>
         ) : isAdmin ? (
           <>
@@ -103,7 +107,10 @@ export default async function PaymentsPage() {
                         </Link>
                       </td>
                       <td>{paymentTypeLabel[x.type]}</td>
-                      <td>{shortDate(x.paidAt ?? x.createdAt)}</td>
+                      <td>
+                        {shortDate(x.paidAt ?? x.createdAt)}
+                        <ReceiptLinks projectId={x.projectId} payment={x} />
+                      </td>
                       <td>
                         <span className={`pt-chip ${chip(x.status)}`}>{paymentStatusLabel[x.status]}</span>
                       </td>

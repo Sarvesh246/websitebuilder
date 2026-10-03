@@ -4,8 +4,12 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { VIEW_AS_COOKIE, demoMode, getPerspective, requireViewer } from "@/lib/auth/session";
 import { assertProjectAccess, type ProjectAccess } from "./data";
-import { isUuid, otherSide, type Perspective } from "./mappers";
-import { projectStages, type MilestoneStatus, type ProjectStage, type Viewer } from "./types";
+import { isOpenStage, isUuid, otherSide, type Perspective } from "./mappers";
+import { normalizeStage, projectStages, type ChecklistStatus, type MilestoneStatus, type ProjectStage, type Viewer } from "./types";
+import { canGiveFeedback } from "./workflow";
+import { CUSTOM_INTAKE_PREFIX, intakeTemplates } from "@/config/intake";
+import { parsePackageId } from "@/config/inquiry";
+import { MAX_UPLOAD_BYTES, UPLOAD_BUCKET, UPLOAD_TYPES, uploadErrors } from "@/config/uploads";
 import { createAdminClient } from "@/utils/supabase/server";
 
 type Fail = { ok: false; error: string };
@@ -96,11 +100,8 @@ export const markMessagesRead = async (projectId: string): Promise<Result> => {
 };
 
 // ---------------------------------------------------------------- files
-const MAX_FILE_BYTES = 25 * 1024 * 1024;
-const FILE_TYPES: Record<string, string> = {
-  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", gif: "image/gif", webp: "image/webp", pdf: "application/pdf",
-  zip: "application/zip", docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", txt: "text/plain",
-};
+const FILE_TYPES = UPLOAD_TYPES;
+const BUCKET = UPLOAD_BUCKET;
 const ACCEPTED_MIME = new Set([...Object.values(FILE_TYPES), "application/x-zip-compressed", "application/octet-stream", ""]);
 
 const safeFileName = (raw: string): { safe: string; display: string; ext: string } | null => {
@@ -113,29 +114,63 @@ const safeFileName = (raw: string): { safe: string; display: string; ext: string
   return { safe: `${stem}.${ext}`, display: base.slice(0, 200), ext };
 };
 
-export const uploadFile = async (projectId: string, formData: FormData): Promise<Result<{ id: string }>> => {
+const UPLOAD_PATH_RE = /^[0-9a-f-]{36}\/[0-9a-f-]{36}-[A-Za-z0-9._-]{1,90}$/;
+
+/**
+ * Step 1 of an upload: checks access, name, type and size, then returns a one-time signed upload URL.
+ * The browser sends the bytes straight to storage (real progress, no serverless body limit) and then
+ * calls confirmUpload. Nothing is recorded until the confirm step finds the object.
+ */
+export const createUploadTicket = async (
+  projectId: string,
+  input: { name: string; size: number; type: string },
+): Promise<Result<{ path: string; signedUrl: string; contentType: string }>> => {
   const ctx = await begin();
   if (isFail(ctx)) return ctx;
   if (ctx.viewer.role === "admin" && ctx.perspective === "client") return fail(PREVIEW);
+  const names = safeFileName(String(input?.name ?? ""));
+  if (!names || !ACCEPTED_MIME.has(String(input?.type ?? ""))) return fail(uploadErrors.type);
+  if (!Number.isInteger(input.size) || input.size <= 0) return fail(uploadErrors.empty);
+  if (input.size > MAX_UPLOAD_BYTES) return fail(uploadErrors.size);
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return fail("Choose a file to upload.");
-  if (file.size > MAX_FILE_BYTES) return fail("That file is larger than 25 MB.");
-  const names = safeFileName(file.name);
-  if (!names || !ACCEPTED_MIME.has(file.type)) return fail("That file type is not supported. Use images, PDF, ZIP, DOCX or TXT.");
   const path = `${projectId}/${crypto.randomUUID()}-${names.safe}`;
-  const { error: upErr } = await ctx.db.storage.from("project-files")
-    .upload(path, Buffer.from(await file.arrayBuffer()), { contentType: FILE_TYPES[names.ext], upsert: false });
-  if (upErr) return fail("The file could not be uploaded. Please try again.");
+  const { data, error } = await ctx.db.storage.from(BUCKET).createSignedUploadUrl(path);
+  if (error || !data?.signedUrl) return fail("The upload could not be started. Please try again.");
+  return { ok: true, path, signedUrl: data.signedUrl, contentType: FILE_TYPES[names.ext] };
+};
+
+/** Step 2: verifies the uploaded object (path, size) and records it. Safe to call twice (path is unique). */
+export const confirmUpload = async (projectId: string, path: string, name: string): Promise<Result<{ id: string }>> => {
+  const ctx = await begin();
+  if (isFail(ctx)) return ctx;
+  if (ctx.viewer.role === "admin" && ctx.perspective === "client") return fail(PREVIEW);
+  const names = safeFileName(String(name ?? ""));
+  if (typeof path !== "string" || !UPLOAD_PATH_RE.test(path) || !path.startsWith(`${projectId}/`) || !names || !path.endsWith(`-${names.safe}`)) {
+    return fail("That upload could not be found.");
+  }
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  const [{ data: existing }, { data: info, error: infoErr }] = await Promise.all([
+    ctx.db.from("project_files").select("id").eq("path", path).maybeSingle<{ id: string }>(),
+    ctx.db.storage.from(BUCKET).info(path),
+  ]);
+  if (existing) return { ok: true, id: existing.id };
+  const meta = info as { size?: number; metadata?: { size?: number } } | null;
+  const size = Number(meta?.size ?? meta?.metadata?.size ?? NaN);
+  if (infoErr || !Number.isFinite(size) || size <= 0) return fail("The upload did not finish. Please try again.");
+  if (size > MAX_UPLOAD_BYTES) {
+    await ctx.db.storage.from(BUCKET).remove([path]);
+    return fail(uploadErrors.size);
+  }
   const { data, error } = await ctx.db.from("project_files")
     .insert({
       project_id: projectId, uploader_id: ctx.viewer.userId, uploader_role: ctx.perspective, path,
-      name: names.display, size_bytes: file.size, mime_type: FILE_TYPES[names.ext],
+      name: names.display, size_bytes: size, mime_type: FILE_TYPES[names.ext],
     })
     .select("id").single<{ id: string }>();
   if (error || !data) {
-    await ctx.db.storage.from("project-files").remove([path]);
+    await ctx.db.storage.from(BUCKET).remove([path]);
     return fail("The file could not be saved. Please try again.");
   }
   await logEvent(ctx.db, projectId, "file", `File added: ${names.display}`, ctx.perspective);
@@ -157,7 +192,7 @@ export const fileDownloadUrl = async (fileId: string): Promise<Result<{ url: str
   if (isFail(ctx)) return ctx;
   const file = await loadFile(ctx, fileId);
   if (isFail(file)) return file;
-  const { data, error } = await ctx.db.storage.from("project-files").createSignedUrl(file.path, 60, { download: file.name });
+  const { data, error } = await ctx.db.storage.from(BUCKET).createSignedUrl(file.path, 60, { download: file.name });
   if (error || !data?.signedUrl) return fail("The download link could not be created.");
   return { ok: true, url: data.signedUrl };
 };
@@ -170,7 +205,7 @@ export const deleteFile = async (fileId: string): Promise<Result> => {
   if (isFail(file)) return file;
   const isAdmin = ctx.viewer.role === "admin" && ctx.perspective === "admin";
   if (!isAdmin && file.uploader_id !== ctx.viewer.userId) return fail("Only the uploader can delete this file.");
-  await ctx.db.storage.from("project-files").remove([file.path]);
+  await ctx.db.storage.from(BUCKET).remove([file.path]);
   const { error } = await ctx.db.from("project_files").delete().eq("id", file.id);
   if (error) return fail(GENERIC);
   await logEvent(ctx.db, file.project_id, "file", `File removed: ${file.name}`, ctx.perspective);
@@ -384,5 +419,238 @@ export const linkProjectToUser = async (projectId: string, email: string): Promi
   if (error) return fail(GENERIC);
   await logEvent(ctx.db, projectId, "account", "Project linked to a client account", "admin");
   revalidate();
+  return { ok: true };
+};
+
+// ---------------------------------------------------------------- preview feedback
+const CLIENT_ONLY = "Only the client can do this.";
+const FEEDBACK_CLOSED = "Feedback is open while a preview is ready for your review.";
+
+/** Clients act for themselves; an admin previewing the client view is refused like every other write. */
+const beginClient = async (): Promise<Ctx | Fail> => {
+  const ctx = await begin();
+  if (isFail(ctx)) return ctx;
+  if (ctx.viewer.role === "admin") return fail(ctx.perspective === "client" ? PREVIEW : CLIENT_ONLY);
+  return ctx;
+};
+
+const feedbackOpen = (p: ProjectAccess) =>
+  canGiveFeedback({ stage: normalizeStage(p.status), previewUrl: p.preview_url, approvedAt: p.approved_at });
+
+/** A file id is only accepted when the file belongs to the same project. */
+const fileInProject = async (ctx: Ctx, projectId: string, fileId: unknown): Promise<string | null | Fail> => {
+  if (fileId == null || fileId === "") return null;
+  if (!isUuid(fileId)) return fail("That file could not be found.");
+  const { data } = await ctx.db.from("project_files").select("id").eq("id", fileId).eq("project_id", projectId).maybeSingle<{ id: string }>();
+  return data ? data.id : fail("That file could not be found.");
+};
+
+/** The project's draft round, created on first use. A unique index keeps it to one draft per project. */
+const draftRoundId = async (ctx: Ctx, projectId: string): Promise<string | null> => {
+  const find = () => ctx.db.from("feedback_rounds").select("id").eq("project_id", projectId).eq("status", "draft").maybeSingle<{ id: string }>();
+  const { data: found } = await find();
+  if (found) return found.id;
+  const { data: last } = await ctx.db.from("feedback_rounds").select("number").eq("project_id", projectId).order("number", { ascending: false }).limit(1).maybeSingle<{ number: number }>();
+  const { data, error } = await ctx.db.from("feedback_rounds").insert({ project_id: projectId, number: (last?.number ?? 0) + 1 }).select("id").single<{ id: string }>();
+  if (data) return data.id;
+  if (error?.code === "23505") return (await find()).data?.id ?? null; // a parallel call created it first
+  return null;
+};
+
+export const addFeedback = async (projectId: string, input: { page?: string; body: string; fileId?: string | null }): Promise<Result<{ id: string }>> => {
+  const ctx = await beginClient();
+  if (isFail(ctx)) return ctx;
+  const body = cleanText(input?.body, 1, 2000);
+  if (!body) return fail("Write a comment between 1 and 2000 characters.");
+  const page = input.page ? cleanText(input.page, 1, 120) : null;
+  if (input.page && !page) return fail("Keep the page or section name under 120 characters.");
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  if (!feedbackOpen(project)) return fail(FEEDBACK_CLOSED);
+  const [{ data: busy }, fileId] = await Promise.all([
+    ctx.db.from("feedback_rounds").select("id").eq("project_id", projectId).eq("status", "submitted").limit(1).maybeSingle(),
+    fileInProject(ctx, projectId, input.fileId),
+  ]);
+  if (busy) return fail("The studio is still working on your last round. You can add comments once it is done.");
+  if (isFail(fileId)) return fileId;
+  const roundId = await draftRoundId(ctx, projectId);
+  if (!roundId) return fail(GENERIC);
+  const { data, error } = await ctx.db.from("feedback_items")
+    .insert({ project_id: projectId, round_id: roundId, page, body, file_id: fileId })
+    .select("id").single<{ id: string }>();
+  if (error || !data) return fail("Your comment could not be saved. Please try again.");
+  revalidate();
+  return { ok: true, id: data.id };
+};
+
+export const deleteFeedback = async (itemId: string): Promise<Result> => {
+  const ctx = await beginClient();
+  if (isFail(ctx)) return ctx;
+  if (!isUuid(itemId)) return fail("That comment could not be found.");
+  const { data: item } = await ctx.db.from("feedback_items")
+    .select("id, project_id, feedback_rounds!inner(status)").eq("id", itemId)
+    .maybeSingle<{ id: string; project_id: string; feedback_rounds: { status: string } }>();
+  if (!item) return fail("That comment could not be found.");
+  const project = await access(ctx, item.project_id);
+  if (isFail(project)) return project;
+  if (item.feedback_rounds.status !== "draft") return fail("Sent comments can't be removed. Message the studio instead.");
+  const { error } = await ctx.db.from("feedback_items").delete().eq("id", item.id);
+  if (error) return fail(GENERIC);
+  revalidate();
+  return { ok: true };
+};
+
+/** Sends the draft round: uses one revision (atomically, in SQL) and moves a project in review into revisions. */
+export const submitFeedback = async (projectId: string): Promise<Result<{ number: number; extra: boolean }>> => {
+  const ctx = await beginClient();
+  if (isFail(ctx)) return ctx;
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  if (!feedbackOpen(project)) return fail(FEEDBACK_CLOSED);
+  const { data, error } = await ctx.db.rpc("submit_feedback_round", { p_project_id: projectId });
+  if (error) return fail(GENERIC);
+  const sent = ((data ?? []) as { round_number: number; is_extra: boolean }[])[0];
+  if (!sent) return fail("Add at least one comment before sending.");
+  await logEvent(ctx.db, projectId, "feedback", `Feedback round ${sent.round_number} sent${sent.is_extra ? " (beyond included revisions)" : ""}`, "client");
+  revalidate();
+  return { ok: true, number: sent.round_number, extra: sent.is_extra };
+};
+
+export const setFeedbackItemStatus = async (itemId: string, status: "open" | "done"): Promise<Result> => {
+  const ctx = await beginAdmin();
+  if (isFail(ctx)) return ctx;
+  if (!isUuid(itemId) || (status !== "open" && status !== "done")) return fail("That comment could not be found.");
+  const { data: item } = await ctx.db.from("feedback_items").select("id, project_id").eq("id", itemId).maybeSingle<{ id: string; project_id: string }>();
+  if (!item) return fail("That comment could not be found.");
+  const { error } = await ctx.db.from("feedback_items").update({ status }).eq("id", item.id);
+  if (error) return fail(GENERIC);
+  revalidate();
+  return { ok: true };
+};
+
+/** Marks a round addressed. A project in revisions goes back to review so the client is asked to look again. */
+export const resolveFeedbackRound = async (roundId: string): Promise<Result> => {
+  const ctx = await beginAdmin();
+  if (isFail(ctx)) return ctx;
+  if (!isUuid(roundId)) return fail("That round could not be found.");
+  const { data: round } = await ctx.db.from("feedback_rounds").select("id, project_id, number, status").eq("id", roundId)
+    .maybeSingle<{ id: string; project_id: string; number: number; status: string }>();
+  if (!round || round.status !== "submitted") return fail("Only a sent round can be marked addressed.");
+  const project = await access(ctx, round.project_id);
+  if (isFail(project)) return project;
+  const { data: resolved, error } = await ctx.db.rpc("resolve_feedback_round", { p_round_id: round.id });
+  if (error) return fail(GENERIC);
+  if (!resolved) return { ok: true }; // a parallel click already resolved it
+  await logEvent(ctx.db, round.project_id, "feedback", `Feedback round ${round.number} addressed`, "admin");
+  revalidate();
+  return { ok: true };
+};
+
+// ---------------------------------------------------------------- content checklist
+const CHECKLIST_STATUSES: readonly ChecklistStatus[] = ["needed", "provided", "skipped"];
+
+export const updateChecklistItem = async (
+  projectId: string,
+  key: string,
+  input: { status: ChecklistStatus; answer?: string | null; fileId?: string | null },
+): Promise<Result> => {
+  const ctx = await begin();
+  if (isFail(ctx)) return ctx;
+  if (ctx.viewer.role === "admin" && ctx.perspective === "client") return fail(PREVIEW);
+  if (typeof key !== "string" || key.length > 60 || !CHECKLIST_STATUSES.includes(input?.status)) return fail("That item could not be found.");
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  const template = intakeTemplates[parsePackageId(project.package) ?? "custom"].find((t) => t.key === key);
+  let label = template?.label;
+  if (!template) {
+    if (!key.startsWith(CUSTOM_INTAKE_PREFIX)) return fail("That item could not be found.");
+    const { data: row } = await ctx.db.from("checklist_items").select("label").eq("project_id", projectId).eq("key", key).maybeSingle<{ label: string | null }>();
+    if (!row) return fail("That item could not be found.");
+    label = row.label ?? "Requested item";
+  }
+  if (input.status === "skipped" && ctx.perspective !== "admin" && !template?.optional) {
+    return fail("Only optional items can be skipped. Message the studio if this one does not apply.");
+  }
+  let answer: string | null = null;
+  if (input.answer != null && input.answer !== "") {
+    answer = cleanText(input.answer, 1, 300);
+    if (!answer || (template?.options && !template.options.includes(answer))) return fail("Choose one of the options.");
+  }
+  const fileId = await fileInProject(ctx, projectId, input.fileId);
+  if (isFail(fileId)) return fileId;
+  const patch: Record<string, unknown> = { project_id: projectId, key, status: input.status, updated_at: new Date().toISOString() };
+  if (input.answer !== undefined) patch.answer = answer;
+  if (input.fileId !== undefined) patch.file_id = fileId;
+  const { error } = await ctx.db.from("checklist_items").upsert(patch, { onConflict: "project_id,key" });
+  if (error) return fail(GENERIC);
+  if (input.status === "provided") await logEvent(ctx.db, projectId, "checklist", `Sent: ${label}`, ctx.perspective);
+  revalidate();
+  return { ok: true };
+};
+
+export const addChecklistItem = async (projectId: string, label: string): Promise<Result> => {
+  const ctx = await beginAdmin();
+  if (isFail(ctx)) return ctx;
+  const text = cleanText(label, 1, 120);
+  if (!text) return fail("Describe what you need in up to 120 characters.");
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  const key = `${CUSTOM_INTAKE_PREFIX}${crypto.randomUUID().slice(0, 8)}`;
+  const { error } = await ctx.db.from("checklist_items").insert({ project_id: projectId, key, label: text });
+  if (error) return fail(GENERIC);
+  await logEvent(ctx.db, projectId, "checklist", `Studio asked for: ${text}`, "admin");
+  revalidate();
+  return { ok: true };
+};
+
+export const removeChecklistItem = async (projectId: string, key: string): Promise<Result> => {
+  const ctx = await beginAdmin();
+  if (isFail(ctx)) return ctx;
+  if (typeof key !== "string" || !key.startsWith(CUSTOM_INTAKE_PREFIX)) return fail("Only items the studio added can be removed.");
+  const project = await access(ctx, projectId);
+  if (isFail(project)) return project;
+  const { error } = await ctx.db.from("checklist_items").delete().eq("project_id", projectId).eq("key", key);
+  if (error) return fail(GENERIC);
+  revalidate();
+  return { ok: true };
+};
+
+// ---------------------------------------------------------------- account deletion
+/**
+ * Deletes the client's sign-in, profile, messages and files. Projects that never took money are removed
+ * entirely; paid projects keep their record (amounts and dates) for accounting, unlinked from the account.
+ * Refused while a paid project is still open, so nobody deletes their way out of work in progress.
+ */
+export const deleteAccount = async (confirmText: string): Promise<Result> => {
+  const ctx = await begin();
+  if (isFail(ctx)) return ctx;
+  if (ctx.viewer.role === "admin") return fail("Studio admin accounts can't be deleted from the portal.");
+  if (typeof confirmText !== "string" || confirmText.trim() !== "DELETE") return fail("Type DELETE to confirm.");
+  const { data: projects, error: listErr } = await ctx.db.from("project_requests")
+    .select("id, status, initial_payment_status").eq("user_id", ctx.viewer.userId)
+    .returns<{ id: string; status: string; initial_payment_status: string }[]>();
+  if (listErr) return fail(GENERIC);
+  const owned = projects ?? [];
+  const paid = (p: { initial_payment_status: string }) => p.initial_payment_status === "paid" || p.initial_payment_status === "processing";
+  if (owned.some((p) => paid(p) && isOpenStage(normalizeStage(p.status)))) {
+    return fail("You have a project in progress. Message the studio to wrap it up before deleting your account.");
+  }
+  const ids = owned.map((p) => p.id);
+  if (ids.length > 0) {
+    const { data: files } = await ctx.db.from("project_files").select("path").in("project_id", ids).returns<{ path: string }[]>();
+    const paths = (files ?? []).map((f) => f.path);
+    for (let i = 0; i < paths.length; i += 100) await ctx.db.storage.from(BUCKET).remove(paths.slice(i, i + 100));
+    await ctx.db.from("project_files").delete().in("project_id", ids);
+    await ctx.db.from("messages").delete().in("project_id", ids);
+    const unpaid = owned.filter((p) => !paid(p)).map((p) => p.id);
+    if (unpaid.length > 0) {
+      const { data: ledger } = await ctx.db.from("payments").select("project_id").in("project_id", unpaid).returns<{ project_id: string }[]>();
+      const withLedger = new Set((ledger ?? []).map((l) => l.project_id));
+      const removable = unpaid.filter((id) => !withLedger.has(id));
+      if (removable.length > 0) await ctx.db.from("project_requests").delete().in("id", removable);
+    }
+  }
+  const { error } = await ctx.db.auth.admin.deleteUser(ctx.viewer.userId);
+  if (error) return fail("Your account could not be deleted. Please try again or message the studio.");
   return { ok: true };
 };
