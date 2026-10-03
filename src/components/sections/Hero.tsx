@@ -46,7 +46,11 @@ export const Hero = () => (
       <HeroVisual />
     </Container>
     <a href="#why" className="hero__scroll" aria-label="Scroll to the next section">
-      <Mouse aria-hidden size={26} strokeWidth={1.3} />
+      {/* The bob animates this HTML wrapper, not the <svg>: Chrome can't composite an svg transform,
+          so animating the icon itself re-rendered the whole page on the main thread every frame. */}
+      <span className="hero__scroll-icon">
+        <Mouse aria-hidden size={26} strokeWidth={1.3} />
+      </span>
     </a>
   </Section>
 );
