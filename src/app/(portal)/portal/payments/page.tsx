@@ -65,7 +65,7 @@ export default async function PaymentsPage() {
             <StatTile label="Payments recorded" value={payments.length} sub="Deposits, finals and refunds" />
           </div>
           <div className="pt-grid pt-cols-main pt-section-gap">
-            <Card title="Revenue by month">
+            <Card title="Revenue by month" note="Collected, last six months">
               <AreaChart title="Revenue collected by month, last six months" data={overview.revenueByMonth.map((m) => ({ label: monthLabel(m.month), value: m.collected }))} />
             </Card>
             <Card title="Collected and outstanding">
