@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   applicationName: siteConfig.name,
+  // Google Search Console ownership token (public by design; keep it or Search Console unverifies the site).
+  verification: { google: "MEfX4usGD3i5kELjFilLbbr1DxTnZxjufyTmgBVa294" },
   // No canonical/openGraph.url here: each route sets its own via pageMetadata, so a route that
   // forgets to (like the 404) never inherits a wrong one.
   openGraph: { type: "website", siteName: siteConfig.name, locale: "en_US" },
