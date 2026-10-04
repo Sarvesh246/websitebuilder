@@ -9,9 +9,13 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "contrast": "node scripts/contrast.mjs",
+    "check:copy": "node scripts/check-copy.mjs",
+    "check:seo": "node scripts/check-seo.mjs",
     "test": "vitest run"
   },
   "dependencies": {
+    "@dicebear/core": "9.4.3",
+    "@dicebear/shapes": "9.4.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "clsx": "^2.1.1",

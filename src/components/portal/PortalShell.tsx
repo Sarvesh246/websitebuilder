@@ -62,7 +62,7 @@ export const PortalShell = ({ viewer, perspective, unreadMessages, children }: S
           <PortalNav variant="side" unreadMessages={unreadMessages} />
           <div className="pt-side__foot">
             <div className="pt-user">
-              <Avatar name={viewer.fullName ?? viewer.email} />
+              <Avatar name={viewer.fullName ?? viewer.email} seed={viewer.userId} />
               <div style={{ minWidth: 0 }}>
                 <p className="pt-user__name">{viewer.fullName ?? viewer.email}</p>
                 <p className="pt-user__role">{roleText}</p>
@@ -85,7 +85,7 @@ export const PortalShell = ({ viewer, perspective, unreadMessages, children }: S
           <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
             <ThemeToggle />
             <Link href="/portal/settings" className="icon-btn" aria-label="Account settings">
-              <Avatar name={viewer.fullName ?? viewer.email} />
+              <Avatar name={viewer.fullName ?? viewer.email} seed={viewer.userId} />
             </Link>
           </div>
         </header>

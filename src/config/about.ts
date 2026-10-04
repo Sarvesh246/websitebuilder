@@ -86,7 +86,7 @@ export const processSteps = {
   lead: "Four steps, in order. You see the site take shape at each one.",
   steps: [
     { name: "Define", body: "Goals, pages, and content are agreed before any design starts." },
-    { name: "Design", body: "Layout, type, and colour take shape around your content." },
+    { name: "Design", body: "Layout, type, and color take shape around your content." },
     { name: "Build", body: "The design becomes a fast, responsive site you can review." },
     { name: "Launch", body: "Domain, hosting, and accounts are set up in your name." },
   ],
