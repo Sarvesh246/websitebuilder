@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/", disallow: ["/api/", "/design-system", "/portal", "/login", "/signup", "/auth/"] },
     sitemap: `${siteConfig.url}/sitemap.xml`,
-    host: siteConfig.url,
+    // No `host`: it is a legacy Yandex-only directive that Bing's validator flags as an error.
   };
 }
