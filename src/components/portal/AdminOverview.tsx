@@ -1,5 +1,6 @@
 import { AlarmClock, Banknote, FolderKanban, Hourglass, Inbox, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { formatUsd } from "@/lib/money";
 import { getAdminOverview } from "@/lib/portal/data";
 import { shortDate, timeAgo } from "@/lib/portal/format";
@@ -12,6 +13,7 @@ import { Sparkline } from "./charts/Sparkline";
 import { StatTile } from "./charts/StatTile";
 import { monthLabel } from "./copy";
 import { Card, DeadlineChip, EmptyState, PageHeader, StageChip, packageName } from "./parts";
+import { ServiceStatus, ServiceStatusFallback } from "./ServiceStatus";
 
 export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
   const o = await getAdminOverview(viewer);
@@ -146,6 +148,12 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
             </ul>
           )}
         </Card>
+      </div>
+
+      <div className="pt-section-gap">
+        <Suspense fallback={<ServiceStatusFallback />}>
+          <ServiceStatus />
+        </Suspense>
       </div>
     </>
   );

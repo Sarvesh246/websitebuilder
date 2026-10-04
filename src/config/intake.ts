@@ -48,8 +48,8 @@ const domain: IntakeTemplate = {
 };
 const brand: IntakeTemplate = {
   key: "brand",
-  label: "Brand colours and fonts",
-  hint: "A brand guide, or a screenshot of colours you like.",
+  label: "Brand colors and fonts",
+  hint: "A brand guide, or a screenshot of colors you like.",
   kind: "upload",
   optional: true,
 };

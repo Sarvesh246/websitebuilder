@@ -294,6 +294,44 @@
     color: var(--accent-ink);
     font-weight: 700;
     font-size: 0.9rem;
+    background-size: cover;
+    background-position: center;
+  }
+  .pt-status {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .pt-status li {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 2.75rem;
+    padding-block: 0.25rem;
+  }
+  .pt-status__dot {
+    flex: none;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+  .pt-status__dot[data-state="operational"] {
+    background: var(--accent-ink);
+  }
+  .pt-status__dot[data-state="degraded"],
+  .pt-status__dot[data-state="down"] {
+    background: var(--danger);
+  }
+  .pt-status__name {
+    flex: 1;
+    min-width: 0;
+  }
+  .pt-status__state {
+    color: var(--text-muted);
+    font-size: 0.875rem;
   }
   .pt-side__actions {
     display: flex;

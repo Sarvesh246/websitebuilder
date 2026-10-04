@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { customTier, packageTiers, type PackageId } from "@/config/pricing";
 import { cn } from "@/lib/cn";
+import { avatarDataUri } from "@/lib/avatar";
 import { initials, isOverdue, relativeDay, shortDate } from "@/lib/portal/format";
 import { type Milestone, type ProjectStage, stageLabel } from "@/lib/portal/types";
 
@@ -100,11 +101,14 @@ export const DeadlineChip = ({ deadline, stage }: { deadline: string | null; sta
   );
 };
 
-export const Avatar = ({ name }: { name: string | null | undefined }) => (
-  <span className="pt-avatar" aria-hidden>
-    {initials(name)}
-  </span>
-);
+export const Avatar = ({ name, seed }: { name: string | null | undefined; seed?: string }) => {
+  const uri = seed ? avatarDataUri(seed) : null;
+  return (
+    <span className="pt-avatar" aria-hidden style={uri ? { backgroundImage: `url("${uri}")` } : undefined}>
+      {uri ? null : initials(name)}
+    </span>
+  );
+};
 
 export const Timeline = ({ milestones, empty }: { milestones: Milestone[]; empty?: ReactNode }) => {
   if (milestones.length === 0) return <>{empty ?? <p className="pt-small">The studio maps out the milestones once your project is accepted. Each step, and when it is due, appears here.</p>}</>;
