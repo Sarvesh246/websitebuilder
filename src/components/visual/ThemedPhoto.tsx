@@ -12,11 +12,12 @@ const hasDark = (name: PhotoName) => name !== "own";
  */
 export const ThemedPhoto = ({ name, sizes, small }: { name: PhotoName; sizes: string; small?: boolean }) => {
   const file = (variant: string) => `/images/scenes/pic-${name}${variant}${small ? "-900" : ""}.webp`;
-  if (!hasDark(name)) return <Image src={file("")} alt="" fill sizes={sizes} />;
+  // Decorative art inside glass panes: quality 60 is visually identical at these sizes and ~20% lighter.
+  if (!hasDark(name)) return <Image src={file("")} alt="" fill sizes={sizes} quality={60} />;
   return (
     <>
-      <Image src={file("")} alt="" fill sizes={sizes} className="pic--light" />
-      <Image src={file("-dark")} alt="" fill sizes={sizes} className="pic--dark" />
+      <Image src={file("")} alt="" fill sizes={sizes} quality={60} className="pic--light" />
+      <Image src={file("-dark")} alt="" fill sizes={sizes} quality={60} className="pic--dark" />
     </>
   );
 };
