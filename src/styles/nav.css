@@ -113,42 +113,62 @@
     isolation: isolate;
     gap: 0.5rem;
   }
-  .site-nav__link--glow::before {
+  /* ::before = frosted fill with a spotlight under the cursor; ::after = 1px rim that is brightest
+     next to the cursor. Both are opacity/transform only; the outer glow is a box-shadow fade. */
+  .site-nav__link--glow {
+    --mx: 50%;
+    --my: 50%;
+    transition:
+      color var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-med) var(--ease-standard),
+      transform var(--dur-fast) var(--ease-standard);
+  }
+  .site-nav__link--glow:hover {
+    background: transparent;
+    box-shadow: 0 0 2rem -0.6rem color-mix(in oklab, var(--accent) 75%, transparent);
+  }
+  .site-nav__link--glow::before,
+  .site-nav__link--glow::after {
     content: "";
     position: absolute;
-    inset: -0.35rem -0.5rem;
+    inset: 0;
     z-index: -1;
-    border-radius: calc(var(--radius-sm) + 6px);
-    background:
-      radial-gradient(5.5rem 3rem at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--accent) 55%, transparent), transparent 70%);
+    border-radius: inherit;
     opacity: 0;
-    filter: blur(6px);
-    transform: scale(0.9);
+    transform: scale(0.94);
+    pointer-events: none;
     transition:
       opacity var(--dur-med) var(--ease-standard),
       transform var(--dur-med) var(--ease-standard);
-    pointer-events: none;
+  }
+  .site-nav__link--glow::before {
+    background:
+      radial-gradient(7rem circle at var(--mx) var(--my), color-mix(in oklab, var(--accent) 38%, transparent), transparent 70%),
+      var(--glass-bg);
+    backdrop-filter: blur(10px) saturate(1.3);
+  }
+  .site-nav__link--glow::after {
+    padding: 1px;
+    background: radial-gradient(5rem circle at var(--mx) var(--my), color-mix(in oklab, var(--accent) 95%, #fff), color-mix(in oklab, var(--accent) 22%, transparent) 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
   }
   .site-nav__link--glow:hover::before,
-  .site-nav__link--glow:focus-visible::before {
+  .site-nav__link--glow:hover::after,
+  .site-nav__link--glow:focus-visible::before,
+  .site-nav__link--glow:focus-visible::after {
     opacity: 1;
     transform: scale(1);
   }
-  .site-nav__link--glow:hover {
-    box-shadow:
-      inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, transparent),
-      0 0 1.5rem -0.25rem color-mix(in oklab, var(--accent) 60%, transparent);
-  }
   .site-nav__link--glow:active {
-    transform: scale(1.06);
-    transition: transform var(--dur-fast) var(--ease-standard);
+    transform: scale(0.96);
   }
-  .site-nav__dot {
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0.6rem var(--accent);
+  @media (hover: none) {
+    .site-nav__link--glow::before,
+    .site-nav__link--glow::after {
+      display: none;
+    }
   }
 
   .site-nav__actions {
