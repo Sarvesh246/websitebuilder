@@ -29,7 +29,7 @@ export const SiteFooter = () => (
             ))}
             {siteConfig.social.map((link) => (
               <li key={link.href}>
-                <a href={link.href} rel="noopener noreferrer">
+                <a href={link.href} rel="me noopener noreferrer">
                   {link.label}
                 </a>
               </li>
