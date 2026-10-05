@@ -88,7 +88,6 @@ export const SiteNav = () => {
                     className={link.glow ? "site-nav__link site-nav__link--glow" : "site-nav__link"}
                     onPointerMove={link.glow ? trackPointer : undefined}
                   >
-                    {link.glow && <span aria-hidden className="site-nav__dot" />}
                     {link.label}
                   </Link>
                 </li>
