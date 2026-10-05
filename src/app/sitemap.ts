@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteConfig.url },
     ...guideLinks.map((link) => ({ url: `${siteConfig.url}${link.href}`, lastModified: guidesModified })),
+    { url: `${siteConfig.url}/work` },
     { url: `${siteConfig.url}/privacy`, lastModified: legalModified },
     { url: `${siteConfig.url}/terms`, lastModified: legalModified },
   ];

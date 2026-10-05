@@ -107,6 +107,50 @@
     background: var(--glass-bg);
   }
 
+  /* Concepts: a soft aura that follows the cursor, plus a ring that opens on press. */
+  .site-nav__link--glow {
+    position: relative;
+    isolation: isolate;
+    gap: 0.5rem;
+  }
+  .site-nav__link--glow::before {
+    content: "";
+    position: absolute;
+    inset: -0.35rem -0.5rem;
+    z-index: -1;
+    border-radius: calc(var(--radius-sm) + 6px);
+    background:
+      radial-gradient(5.5rem 3rem at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--accent) 55%, transparent), transparent 70%);
+    opacity: 0;
+    filter: blur(6px);
+    transform: scale(0.9);
+    transition:
+      opacity var(--dur-med) var(--ease-standard),
+      transform var(--dur-med) var(--ease-standard);
+    pointer-events: none;
+  }
+  .site-nav__link--glow:hover::before,
+  .site-nav__link--glow:focus-visible::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .site-nav__link--glow:hover {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--accent) 45%, transparent),
+      0 0 1.5rem -0.25rem color-mix(in oklab, var(--accent) 60%, transparent);
+  }
+  .site-nav__link--glow:active {
+    transform: scale(1.06);
+    transition: transform var(--dur-fast) var(--ease-standard);
+  }
+  .site-nav__dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0.6rem var(--accent);
+  }
+
   .site-nav__actions {
     display: flex;
     align-items: center;

@@ -1,12 +1,14 @@
-export type NavLink = { label: string; href: string };
+export type NavLink = { label: string; href: string; glow?: boolean };
 
 /**
  * Header links. Every href must resolve to a real anchor or route (no dead links).
- * "Work" stays out until real, approved client work exists.
+ * "Concepts" opens /work: labelled design concepts, not client work. Real "Work" stays out until
+ * real, approved client work exists.
  */
 export const navLinks: readonly NavLink[] = [
   { label: "Services", href: "/#services" },
   { label: "Process", href: "/#process" },
+  { label: "Concepts", href: "/work", glow: true },
   { label: "Pricing", href: "/#pricing" },
   { label: "About", href: "/#about" },
 ];
