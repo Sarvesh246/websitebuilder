@@ -1,4 +1,5 @@
 import "server-only";
+import { serverLog } from "@/lib/observability/serverLog";
 import { finalizeFinal, finalKey, recordFinalFailure } from "@/lib/payments/finalize";
 import { defaultDeps, PaymentError, type PaymentsDeps } from "@/lib/payments/stripe";
 import type { Viewer } from "@/lib/portal/types";
@@ -94,7 +95,7 @@ export const collectFinalBalance = async (
     }
     // Network or Stripe outage: release the claim. Retrying reuses the same idempotency key, so a
     // charge that did go through is returned by Stripe, never repeated. The webhook also reconciles it.
-    console.error(`[payments] final_charge_error project=${projectId}`);
+    serverLog("error", "payments.final_charge_error", { project: projectId });
     await repo.updateProjectIf(
       projectId,
       { final_payment_status: failures > 0 ? "failed" : "pending", payment_status: "deposit_paid" },

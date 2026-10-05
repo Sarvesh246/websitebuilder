@@ -1,5 +1,6 @@
 import "server-only";
 import type Stripe from "stripe";
+import { serverLog } from "@/lib/observability/serverLog";
 import {
   applyRefundedTotal,
   finalizeDeposit,
@@ -122,7 +123,7 @@ export const processStripeWebhook = async (
     await handleEvent(deps, event);
     return { status: 200, body: "ok" };
   } catch {
-    console.error(`[payments] webhook_failed type=${event.type} event=${event.id}`);
+    serverLog("error", "payments.webhook_failed", { type: event.type, event: event.id });
     await deps.repo.forgetWebhookEvent(event.id).catch(() => undefined);
     return { status: 500, body: "retry" };
   }

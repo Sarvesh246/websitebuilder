@@ -102,6 +102,12 @@ export default function PrivacyPage() {
           browser only: your light or dark theme choice (local storage) and the temporary form draft described above
           (session storage). Neither is sent to Northframe. If analytics are added later, this page will be updated first.
         </p>
+        <p>
+          When something fails on the server, such as a payment event or a project request that could not be saved, a
+          short error record is sent to PostHog, a logging service, so problems can be found and fixed. These records
+          hold only a fixed event name and technical reference IDs. They never include your name, email address, message
+          text, or card details, and no logging or tracking script runs in your browser.
+        </p>
       </LegalSection>
 
       <LegalSection title="Data sharing">
