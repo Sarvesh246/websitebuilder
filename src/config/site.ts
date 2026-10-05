@@ -35,10 +35,8 @@ export const siteConfig = {
    * deliberately if you want it visible. Set to null to remove it everywhere.
    */
   contactPhone: "+17327620126" as string | null,
-  /** Only real, approved profiles. Empty on purpose: no placeholder social links. */
-  social: [] as readonly { label: string; href: string }[],
-  /** Owned profiles declared to search engines (JSON-LD `sameAs`) so they are tied to this site. Not rendered. */
-  profiles: ["https://www.instagram.com/northframebuilds/"] as readonly string[],
+  /** Only real, approved profiles (shown in the footer, rel="me"). No placeholder social links. */
+  social: [{ label: "Instagram", href: "https://www.instagram.com/northframebuilds/" }] as readonly { label: string; href: string }[],
   founder: { name: "Sarvesh", initial: "S" },
 } as const;
 

@@ -38,7 +38,10 @@ const jsonLd = {
           availableLanguage: "English",
         },
       }),
-      ...(siteConfig.profiles.length > 0 && { sameAs: siteConfig.profiles }),
+      // The square brand icon: Google uses a logo of at least 112x112 for knowledge panels and results.
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}/brand/icon-192.png`, width: 192, height: 192 },
+      // Owned profiles (same list as the footer) so search engines tie them to this site.
+      ...(siteConfig.social.length > 0 && { sameAs: siteConfig.social.map((s) => s.href) }),
     },
     {
       "@type": "WebSite",

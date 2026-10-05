@@ -18,12 +18,21 @@ export const metadata: Metadata = {
   // forgets to (like the 404) never inherits a wrong one.
   openGraph: { type: "website", siteName: siteConfig.name, locale: "en_US" },
   twitter: { card: "summary_large_image" },
-  // Tab icon follows the browser's colour scheme (the door mark that reads on that tab colour).
-  // public/favicon.ico (dark mark) only serves clients that request it directly.
+  // Permit large image previews and full-length snippets in Google results (the default is more
+  // conservative). Pages that set their own robots (e.g. /start noindex, the 404) override this.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  // Google's favicon crawler needs UNCONDITIONAL icons (it ignores prefers-color-scheme variants) at a
+  // multiple of 48px. Both are the door mark on a solid dark tile, which stays visible on white and dark
+  // result pages; regenerate with `node scripts/logo.mjs`. The old light/dark tab icons were dropped:
+  // search engines never picked either, which is why results showed a generic globe.
   icons: {
     icon: [
-      { url: "/brand/icon-light.png", type: "image/png", media: "(prefers-color-scheme: light)" },
-      { url: "/brand/icon-dark.png", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/brand/icon-192.png", sizes: "192x192", type: "image/png" },
     ],
     apple: [{ url: "/brand/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },

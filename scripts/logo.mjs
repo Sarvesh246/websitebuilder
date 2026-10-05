@@ -78,10 +78,20 @@ for (const name of ["light", "dark"]) {
   await (await render(name, 128, 108, 0.5, 14)).png().toFile(`${OUT}icon-${name}.png`);
 }
 
-// favicon.ico: dark variant (fallback when a browser ignores the media-switched icons)
+// Search-engine favicon: the dark mark on a SOLID near-black tile. Google needs one unconditional icon
+// (a multiple of 48px, no prefers-color-scheme switching), and a solid tile stays visible on both white
+// and dark result pages, which a transparent mark does not.
+const tile = async (size) => {
+  const mark = await (await render("dark", size, Math.round((size * 108) / 128), 0.5, Math.round((size * 14) / 128))).png().toBuffer();
+  return sharp({ create: { width: size, height: size, channels: 4, background: "#0b0e13" } }).composite([{ input: mark }]).png().toBuffer();
+};
+writeFileSync(`${OUT}icon-192.png`, await tile(192));
+
+// favicon.ico (16/32/48) from the same solid tile
 const ico = [16, 32, 48];
 const pngs = [];
-for (const s of ico) pngs.push(await (await render("dark", 128, 108, 0.5, 14)).resize(s, s, { kernel: "lanczos3" }).png().toBuffer());
+const tile128 = await tile(128);
+for (const s of ico) pngs.push(await sharp(tile128).resize(s, s, { kernel: "lanczos3" }).png().toBuffer());
 const head = Buffer.alloc(6 + 16 * ico.length);
 head.writeUInt16LE(1, 2); head.writeUInt16LE(ico.length, 4);
 let off = head.length;
