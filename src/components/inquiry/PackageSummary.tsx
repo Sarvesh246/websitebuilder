@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { GlassSurface } from "@/components/ui/GlassSurface";
-import { customTier, packageTiers, type PackageId } from "@/config/pricing";
+import { customTier, discountLabel, packageTiers, type PackageId } from "@/config/pricing";
 import { formatUsd } from "@/lib/money";
 import { pricingSnapshot } from "@/lib/payments/plan";
 
@@ -42,14 +42,14 @@ export const PackageSummary = ({ selected }: { selected: PackageId | "" }) => {
     );
   }
 
-  const founding = tier.regularPrice !== undefined;
+  const label = discountLabel(tier);
   const plan = pricingSnapshot(tier.id);
   return (
     <GlassSurface variant="default" className="summary" aria-label="Selected package">
       <p className="summary__eyebrow">Package</p>
       <p className="summary__name">{tier.name}</p>
       <p className="summary__price">
-        ${tier.price} {founding ? "Founding Client Pricing" : "flat, one-time"}
+        ${tier.price} {label ?? "flat, one-time"}
       </p>
       {plan.total !== null && plan.deposit !== null && plan.remaining !== null && (
         <p className="summary__price">

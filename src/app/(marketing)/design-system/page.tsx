@@ -92,8 +92,8 @@ export default function DesignSystemPage() {
               <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
                 <span className="t-label t-label--rule">The process</span>
                 <span className="flex items-baseline gap-3">
-                  <span className="t-price">$200</span>
-                  <span className="t-price-was text-2xl">$350</span>
+                  <span className="t-price">$199</span>
+                  <span className="t-price-was text-2xl">$349</span>
                 </span>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import "server-only";
 import { budgets, features, projectTypes, timelines } from "@/config/inquiry";
-import { customTier, packageTiers } from "@/config/pricing";
+import { customTier, discountLabel, packageTiers } from "@/config/pricing";
 import { siteConfig } from "@/config/site";
 import { choiceLabel, type InquiryValues } from "@/lib/inquiry/schema";
 
@@ -27,7 +27,8 @@ const packageLabel = (id: InquiryValues["package"]) => {
   if (id === "custom") return `${customTier.name} (quote)`;
   const tier = packageTiers.find((t) => t.id === id);
   if (!tier) return id;
-  return tier.regularPrice !== undefined ? `${tier.name} ($${tier.price} Founding Client Pricing)` : `${tier.name} ($${tier.price})`;
+  const label = discountLabel(tier);
+  return label ? `${tier.name} ($${tier.price} ${label})` : `${tier.name} ($${tier.price})`;
 };
 
 const escapeHtml = (value: string) =>

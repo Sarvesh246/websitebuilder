@@ -1,7 +1,7 @@
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { startHref } from "@/config/inquiry";
-import { foundingLabel, type CustomTier, type PackageTier } from "@/config/pricing";
+import { discountLabel, type CustomTier, type PackageTier } from "@/config/pricing";
 
 const CheckList = ({ items }: { items: readonly string[] }) => (
   <ul className="pkg__list">
@@ -21,7 +21,8 @@ const CheckList = ({ items }: { items: readonly string[] }) => (
  * Founding Client Pricing pill while it applies), what is included, CTA with its scope note.
  */
 export const PackageCard = ({ tier }: { tier: PackageTier }) => {
-  const founding = tier.regularPrice !== undefined;
+  const label = discountLabel(tier);
+  const founding = label !== null;
   return (
     <article className="pkg" data-featured={tier.featured || undefined} aria-labelledby={`pkg-${tier.id}`}>
       <div className="pkg__head">
@@ -46,7 +47,7 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
             </>
           )}
         </p>
-        <p className={founding ? "pkg__pill" : "pkg__pill pkg__pill--plain"}>{founding ? foundingLabel : "One-time price"}</p>
+        <p className={founding ? "pkg__pill" : "pkg__pill pkg__pill--plain"}>{founding ? `${label}${tier.priceLabel ? "*" : ""}` : "One-time price"}</p>
       </div>
       <div className="pkg__body">
         <p className="pkg__lead-in">{tier.includesLead}</p>
@@ -59,7 +60,7 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
           icon="right"
           block
           data-package={tier.id}
-          aria-label={`${tier.ctaLabel} package, $${tier.price}${founding ? ` ${foundingLabel}` : ""}`}
+          aria-label={`${tier.ctaLabel} package, $${tier.price}${label ? ` ${label}` : ""}`}
         >
           {tier.ctaLabel}
         </Button>
