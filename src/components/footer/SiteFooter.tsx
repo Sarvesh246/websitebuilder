@@ -22,6 +22,7 @@ export const SiteFooter = () => (
         </div>
 
         <nav aria-label="Footer" className="site-footer__nav">
+          <p className="site-footer__title t-small">Explore</p>
           <ul>
             {footerLinks.map((link) => (
               <li key={link.href}>
@@ -49,10 +50,14 @@ export const SiteFooter = () => (
             <li>
               <Link href="/tools/website-cost-calculator">Website cost calculator</Link>
             </li>
+            <li>
+              <Link href="/guides">All guides</Link>
+            </li>
           </ul>
         </nav>
 
         <nav aria-label="Legal" className="site-footer__nav">
+          <p className="site-footer__title t-small">Legal</p>
           <ul>
             {legalLinks.map((link) => (
               <li key={link.href}>
