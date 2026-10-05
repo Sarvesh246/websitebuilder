@@ -227,5 +227,22 @@
     font-weight: 600;
     letter-spacing: var(--tracking-h3);
     color: var(--text-strong);
+    transition:
+      background-color var(--dur-fast, 150ms) ease,
+      padding-inline var(--dur-fast, 150ms) ease,
+      border-color var(--dur-fast, 150ms) ease;
+  }
+  .site-nav__sheet-link:focus-visible,
+  .site-nav__sheet-link[aria-current] {
+    background: color-mix(in srgb, var(--text-strong) 7%, transparent);
+    padding-inline: 0.75rem;
+    border-bottom-color: color-mix(in srgb, var(--text-strong) 28%, transparent);
+  }
+  @media (hover: hover) {
+    .site-nav__sheet-link:hover {
+      background: color-mix(in srgb, var(--text-strong) 7%, transparent);
+      padding-inline: 0.75rem;
+      border-bottom-color: color-mix(in srgb, var(--text-strong) 28%, transparent);
+    }
   }
 }
