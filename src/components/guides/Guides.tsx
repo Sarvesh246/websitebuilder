@@ -2,6 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
+import { DocAside, slugify, tocFrom, type TocItem } from "@/components/legal/DocAside";
 import { CostCalculator } from "@/components/tools/CostCalculator";
 import { Button } from "@/components/ui/Button";
 import { Ambient } from "@/components/visual/Ambient";
@@ -36,6 +37,8 @@ type Byline = { updated: string; published?: string };
 /**
  * Readable long-form layout shared by the FAQ, the audience pages, the guides and About. Plain text on
  * the page, no glass. One <article> with a header (breadcrumbs, h1, lead, byline) and the body.
+ * From lg up the page is centred: header across the top, text column left, sticky `DocAside` rail
+ * right. `wide` drops the rail and lets the body use the full width (calculator, guides index).
  */
 const GuideShell = ({
   trail,
@@ -43,6 +46,8 @@ const GuideShell = ({
   lead,
   byline,
   jsonLd,
+  toc = [],
+  wide = false,
   children,
 }: {
   trail: readonly Crumb[];
@@ -50,6 +55,8 @@ const GuideShell = ({
   lead: string;
   byline?: Byline;
   jsonLd?: object;
+  toc?: readonly TocItem[];
+  wide?: boolean;
   children: ReactNode;
 }) => (
   <Section className="legal guide" spacing="none" aria-labelledby="guide-title">
@@ -57,7 +64,7 @@ const GuideShell = ({
     {jsonLd && jsonLdScript(jsonLd)}
     <Ambient preset="quiet" />
     <Container>
-      <article className="legal__wrap guide__wrap">
+      <article className={`legal__wrap doc${wide ? " doc--wide" : ""}`}>
         <header className="legal__head">
           <nav aria-label="Breadcrumb" className="guide__crumbs t-small">
             <Link href="/">{siteConfig.entityName}</Link>
@@ -81,6 +88,7 @@ const GuideShell = ({
           )}
         </header>
         <div className="legal__body">{children}</div>
+        {!wide && <DocAside toc={toc} />}
       </article>
     </Container>
   </Section>
@@ -102,7 +110,7 @@ const serviceJsonLd = (name: string, description: string, path: string) => ({
 
 const Sections = ({ sections }: { sections: readonly GuideSection[] }) =>
   sections.map((section) => (
-    <section key={section.heading} className="legal__section">
+    <section key={section.heading} id={slugify(section.heading)} className="legal__section">
       <h2 className="t-h4">{section.heading}</h2>
       {section.body?.map((p) => <p key={p}>{p}</p>)}
       {section.points && (
@@ -158,10 +166,15 @@ export const AudiencePage = ({ slug }: { slug: string }) => {
       lead={guide.lead}
       byline={{ updated: guidesUpdated }}
       jsonLd={serviceJsonLd(guide.title, guide.description, `/${guide.slug}`)}
+      toc={[
+        ...tocFrom(guide.sections.map((s) => s.heading)),
+        { id: "guide-pkg", label: "The package that usually fits" },
+        { id: "guide-faq", label: "Common questions" },
+      ]}
     >
       <Sections sections={guide.sections} />
 
-      <section className="legal__section guide__pkg" aria-labelledby="guide-pkg-title">
+      <section id="guide-pkg" className="legal__section guide__pkg" aria-labelledby="guide-pkg-title">
         <h2 id="guide-pkg-title" className="t-h4">
           The package that usually fits
         </h2>
@@ -187,7 +200,7 @@ export const AudiencePage = ({ slug }: { slug: string }) => {
         </div>
       </section>
 
-      <section className="legal__section" aria-labelledby="guide-faq-title">
+      <section id="guide-faq" className="legal__section" aria-labelledby="guide-faq-title">
         <h2 id="guide-faq-title" className="t-h4">
           Common questions
         </h2>
@@ -233,9 +246,10 @@ export const FaqView = () => (
     lead={faqPage.lead}
     byline={{ updated: guidesUpdated }}
     jsonLd={faqJsonLd}
+    toc={tocFrom(faqPage.groups.map((g) => g.title))}
   >
     {faqPage.groups.map((group) => (
-      <section key={group.title} className="legal__section">
+      <section key={group.title} id={slugify(group.title)} className="legal__section">
         <h2 className="t-h4">{group.title}</h2>
         <FaqList items={group.items} />
       </section>
@@ -290,11 +304,16 @@ export const ArticleView = ({ slug }: { slug: string }) => {
       lead={article.lead}
       byline={{ updated: article.updated, published: article.published }}
       jsonLd={articleJsonLd(article)}
+      toc={[
+        ...tocFrom(article.sections.map((s) => s.heading)),
+        ...(article.faq ? [{ id: "article-faq", label: "Common questions" }] : []),
+        { id: "article-next", label: hub.label },
+      ]}
     >
       <Sections sections={article.sections} />
 
       {article.faq && (
-        <section className="legal__section" aria-labelledby="article-faq-title">
+        <section id="article-faq" className="legal__section" aria-labelledby="article-faq-title">
           <h2 id="article-faq-title" className="t-h4">
             Common questions
           </h2>
@@ -302,7 +321,7 @@ export const ArticleView = ({ slug }: { slug: string }) => {
         </section>
       )}
 
-      <section className="legal__section guide__pkg" aria-labelledby="article-next-title">
+      <section id="article-next" className="legal__section guide__pkg" aria-labelledby="article-next-title">
         <h2 id="article-next-title" className="t-h4">
           {hub.label}
         </h2>
@@ -343,6 +362,7 @@ export const ArticleView = ({ slug }: { slug: string }) => {
 export const GuidesIndex = () => (
   <GuideShell
     trail={[guidesCrumb]}
+    wide
     h1="Guides for planning a website."
     lead="Practical guides on portfolios, student organization sites, small business websites, pricing, and ownership. Each one answers a specific question, and links to the page for that kind of project."
     jsonLd={{
@@ -394,6 +414,7 @@ export const GuidesIndex = () => (
 export const AboutView = () => (
   <GuideShell
     trail={[{ name: "About", path: "/about" }]}
+    toc={tocFrom(aboutPage.sections.map((s) => s.heading))}
     h1={aboutPage.h1}
     lead={aboutPage.lead}
     jsonLd={graph(
@@ -437,6 +458,7 @@ const calcPath = "/tools/website-cost-calculator";
 export const CalculatorView = () => (
   <GuideShell
     trail={[{ name: "Website cost calculator", path: calcPath }]}
+    wide
     h1="Website cost calculator."
     lead="Choose how many pages you need and the features you want. The calculator shows which Northframe package fits, the one-time price, and how payment is split. It runs in your browser and sends nothing anywhere."
     byline={{ updated: guidesUpdated }}
