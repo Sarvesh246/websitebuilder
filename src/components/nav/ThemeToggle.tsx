@@ -2,6 +2,7 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useSyncExternalStore } from "react";
+import { preloadOtherTheme } from "@/lib/preloadTheme";
 
 type Theme = "light" | "dark";
 
@@ -28,7 +29,13 @@ export const ThemeToggle = () => {
   };
 
   return (
-    <button type="button" className="icon-btn" onClick={toggle} aria-label={`Switch to ${next} theme`}>
+    <button
+      type="button"
+      className="icon-btn"
+      onClick={toggle}
+      onPointerEnter={preloadOtherTheme}
+      onFocus={preloadOtherTheme}
+      aria-label={`Switch to ${next} theme`}>
       {/* Both icons render; CSS shows the one for the active theme, so there is no flash. */}
       <Sun aria-hidden size={20} strokeWidth={1.6} className="theme-icon theme-icon--sun" />
       <Moon aria-hidden size={20} strokeWidth={1.6} className="theme-icon theme-icon--moon" />
