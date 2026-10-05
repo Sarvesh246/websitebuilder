@@ -15,7 +15,6 @@ export const navLinks: readonly NavLink[] = [
 
 export const footerLinks: readonly NavLink[] = [
   ...navLinks,
-  { label: "Guides", href: "/guides" },
   { label: "Start a Project", href: "/start" },
 ];
 
