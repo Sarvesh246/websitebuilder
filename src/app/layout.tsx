@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
+import { ThemePreload } from "@/components/nav/ThemePreload";
 import { Grain } from "@/components/visual/Ambient";
 import { bingVerification, siteConfig } from "@/config/site";
 import "./globals.css";
 
 const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"], display: "swap" });
-const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"], display: "swap" });
+// Labels only: not preloaded, so pages that never show one don't warn about an unused preload.
+const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"], display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -77,6 +79,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         {children}
         <Grain />
+        <ThemePreload />
       </body>
     </html>
   );
