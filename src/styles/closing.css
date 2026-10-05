@@ -157,8 +157,105 @@
   }
 
   /* ---------- Guides (FAQ + audience pages): reuse the legal reading layout ---------- */
-  .guide__wrap {
-    max-width: 48rem;
+  /* ---------- Reading pages (guides, FAQ, About, legal): centred doc with a right rail ---------- */
+  .legal__wrap.doc {
+    max-width: 78rem;
+    margin-inline: auto;
+  }
+  .doc .legal__head h1 {
+    max-width: 24ch;
+  }
+  .doc [id] {
+    scroll-margin-top: calc(var(--nav-h) + 1.5rem);
+  }
+  .doc__aside {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .doc {
+      display: grid;
+      grid-template-columns: minmax(0, 46rem) minmax(15rem, 18rem);
+      justify-content: space-between;
+      column-gap: clamp(3rem, 6vw, 7rem);
+      align-items: start;
+    }
+    .doc > .legal__head {
+      grid-column: 1 / -1;
+    }
+    .doc__aside {
+      position: sticky;
+      top: calc(var(--nav-h) + 2rem);
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      padding-top: 2.25rem;
+    }
+    /* Wide pages (calculator, guides index): no rail, the body uses both columns. */
+    .doc--wide > .legal__body {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2.75rem clamp(3rem, 6vw, 7rem);
+      align-items: start;
+    }
+    .doc--wide > .legal__body > .calc,
+    .doc--wide > .legal__body > .guide__closing {
+      grid-column: 1 / -1;
+    }
+  }
+  .doc__aside-title {
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .doc__toc ol {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-left: 1px solid var(--border-strong);
+  }
+  .doc__toc a {
+    display: block;
+    margin-left: -1px;
+    padding: 0.4rem 0 0.4rem 1rem;
+    border-left: 1px solid transparent;
+    font-size: var(--fs-small);
+    line-height: 1.35;
+    color: var(--text-muted);
+    transition:
+      color var(--dur-fast) var(--ease-standard),
+      border-color var(--dur-fast) var(--ease-standard);
+  }
+  .doc__toc a:hover {
+    color: var(--text-strong);
+    border-left-color: var(--accent);
+  }
+  .doc__cta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.4rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-card);
+    background: var(--bg-raised);
+  }
+  .doc__cta-title {
+    font-weight: 600;
+    color: var(--text-strong);
+  }
+  .doc__cta .t-small {
+    color: var(--text-muted);
+  }
+  .doc__cta-link {
+    align-self: center;
+    color: var(--accent-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .not-found__wrap.legal__wrap {
+    margin-inline: auto;
   }
   .guide__crumbs {
     display: flex;
@@ -244,6 +341,17 @@
   .calc {
     display: grid;
     gap: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    .calc {
+      grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+    }
+    .calc__result {
+      position: sticky;
+      top: calc(var(--nav-h) + 2rem);
+    }
   }
   .calc__form {
     display: flex;
