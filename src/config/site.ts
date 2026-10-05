@@ -29,8 +29,16 @@ export const siteConfig = {
    * the site shows no email anywhere and points people to the inquiry form instead.
    */
   contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null,
+  /**
+   * Business phone in international format (E.164). Published ONLY in structured data (JSON-LD) so search
+   * engines attribute the right number to Northframe; it is not shown on the page. Add it to the footer
+   * deliberately if you want it visible. Set to null to remove it everywhere.
+   */
+  contactPhone: "+17327620126" as string | null,
   /** Only real, approved profiles. Empty on purpose: no placeholder social links. */
   social: [] as readonly { label: string; href: string }[],
+  /** Owned profiles declared to search engines (JSON-LD `sameAs`) so they are tied to this site. Not rendered. */
+  profiles: ["https://www.instagram.com/northframebuilds/"] as readonly string[],
   founder: { name: "Sarvesh", initial: "S" },
 } as const;
 
