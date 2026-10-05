@@ -3,20 +3,51 @@ import { Container } from "@/components/layout/Container";
 import { ConceptCard } from "@/components/concept/ConceptCard";
 import { Reveal } from "@/components/motion/Reveal";
 import { Button } from "@/components/ui/Button";
-import { concepts } from "@/config/concepts";
+import { conceptPath, concepts } from "@/config/concepts";
 import { startHref } from "@/config/inquiry";
+import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
+import { graph, orgId, toJsonLd } from "@/lib/structuredData";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Website concepts",
+  title: "Website design concepts",
   description:
     "Five concept websites for students, photographers, cafes, student organizations, and freelancers. Scroll them, click around, and see what a Northframe site can feel like.",
   path: "/work",
 });
 
+/** Structured data only (nothing visible changes): the concepts as a list of creative works. */
+const jsonLd = graph(
+  {
+    "@type": "CollectionPage",
+    "@id": `${siteConfig.url}/work#concepts`,
+    name: "Website design concepts",
+    url: `${siteConfig.url}/work`,
+    description: "Five website design concepts for fictional businesses, not client work.",
+    publisher: { "@id": orgId },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: concepts.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: `${c.title} website concept`,
+        url: `${siteConfig.url}${conceptPath(c.slug)}`,
+      })),
+    },
+  },
+  {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: siteConfig.entityName, item: siteConfig.url },
+      { "@type": "ListItem", position: 2, name: "Concepts", item: `${siteConfig.url}/work` },
+    ],
+  },
+);
+
 export default function WorkPage() {
   return (
     <section className="work" aria-labelledby="work-title">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }} />
       <Container>
         <header className="work__head">
           <div className="flex flex-col items-start gap-5">

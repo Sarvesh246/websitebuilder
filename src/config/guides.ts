@@ -45,7 +45,7 @@ export type AudienceGuide = {
   slug: string;
   /** Footer link text. */
   label: string;
-  /** Page <title> before " | Northframe". */
+  /** Page <title> before " | Northframe Builds". */
   title: string;
   /** Meta description, about 150 characters. */
   description: string;
@@ -386,7 +386,7 @@ export const faqPage = {
       items: [
         {
           q: "Who builds the site?",
-          a: "Northframe is an independent web design and development studio, built by Sarvesh, an engineering student and developer.",
+          a: "Northframe Builds (shown as Northframe) is an independent web design and development studio founded by Sarvesh Jagtap, an engineering student at Texas A&M and a developer. Sarvesh designs and builds every site.",
         },
       ],
     },

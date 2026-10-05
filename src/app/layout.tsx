@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
 import { Grain } from "@/components/visual/Ambient";
-import { siteConfig } from "@/config/site";
+import { bingVerification, siteConfig } from "@/config/site";
 import "./globals.css";
 
 const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"], display: "swap" });
@@ -9,19 +9,20 @@ const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"], display: 
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: siteConfig.homeTitle, template: `%s | ${siteConfig.name}` },
+  title: { default: siteConfig.homeTitle, template: `%s | ${siteConfig.entityName}` },
   description: siteConfig.description,
-  applicationName: siteConfig.name,
+  applicationName: siteConfig.entityName,
   // Google Search Console ownership token (public by design; keep it or Search Console unverifies the site).
   verification: {
     google: [
       "MEfX4usGD3i5kELjFilLbbr1DxTnZxjufyTmgBVa294",
       "wtAKpBDP3sDsz_6iDOvu-7BjwKhPnuXZ6aWiRKezeig",
     ],
+    ...(bingVerification && { other: { "msvalidate.01": bingVerification } }),
   },
   // No canonical/openGraph.url here: each route sets its own via pageMetadata, so a route that
   // forgets to (like the 404) never inherits a wrong one.
-  openGraph: { type: "website", siteName: siteConfig.name, locale: "en_US" },
+  openGraph: { type: "website", siteName: siteConfig.entityName, locale: "en_US" },
   twitter: { card: "summary_large_image" },
   // Permit large image previews and full-length snippets in Google results (the default is more
   // conservative). Pages that set their own robots (e.g. /start noindex, the 404) override this.
@@ -60,7 +61,7 @@ const themeScript = `var d=document.documentElement;d.dataset.js="";try{var c=na
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning className={`${figtree.variable} ${nunito.variable}`}>
+    <html lang="en-US" data-scroll-behavior="smooth" suppressHydrationWarning className={`${figtree.variable} ${nunito.variable}`}>
       <head>
         {/* Scroll reveals start hidden; without JS they must still be visible. */}
         <noscript>

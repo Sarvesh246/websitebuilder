@@ -4,7 +4,12 @@ import { ThemedPhoto, type PhotoName } from "@/components/visual/ThemedPhoto";
 /**
  * Concept website screens shown inside glass panes. Decorative artwork (no client work): the
  * nearest labelled ancestor describes them. Photos are crops of the backdrop photography.
+ * Their words are drawn from `data-t` by CSS (pane.css), not written as text nodes, so search engines
+ * and AI extractors read the page's real copy instead of repeated mockup slogans.
  */
+
+/** Decorative text: rendered by `[data-t]::before`, absent from the document text. */
+const t = (text: string) => ({ "data-t": text });
 
 type Photo = PhotoName;
 
@@ -16,14 +21,14 @@ const Photo = ({ src, sizes = "30vw", className }: { src: Photo; sizes?: string;
 
 const Nav = ({ burger }: { burger?: boolean }) => (
   <div className="scr__nav">
-    <b>Northframe</b>
+    <b {...t("Northframe")} />
     {burger ? (
       <i className="scr__burger" style={{ marginLeft: "auto" }} />
     ) : (
       <span>
-        <em>Services</em>
-        <em>Process</em>
-        <em>About</em>
+        <em {...t("Services")} />
+        <em {...t("Process")} />
+        <em {...t("About")} />
         <i className="scr__burger" />
       </span>
     )}
@@ -35,10 +40,10 @@ export const ScreenIdeas = ({ photo = "portal" }: { photo?: Photo }) => (
     <Nav />
     <div className="scr__body">
       <div className="scr__copy">
-        <p className="scr__h">Ideas deserve better websites.</p>
-        <p className="scr__p">Strategic design for a more ambitious web.</p>
-        <span className="scr__link" style={{ marginTop: "auto", paddingBottom: "2.4em" }}>
-          Explore <ArrowRight size="1.2em" strokeWidth={1.6} />
+        <p className="scr__h" {...t("Ideas deserve better websites.")} />
+        <p className="scr__p" {...t("Strategic design for a more ambitious web.")} />
+        <span className="scr__link" style={{ marginTop: "auto", paddingBottom: "2.4em" }} {...t("Explore ")}>
+          <ArrowRight size="1.2em" strokeWidth={1.6} />
         </span>
       </div>
       <Photo src={photo} />
@@ -51,7 +56,7 @@ export const ScreenPhoto = ({ title, photo = "peak", burger }: { title: string; 
     <Photo src={photo} sizes="40vw" />
     <Nav burger={burger} />
     <div className="scr__copy">
-      <p className="scr__h">{title}</p>
+      <p className="scr__h" {...t(title)} />
       <span className="scr__rule" />
     </div>
   </div>
@@ -61,7 +66,7 @@ export const ScreenTall = ({ title = "Built for what's next.", photo = "range" }
   <div className="scr scr--tall">
     <Nav burger />
     <div className="scr__copy">
-      <p className="scr__h">{title}</p>
+      <p className="scr__h" {...t(title)} />
       <span className="scr__rule" />
     </div>
     <Photo src={photo} sizes="20vw" />
@@ -73,23 +78,23 @@ export const ScreenPage = ({ photo = "portal" }: { photo?: Photo }) => (
     <Nav />
     <div className="scr__body">
       <div className="scr__copy">
-        <p className="scr__h">Purposeful websites for what&apos;s next.</p>
-        <p className="scr__p">Designed and built for creators, student organizations, and small businesses.</p>
-        <span className="scr__btn">
-          Start a Project <ArrowUpRight size="1.2em" strokeWidth={1.6} />
+        <p className="scr__h" {...t("Purposeful websites for what's next.")} />
+        <p className="scr__p" {...t("Designed and built for creators, student organizations, and small businesses.")} />
+        <span className="scr__btn" {...t("Start a Project ")}>
+          <ArrowUpRight size="1.2em" strokeWidth={1.6} />
         </span>
       </div>
       <Photo src={photo} sizes="35vw" />
     </div>
     <div className="scr__strip">
-      <div>
-        Strategy<small>A clear foundation</small>
+      <div {...t("Strategy")}>
+        <small {...t("A clear foundation")} />
       </div>
-      <div>
-        Design<small>Thoughtful and refined</small>
+      <div {...t("Design")}>
+        <small {...t("Thoughtful and refined")} />
       </div>
-      <div>
-        Development<small>Built for growth</small>
+      <div {...t("Development")}>
+        <small {...t("Built for growth")} />
       </div>
     </div>
   </div>
@@ -98,7 +103,7 @@ export const ScreenPage = ({ photo = "portal" }: { photo?: Photo }) => (
 export const ScreenWire = () => (
   <div className="scr scr--wire">
     <div className="scr__nav">
-      <b>Northframe</b>
+      <b {...t("Northframe")} />
       <span className="scr__navbars">
         <i />
         <i />
@@ -132,32 +137,14 @@ export const ScreenCode = () => (
       <i />
     </div>
     <div className="scr__body">
-      <div className="scr__tree">
-        <b>▾ northframe</b>
-        <br />› app
-        <br />› components
-        <br />› pages
-        <br />› styles
-        <br />› utils
-      </div>
+      <div className="scr__tree" {...t("▾ northframe\n› app\n› components\n› pages\n› styles\n› utils")} />
       <div className="scr__src">
-        <span className="k">export default function</span> <span className="f">Home</span>() {"{"}
-        {"\n  "}
-        <span className="k">return</span> (
-        {"\n    "}
-        <span className="t">&lt;main&gt;</span>
-        {"\n      "}
-        <span className="t">&lt;Hero /&gt;</span>
-        {"\n      "}
-        <span className="t">&lt;Features /&gt;</span>
-        {"\n      "}
-        <span className="t">&lt;Process /&gt;</span>
-        {"\n      "}
-        <span className="t">&lt;Footer /&gt;</span>
-        {"\n    "}
-        <span className="t">&lt;/main&gt;</span>
-        {"\n  "});{"\n"}
-        {"}"}
+        <span className="k" {...t("export default function")} /> <span className="f" {...t("Home")} />
+        <span {...t("() {\n  ")} />
+        <span className="k" {...t("return")} />
+        <span {...t(" (\n    ")} />
+        <span className="t" {...t("<main>\n      <Hero />\n      <Features />\n      <Process />\n      <Footer />\n    </main>")} />
+        <span {...t("\n  );\n}")} />
       </div>
     </div>
   </div>

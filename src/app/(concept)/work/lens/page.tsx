@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { Gallery } from "@/components/concept/lens/Gallery";
-import { pageMetadata } from "@/lib/seo";
+import { conceptMetadata } from "@/lib/seo";
 import "./lens.css";
 
 const display = Cormorant_Garamond({
@@ -14,12 +14,7 @@ const display = Cormorant_Garamond({
 });
 const sans = Jost({ subsets: ["latin"], variable: "--cx-sans", display: "swap" });
 
-export const metadata = pageMetadata({
-  title: "Oren Vale photography concept",
-  description: "A dark, full-bleed photographer portfolio concept with a filterable gallery, lightbox and booking form, designed by Northframe.",
-  path: "/work/lens",
-  index: false,
-});
+export const metadata = conceptMetadata("lens");
 
 const services = [
   { name: "Portraits", note: "Studio or on location, one hour to a full day." },

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { Reveal } from "@/components/motion/Reveal";
@@ -33,6 +34,9 @@ export const About = () => (
                 <p className="founder__note">{about.founder.note}</p>
               </div>
             </div>
+            <Link href={about.more.href} className="btn-link about__more">
+              {about.more.label}
+            </Link>
           </div>
         </Reveal>
       </div>

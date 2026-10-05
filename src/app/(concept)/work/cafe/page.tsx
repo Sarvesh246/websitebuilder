@@ -4,7 +4,7 @@ import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { MenuTabs } from "@/components/concept/cafe/MenuTabs";
 import { OpenNow } from "@/components/concept/cafe/OpenNow";
 import { Reveal } from "@/components/concept/cafe/Reveal";
-import { pageMetadata } from "@/lib/seo";
+import { conceptMetadata } from "@/lib/seo";
 import "./cafe.css";
 
 const display = Fraunces({
@@ -16,13 +16,7 @@ const display = Fraunces({
 });
 const sans = Karla({ subsets: ["latin"], variable: "--cx-sans", display: "swap" });
 
-export const metadata = pageMetadata({
-  title: "Marlow & Finch cafe concept",
-  description:
-    "A concept website for a fictional neighbourhood cafe and bakery, designed and built by Northframe as a Business package example.",
-  path: "/work/cafe",
-  index: false,
-});
+export const metadata = conceptMetadata("cafe");
 
 const HOURS = [
   ["Monday to Friday", "7am to 6pm"],

@@ -349,74 +349,62 @@
     color: var(--text-subtle);
   }
 
-  /* ---------- Comparison (phones: collapsible rows) ---------- */
-  .compare-m summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 3.5rem;
-    padding: 0.75rem var(--card-pad);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-    list-style: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .compare-m summary::-webkit-details-marker {
-    display: none;
-  }
-  .compare-m summary:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: 3px;
-  }
-  .compare-m__chevron {
-    flex: none;
-    transition: transform var(--dur-base) var(--ease-out);
-  }
-  .compare-m[open] .compare-m__chevron {
-    transform: rotate(180deg);
-  }
-  .compare-m__rows {
-    display: grid;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-  }
-  .compare-m__row {
-    padding: 1rem var(--card-pad);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--glass-bg-subtle);
-  }
-  .compare-m__label {
-    margin-bottom: 0.75rem;
-    font-family: var(--font-rounded);
-    font-size: var(--fs-label);
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .compare-m__values {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem 1rem;
-  }
-  .compare-m__values dt {
-    font-size: var(--fs-label);
-    font-weight: 600;
-    color: var(--text-subtle);
-  }
-  .compare-m__values dd {
-    display: flex;
-    align-items: center;
-    min-height: 1.5rem;
-    margin-top: 0.15rem;
-    font-size: 0.9375rem;
-    line-height: 1.35;
-    color: var(--text-strong);
-  }
-  .compare-m__values .is-featured dt {
-    color: var(--accent-ink);
+  /* ---------- Comparison (phones: the same table, each row restacked as a 2x2 block) ---------- */
+  @media (max-width: 767px) {
+    .compare thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .compare table,
+    .compare tbody,
+    .compare tbody th,
+    .compare tbody td {
+      display: block;
+      width: auto;
+    }
+    .compare tbody tr {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.9rem 1rem;
+      padding: 1rem var(--card-pad);
+    }
+    .compare tbody tr:first-child {
+      border-top: 0;
+    }
+    .compare tbody th {
+      grid-column: 1 / -1;
+      padding: 0;
+      font-size: var(--fs-label);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .compare tbody td {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.15rem;
+      padding: 0;
+      font-size: 0.9375rem;
+      line-height: 1.35;
+      color: var(--text-strong);
+    }
+    .compare tbody td::before {
+      content: attr(data-label);
+      font-size: var(--fs-label);
+      font-weight: 600;
+      color: var(--text-subtle);
+    }
+    .compare tbody td[data-featured] {
+      background: none;
+    }
+    .compare tbody td[data-featured]::before {
+      color: var(--accent-ink);
+    }
   }
 
   /* ---------- Scope notes (ownership has its own section) ---------- */

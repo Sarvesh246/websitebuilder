@@ -10,11 +10,12 @@ export const navLinks: readonly NavLink[] = [
   { label: "Process", href: "/#process" },
   { label: "Concepts", href: "/work", glow: true },
   { label: "Pricing", href: "/#pricing" },
-  { label: "About", href: "/#about" },
+  { label: "About", href: "/about" },
 ];
 
 export const footerLinks: readonly NavLink[] = [
   ...navLinks,
+  { label: "Guides", href: "/guides" },
   { label: "Start a Project", href: "/start" },
 ];
 
