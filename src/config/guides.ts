@@ -102,7 +102,7 @@ export const audienceGuides: readonly AudienceGuide[] = [
     faq: [
       {
         q: "Is Launch only for students?",
-        a: "Launch is priced as student pricing and built for student portfolios and resumes. If your project is something else, such as a creator site or an organization, Presence or Business is usually a better fit.",
+        a: `No, anyone can get it. ${tier("launch").name} is $${tier("launch").price} for students and $${tier("launch").regularPrice} for everyone else. It is built for one-page portfolios and resumes, so if your project is something else, such as a creator site or an organization, Presence or Business is usually a better fit.`,
       },
       {
         q: "Do I need finished text and photos before I start?",
