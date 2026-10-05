@@ -1,4 +1,5 @@
 import "server-only";
+import { serverLog } from "@/lib/observability/serverLog";
 import type { LedgerRow, ProjectPayRow } from "@/lib/payments/repo";
 import type { PaymentsDeps } from "@/lib/payments/stripe";
 
@@ -14,7 +15,7 @@ export const finalKey = (projectId: string) => `project:${projectId}:final`;
 const refundKey = (paymentIntentId: string, cumulative: number) => `refund:${paymentIntentId}:${cumulative}`;
 
 /** Log class + ids only, never amounts, card data, secrets or Stripe messages. */
-const note = (kind: string, projectId: string) => console.error(`[payments] ${kind} project=${projectId}`);
+const note = (kind: string, projectId: string) => serverLog("error", `payments.${kind}`, { project: projectId });
 
 const CLOSED = ["cancelled", "completed"];
 

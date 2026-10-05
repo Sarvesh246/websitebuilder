@@ -5,6 +5,7 @@ import { deliverInquiry, emailConfig, sendAutoReply } from "@/lib/inquiry/email"
 import { saveProjectRequest, StorageError, storageConfigured } from "@/lib/inquiry/projectRequest";
 import { rateLimit } from "@/lib/inquiry/rateLimit";
 import { emptyValues, type InquiryValues, validateInquiry } from "@/lib/inquiry/schema";
+import { serverLog } from "@/lib/observability/serverLog";
 
 /** Below this many ms between the first visit to the form and submit, treat it as a bot (a human can't
  *  finish five steps that fast; the start time survives refreshes via the client draft). */
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
   if (!viewer) return json({ error: "unauthorized" }, 401);
 
   if (!storageConfigured()) {
-    console.error("[inquiry] storage is not configured (NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)");
+    serverLog("error", "inquiry.storage_not_configured");
     return json({ error: "unavailable" }, 503);
   }
   let saved: { id: string; duplicate: boolean };
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
     saved = await saveProjectRequest(result.data, submissionId, viewer.userId);
   } catch (error) {
     // Log the failure class only, never the submitted content or database details.
-    console.error("[inquiry] storage failed:", error instanceof StorageError ? error.message : "unknown");
+    serverLog("error", "inquiry.storage_failed", {}, error instanceof StorageError ? error.message : "unknown");
     return json({ error: "delivery_failed" }, 502);
   }
 
@@ -84,7 +85,7 @@ const notify = async (data: InquiryValues) => {
   try {
     await deliverInquiry(data);
   } catch (error) {
-    console.error("[inquiry] notification failed:", error instanceof Error ? error.message : "unknown");
+    serverLog("error", "inquiry.notification_failed", {}, error instanceof Error ? error.message : "unknown");
   }
   await sendAutoReply(data);
 };
