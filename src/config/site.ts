@@ -11,8 +11,14 @@ export const siteConfig = {
   name: "Northframe",
   url: siteUrl,
   tagline: "Websites for Students, Creators & Small Businesses",
+  /**
+   * Home page <title> (also the Open Graph title). Keyword first, brand last, 55 characters so Google
+   * does not truncate it (~60). Subpages use "<Page> | Northframe" via the root template.
+   */
+  homeTitle: "Web Design for Students & Small Businesses | Northframe",
+  /** Meta description (also Open Graph, Twitter and JSON-LD). Keep it at or under about 155 characters. */
   description:
-    "Northframe designs and builds responsive websites for students, creators, organizations, and small businesses. Clear pricing, and you own the finished site.",
+    "Affordable, custom-designed websites for students, creators, student orgs, and small businesses. Clear pricing, mobile-ready, and you own your site.",
   /** Social card alt text (also used for og:image:alt). */
   socialAlt: "Northframe, web design and development, over a dark mountain landscape",
   descriptor: "Independent web design & development.",

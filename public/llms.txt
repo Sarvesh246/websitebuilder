@@ -1,6 +1,6 @@
 # Northframe
 
-> Northframe is an independent web design and development studio for students, creators, organizations, and small businesses. It designs and builds responsive websites with clear pricing, and clients own the finished site and its accounts.
+> Northframe is an independent web design and development studio for students, creators, student organizations, and small businesses. It designs and builds affordable, custom, mobile-ready websites with clear pricing, and clients own the finished site and its accounts.
 
 ## Pages
 

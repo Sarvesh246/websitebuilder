@@ -19,7 +19,7 @@ export function pageMetadata({ title, description, path, index = true }: PageMet
   // Nested routes don't inherit the app-level opengraph-image file once they define openGraph,
   // so the same image is referenced explicitly (unhashed path, always served).
   const images = [{ url: "/opengraph-image", width: 1200, height: 630, alt: siteConfig.socialAlt }];
-  const fullTitle = title ? `${title} | ${siteConfig.name}` : `${siteConfig.name} | ${siteConfig.tagline}`;
+  const fullTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.homeTitle;
   return {
     ...(title && { title }),
     description,
