@@ -14,8 +14,10 @@ export type PackageTier = {
   audience: string;
   /** Price the visitor pays today, in USD. */
   price: number;
-  /** Regular price. Present only while Founding Client Pricing applies to this package. */
+  /** Regular price. Present only while a discount (Founding Client or student pricing) applies to this package. */
   regularPrice?: number;
+  /** Name of the discount when it is not Founding Client Pricing (Launch is student pricing). */
+  priceLabel?: string;
   /** Lead-in above the feature list when a package builds on the previous one. */
   includesLead: string;
   features: readonly string[];
@@ -44,7 +46,9 @@ export const packageTiers: readonly PackageTier[] = [
     name: "Launch",
     blurb: "A polished one-page site for your work and contact details.",
     audience: "Best for student portfolios and resumes.",
-    price: 50,
+    price: 49,
+    regularPrice: 99,
+    priceLabel: "Student pricing",
     includesLead: "What's included",
     features: [
       "1 custom-designed page",
@@ -60,8 +64,8 @@ export const packageTiers: readonly PackageTier[] = [
     name: "Presence",
     blurb: "A fuller site for creators and professionals who need it to do more.",
     audience: "Best for creators and professionals.",
-    price: 200,
-    regularPrice: 350,
+    price: 199,
+    regularPrice: 349,
     includesLead: "Everything in Launch, plus",
     features: [
       "Up to 3 pages",
@@ -81,8 +85,8 @@ export const packageTiers: readonly PackageTier[] = [
     name: "Business",
     blurb: "More pages, structure, and content for organizations and small businesses.",
     audience: "Best for organizations and businesses.",
-    price: 350,
-    regularPrice: 500,
+    price: 349,
+    regularPrice: 499,
     includesLead: "Everything in Presence, plus",
     features: [
       "Up to 5 pages",
@@ -121,6 +125,16 @@ export const foundingLabel = "Founding Client Pricing";
 export const foundingPricing = {
   title: foundingLabel,
   body: "Available while Northframe builds its first client portfolio. Regular prices apply afterward.",
+};
+
+/** The discount's name for a package, or null when it is at its normal price. Launch is student pricing. */
+export const discountLabel = (tier: PackageTier): string | null =>
+  tier.priceLabel ?? (tier.regularPrice !== undefined ? foundingLabel : null);
+
+/** Footnote for the asterisk on the Launch price. Derived from the config, so it can never disagree with the card. */
+export const studentFootnote = (): string | null => {
+  const tier = packageTiers.find((t) => t.priceLabel && t.regularPrice !== undefined);
+  return tier ? `*Student pricing: ${tier.name} is $${tier.price} for students, regularly $${tier.regularPrice}.` : null;
 };
 
 /** What every fixed package has, said once instead of on every card. */

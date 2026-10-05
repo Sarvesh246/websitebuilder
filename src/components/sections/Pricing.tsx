@@ -6,7 +6,7 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/motion/Reveal";
 import { CompareTable } from "@/components/pricing/CompareTable";
 import { CustomCard, PackageCard } from "@/components/pricing/PackageCard";
 import { Plate } from "@/components/visual/Plate";
-import { commonInclusions, customTier, foundingPricing, packageTiers, scopeNotes } from "@/config/pricing";
+import { commonInclusions, customTier, foundingPricing, packageTiers, scopeNotes, studentFootnote } from "@/config/pricing";
 
 /**
  * Packages and pricing (reference 7): centred header, four cards in one row on desktop (Custom
@@ -31,6 +31,7 @@ export const Pricing = () => (
             <strong>{foundingPricing.title}:</strong> {foundingPricing.body}
           </span>
         </p>
+        {studentFootnote() && <p className="t-small text-muted">{studentFootnote()}</p>}
       </Reveal>
 
       <RevealGroup className="pricing__row" stagger={0.08}>

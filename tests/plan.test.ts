@@ -1,15 +1,23 @@
 import { describe, expect, it } from "vitest";
+import { discountLabel, packageTiers, studentFootnote } from "@/config/pricing";
 import { dueSummary, pricingSnapshot, splitTotal } from "@/lib/payments/plan";
 
 describe("pricingSnapshot", () => {
   it("launch is paid in full upfront with nothing remaining", () => {
-    expect(pricingSnapshot("launch")).toEqual({ total: 5000, deposit: 5000, remaining: 0, currency: "usd", finalRequired: false });
+    expect(pricingSnapshot("launch")).toEqual({ total: 4900, deposit: 4900, remaining: 0, currency: "usd", finalRequired: false });
   });
-  it("presence splits 10000 / 10000", () => {
-    expect(pricingSnapshot("presence")).toMatchObject({ total: 20000, deposit: 10000, remaining: 10000, finalRequired: true });
+  it("presence splits 9950 / 9950", () => {
+    expect(pricingSnapshot("presence")).toMatchObject({ total: 19900, deposit: 9950, remaining: 9950, finalRequired: true });
   });
-  it("business splits 17500 / 17500", () => {
-    expect(pricingSnapshot("business")).toMatchObject({ total: 35000, deposit: 17500, remaining: 17500, finalRequired: true });
+  it("business splits 17450 / 17450", () => {
+    expect(pricingSnapshot("business")).toMatchObject({ total: 34900, deposit: 17450, remaining: 17450, finalRequired: true });
+  });
+  it("displays Launch as student pricing and the others as Founding Client Pricing, each with its regular price", () => {
+    const by = Object.fromEntries(packageTiers.map((t) => [t.id, t]));
+    expect([by.launch.price, by.launch.regularPrice, discountLabel(by.launch)]).toEqual([49, 99, "Student pricing"]);
+    expect([by.presence.price, by.presence.regularPrice, discountLabel(by.presence)]).toEqual([199, 349, "Founding Client Pricing"]);
+    expect([by.business.price, by.business.regularPrice, discountLabel(by.business)]).toEqual([349, 499, "Founding Client Pricing"]);
+    expect(studentFootnote()).toBe("*Student pricing: Launch is $49 for students, regularly $99.");
   });
   it("gives the odd cent to the final payment", () => {
     expect(splitTotal(20001)).toEqual({ deposit: 10000, remaining: 10001 });

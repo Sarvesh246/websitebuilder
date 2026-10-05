@@ -3,7 +3,7 @@
  * validator (server), so an option can never exist in one and not the other.
  * Package names, prices and contents come from config/pricing.ts, never restated here.
  */
-import { customTier, foundingLabel, packageTiers, type PackageId } from "@/config/pricing";
+import { customTier, discountLabel, packageTiers, type PackageId } from "@/config/pricing";
 
 export const startPath = "/start";
 
@@ -30,7 +30,7 @@ export const packageChoices: readonly PackageChoice[] = [
   ...packageTiers.map((tier) => ({
     id: tier.id,
     name: tier.name,
-    price: tier.regularPrice !== undefined ? `$${tier.price} ${foundingLabel}` : `$${tier.price} one-time`,
+    price: discountLabel(tier) ? `$${tier.price} ${discountLabel(tier)}` : `$${tier.price} one-time`,
     blurb: tier.audience.replace(/^Best for /, "For "),
   })),
   {

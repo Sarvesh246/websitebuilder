@@ -1,12 +1,12 @@
 import { budgets, features, projectTypes, steps, timelines } from "@/config/inquiry";
-import { customTier, packageTiers } from "@/config/pricing";
+import { customTier, discountLabel, packageTiers } from "@/config/pricing";
 import { choiceLabel, type InquiryValues } from "@/lib/inquiry/schema";
 
 const label = (list: readonly { id: string; label: string }[], id: string) => list.find((i) => i.id === id)?.label ?? "";
 
 const packageLine = (id: InquiryValues["package"]) => {
   const tier = packageTiers.find((t) => t.id === id);
-  if (tier) return `${tier.name}, $${tier.price}${tier.regularPrice !== undefined ? " Founding Client Pricing" : ""}`;
+  if (tier) return `${tier.name}, $${tier.price}${discountLabel(tier) ? ` ${discountLabel(tier)}` : ""}`;
   return id === "custom" ? `${customTier.name}, quoted by scope` : "";
 };
 
