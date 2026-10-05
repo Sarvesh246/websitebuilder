@@ -514,11 +514,15 @@
     padding: 0.5em 1.8em;
     border-right: 1px solid rgb(255 255 255 / 0.08);
     color: #9aa1ac;
-    white-space: nowrap;
+    white-space: pre;
   }
   .scr__tree b {
     color: #e6e9ee;
     font-weight: 500;
+  }
+  /* Decorative screen words live in data-t (Screens.tsx) so they stay out of the page text. */
+  .scr [data-t]::before {
+    content: attr(data-t);
   }
   .scr__src {
     padding: 0.5em 1.4em;

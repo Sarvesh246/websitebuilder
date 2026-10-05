@@ -4,19 +4,13 @@ import { ArrowUpRight, CalendarDays, Clock, MapPin } from "lucide-react";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { Schedule } from "@/components/concept/org/Schedule";
 import { JoinForm } from "@/components/concept/org/JoinForm";
-import { pageMetadata } from "@/lib/seo";
+import { conceptMetadata } from "@/lib/seo";
 import "./org.css";
 
 const display = Anton({ subsets: ["latin"], weight: "400", variable: "--cx-display" });
 const body = Space_Grotesk({ subsets: ["latin"], variable: "--cx-body" });
 
-export const metadata = pageMetadata({
-  title: "Surge Collective org concept",
-  description:
-    "A concept front page for a fictional campus music and culture club, built by Northframe as an example of a student organization website.",
-  path: "/work/org",
-  index: false,
-});
+export const metadata = conceptMetadata("org");
 
 const marqueeItems = ["Join the collective", "Spring showcase", "Three nights", "Live on campus", "Union Hall", "Bring a friend"];
 

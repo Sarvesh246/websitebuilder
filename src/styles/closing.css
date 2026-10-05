@@ -219,4 +219,46 @@
     align-items: center;
     min-height: var(--touch-min);
   }
+  .guide__byline {
+    color: var(--text-muted);
+  }
+  .guide__byline a {
+    color: var(--accent-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .legal__section .guide__list {
+    gap: 0.75rem;
+  }
+  .guide__list li {
+    display: flex;
+    flex-direction: column;
+  }
+  .guide__list .t-small {
+    color: var(--text-muted);
+  }
+}
+
+@layer components {
+  /* ---------- Website cost calculator (/tools/website-cost-calculator) ---------- */
+  .calc {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .calc__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .calc__result ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin: 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .calc__why {
+    color: var(--text-muted);
+  }
 }

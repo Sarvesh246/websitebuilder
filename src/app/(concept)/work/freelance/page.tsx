@@ -3,20 +3,14 @@ import { Bricolage_Grotesque, DM_Sans, Caveat } from "next/font/google";
 import { ArrowUpRight, Compass, LayoutTemplate, Presentation, Sparkles } from "lucide-react";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { BookCall } from "@/components/concept/freelance/BookCall";
-import { pageMetadata } from "@/lib/seo";
+import { conceptMetadata } from "@/lib/seo";
 import "./freelance.css";
 
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--cx-display", display: "swap" });
 const body = DM_Sans({ subsets: ["latin"], variable: "--cx-body", display: "swap" });
 const hand = Caveat({ subsets: ["latin"], variable: "--cx-hand", display: "swap" });
 
-export const metadata = pageMetadata({
-  title: "Juno Park freelance concept",
-  description:
-    "A concept website for a fictional freelance brand designer and strategist, built by Northframe to show what a Presence package can look like.",
-  path: "/work/freelance",
-  index: false,
-});
+export const metadata = conceptMetadata("freelance");
 
 const WORDS = ["brands", "decks", "launches", "ideas"];
 

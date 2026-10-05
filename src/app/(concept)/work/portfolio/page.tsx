@@ -2,16 +2,10 @@ import Image from "next/image";
 import { DM_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { ProjectList, type Project } from "@/components/concept/portfolio/ProjectList";
-import { pageMetadata } from "@/lib/seo";
+import { conceptMetadata } from "@/lib/seo";
 import "./portfolio.css";
 
-export const metadata = pageMetadata({
-  title: "Ines Calder portfolio concept",
-  description:
-    "A concept one-page portfolio for a fictional design and frontend student, built by Northframe as an example of the Launch package.",
-  path: "/work/portfolio",
-  index: false,
-});
+export const metadata = conceptMetadata("portfolio");
 
 const display = Instrument_Serif({
   subsets: ["latin"],

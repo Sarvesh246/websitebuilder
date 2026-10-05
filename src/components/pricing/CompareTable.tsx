@@ -1,4 +1,4 @@
-import { Check, ChevronDown, Minus } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import {
   compareRows,
@@ -6,7 +6,6 @@ import {
   packageTiers,
   type CompareCell,
 } from "@/config/pricing";
-import { cn } from "@/lib/cn";
 
 const columns = [
   ...packageTiers.map((tier) => ({
@@ -40,15 +39,15 @@ const Cell = ({ value }: { value: CompareCell }) => {
 };
 
 /**
- * Decision-relevant differences only; anything every package has is in the footnote.
- * md and up: a real table. Phones: the same data as a collapsible, row-by-row list
- * (no horizontal scrolling, no tiny columns).
+ * Decision-relevant differences only. One semantic table at every width (crawlers and screen readers
+ * get the data once): md and up it is a grid; on phones CSS restacks each row into a 2x2 block and
+ * prints the package name from `data-label` (no horizontal scrolling, no duplicate markup).
  */
 export const CompareTable = () => (
   <div className="flex flex-col gap-6">
-    <h3 className="t-h3 hidden md:block">Compare packages</h3>
+    <h3 className="t-h3">Compare packages</h3>
 
-    <GlassSurface variant="subtle" padded={false} className="compare hidden md:block">
+    <GlassSurface variant="subtle" padded={false} className="compare">
       <div className="compare__clip">
         <table>
           <caption className="sr-only">Comparison of the Launch, Presence, Business, and Custom packages</caption>
@@ -69,7 +68,7 @@ export const CompareTable = () => (
               <tr key={row.label}>
                 <th scope="row">{row.label}</th>
                 {row.values.map((value, i) => (
-                  <td key={columns[i].id} data-featured={columns[i].featured || undefined}>
+                  <td key={columns[i].id} data-label={columns[i].name} data-featured={columns[i].featured || undefined}>
                     <Cell value={value} />
                   </td>
                 ))}
@@ -79,30 +78,5 @@ export const CompareTable = () => (
         </table>
       </div>
     </GlassSurface>
-
-    <details className="compare-m md:hidden">
-      <summary className="glass-subtle">
-        <span className="t-h4">Compare packages</span>
-        <ChevronDown aria-hidden size={20} strokeWidth={1.8} className="compare-m__chevron" />
-      </summary>
-      <div className="compare-m__rows">
-        {compareRows.map((row) => (
-          <div key={row.label} className="compare-m__row">
-            <p className="compare-m__label">{row.label}</p>
-            <dl className="compare-m__values">
-              {row.values.map((value, i) => (
-                <div key={columns[i].id} className={cn(columns[i].featured && "is-featured")}>
-                  <dt>{columns[i].name}</dt>
-                  <dd>
-                    <Cell value={value} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        ))}
-      </div>
-    </details>
-
   </div>
 );

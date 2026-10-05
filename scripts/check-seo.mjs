@@ -2,14 +2,14 @@
  * AI-crawler and llms.txt readiness of a LIVE public domain, via the free TidyTools endpoint
  * (no key, about 10 requests/min per IP, results cached for an hour upstream).
  *
- *   npm run check:seo                 (uses NEXT_PUBLIC_SITE_URL, else https://northframe.co)
+ *   npm run check:seo                 (uses NEXT_PUBLIC_SITE_URL, else https://northframebuilds.vercel.app)
  *   npm run check:seo -- example.com
  *
  * Dev tool only. The tool fetches the public site itself, so only a public hostname is sent.
  * Citability (citability.dev/scan) is a manual web scan: its JSON API currently redirects to an
  * unrelated host, so it is deliberately not called from code.
  */
-const input = (process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://northframe.co").trim();
+const input = (process.argv[2] ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://northframebuilds.vercel.app").trim();
 const host = input.replace(/^https?:\/\//i, "").replace(/[/?#].*$/, "").toLowerCase();
 
 // A public hostname only: no IPs, no localhost, no ports, no credentials.

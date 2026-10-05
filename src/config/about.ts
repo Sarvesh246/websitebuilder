@@ -6,7 +6,7 @@
 export const about = {
   eyebrow: "About",
   title: "Small studio. Serious about the details.",
-  lead: "Northframe is an independent web design and development studio for students, creators, organizations, and small businesses.",
+  lead: "Northframe Builds is an independent web design and development studio for students, creators, organizations, and small businesses.",
   body: "The goal is the care and polish people expect from expensive agencies, without a price that makes a professional website unrealistic when you're just starting out.",
   founder: {
     heading: "Built by Sarvesh.",
@@ -15,6 +15,52 @@ export const about = {
   /** Aria label for the decorative composition. */
   visualLabel: "Concept designs for a portfolio site, shown in a browser window inside a frame",
   visualCaption: "Concept design, not client work.",
+  more: { label: "More about Northframe Builds", href: "/about" },
+} as const;
+
+/** The /about page. Facts only: nothing here that is not true today. */
+export const aboutPage = {
+  title: "About Northframe Builds",
+  description:
+    "Northframe Builds is an independent web design and development studio founded by Sarvesh Jagtap, an engineering student at Texas A&M, for students, creators, and small businesses.",
+  h1: "About Northframe Builds.",
+  lead: "Northframe Builds (shown as Northframe) is an independent web design and development studio. It designs and builds custom, responsive websites for students, creators, student organizations, and small businesses, with fixed prices and full ownership for the client.",
+  sections: [
+    {
+      heading: "Who runs it",
+      body: [
+        "Northframe Builds was founded by Sarvesh Jagtap, an engineering student at Texas A&M University and a web developer. Sarvesh personally designs and builds every site, from the first outline to launch.",
+        "It started from a simple idea: good website design shouldn't only be available to companies with agency budgets.",
+      ],
+    },
+    {
+      heading: "What Northframe Builds makes",
+      body: [
+        "Custom websites in four sizes: Launch (one page, for student portfolios and resumes), Presence (up to three pages, for creators and professionals), Business (up to five pages, for organizations and small businesses), and Custom (accounts, databases, payments, and other functionality, quoted by scope).",
+        "Every site is designed around the client's content rather than a template, built to work on phones, tablets, and desktops, and handed over with the domain, hosting, and accounts in the client's name.",
+      ],
+    },
+    {
+      heading: "How sites are built",
+      body: [
+        "Sites are hand-coded with modern, widely used tools, so any developer can maintain them later. This website is built the same way.",
+      ],
+      points: [
+        "Next.js and React for the site itself, server-rendered so content loads fast and search engines can read it.",
+        "TypeScript and Tailwind CSS for maintainable code and styling.",
+        "Vercel for hosting and deployment.",
+        "Supabase and Stripe when a Custom project needs accounts, data, or payments.",
+      ],
+    },
+    {
+      heading: "What Northframe Builds does not do",
+      points: [
+        "No fake reviews, client counts, or promised search rankings.",
+        "No locked platforms: clients own the domain, the code, and their accounts.",
+        "No monthly fee from the studio. Package prices are one-time.",
+      ],
+    },
+  ],
 } as const;
 
 export const services = {

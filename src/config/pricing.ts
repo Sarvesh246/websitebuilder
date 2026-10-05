@@ -14,6 +14,10 @@ export type PackageTier = {
   audience: string;
   /** Price the visitor pays today, in USD. */
   price: number;
+  /** Maximum number of pages (stated plainly so search engines and agents can quote it). */
+  pages: number;
+  /** Included revision rounds. */
+  revisions: number;
   /** Regular price. Present only while a discount (Founding Client or student pricing) applies to this package. */
   regularPrice?: number;
   /** Name of the discount when it is not Founding Client Pricing (Launch is student pricing). */
@@ -47,6 +51,8 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "A polished one-page site for your work and contact details.",
     audience: "Best for student portfolios and resumes.",
     price: 49,
+    pages: 1,
+    revisions: 1,
     regularPrice: 99,
     priceLabel: "Student pricing",
     includesLead: "What's included",
@@ -65,6 +71,8 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "A fuller site for creators and professionals who need it to do more.",
     audience: "Best for creators and professionals.",
     price: 199,
+    pages: 3,
+    revisions: 2,
     regularPrice: 349,
     includesLead: "Everything in Launch, plus",
     features: [
@@ -86,6 +94,8 @@ export const packageTiers: readonly PackageTier[] = [
     blurb: "More pages, structure, and content for organizations and small businesses.",
     audience: "Best for organizations and businesses.",
     price: 349,
+    pages: 5,
+    revisions: 3,
     regularPrice: 499,
     includesLead: "Everything in Presence, plus",
     features: [
@@ -118,6 +128,12 @@ export const customTier: CustomTier = {
   note: "Priced by scope after a short conversation. No commitment to ask.",
   ctaLabel: "Start a Conversation",
 };
+
+/**
+ * When prices or package contents last changed. Shown under the pricing intro and used as the
+ * home page and FAQ lastmod in the sitemap. Bump it whenever anything in this file changes.
+ */
+export const pricingUpdated = { iso: "2026-10-05", label: "October 2026" } as const;
 
 /** Term for discounted prices everywhere on the site. Not a countdown and not a scarcity claim. */
 export const foundingLabel = "Founding Client Pricing";

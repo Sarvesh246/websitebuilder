@@ -46,6 +46,9 @@ export const SiteFooter = () => (
                 <Link href={link.href}>{link.label}</Link>
               </li>
             ))}
+            <li>
+              <Link href="/tools/website-cost-calculator">Website cost calculator</Link>
+            </li>
           </ul>
         </nav>
 
@@ -68,7 +71,7 @@ export const SiteFooter = () => (
       </div>
 
       <p className="site-footer__legal t-small">
-        &copy; {new Date().getFullYear()} {siteConfig.name}. Designed and built independently.
+        &copy; {new Date().getFullYear()} {siteConfig.entityName}. Designed and built independently.
       </p>
     </Container>
   </footer>

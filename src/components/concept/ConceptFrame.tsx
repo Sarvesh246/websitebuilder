@@ -2,8 +2,10 @@ import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { ArrivalVeil } from "@/components/concept/ArrivalVeil";
-import { conceptBySlug, type ConceptSlug } from "@/config/concepts";
+import { conceptBySlug, conceptPath, packageName, type ConceptSlug } from "@/config/concepts";
 import { startHref } from "@/config/inquiry";
+import { siteConfig } from "@/config/site";
+import { graph, orgId, toJsonLd } from "@/lib/structuredData";
 import "@/styles/concept-frame.css";
 
 type Props = {
@@ -20,8 +22,33 @@ type Props = {
  */
 export const ConceptFrame = ({ slug, className = "", children }: Props) => {
   const concept = conceptBySlug(slug);
+  const url = `${siteConfig.url}${conceptPath(slug)}`;
+  // Invisible to visitors: says this is a design concept by Northframe Builds for a fictional brand.
+  const jsonLd = graph(
+    {
+      "@type": "CreativeWork",
+      "@id": `${url}#concept`,
+      name: `${concept.title} website concept`,
+      url,
+      genre: "Website design concept",
+      description: `${concept.summary} A concept for ${concept.brand}, a fictional brand (not a real business or client). Fits the ${packageName(concept.pkg)} package.`,
+      creator: { "@id": orgId },
+      audience: { "@type": "Audience", audienceType: concept.audience },
+      image: `${siteConfig.url}${concept.image}`,
+      isPartOf: { "@id": `${siteConfig.url}/work#concepts` },
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: siteConfig.entityName, item: siteConfig.url },
+        { "@type": "ListItem", position: 2, name: "Concepts", item: `${siteConfig.url}/work` },
+        { "@type": "ListItem", position: 3, name: `${concept.title} concept`, item: url },
+      ],
+    },
+  );
   return (
     <div className={`cx cx-${slug} ${className}`}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }} />
       <ArrivalVeil image={concept.image} />
       <div className="cx-bar">
         <Link href="/work" className="cx-bar__back">
