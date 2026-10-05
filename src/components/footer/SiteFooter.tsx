@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Container } from "@/components/layout/Container";
+import { guideLinks } from "@/config/guides";
 import { footerLinks, legalLinks } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 
@@ -32,6 +33,17 @@ export const SiteFooter = () => (
                 <a href={link.href} rel="me noopener noreferrer">
                   {link.label}
                 </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <nav aria-label="Guides" className="site-footer__nav">
+          <p className="site-footer__title t-small">Guides</p>
+          <ul>
+            {guideLinks.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href}>{link.label}</Link>
               </li>
             ))}
           </ul>

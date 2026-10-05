@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { guideLinks, guidesUpdated } from "@/config/guides";
 import { legalUpdated, siteConfig } from "@/config/site";
 
 /**
@@ -7,8 +8,10 @@ import { legalUpdated, siteConfig } from "@/config/site";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const legalModified = new Date(legalUpdated);
+  const guidesModified = new Date(guidesUpdated);
   return [
     { url: siteConfig.url },
+    ...guideLinks.map((link) => ({ url: `${siteConfig.url}${link.href}`, lastModified: guidesModified })),
     { url: `${siteConfig.url}/privacy`, lastModified: legalModified },
     { url: `${siteConfig.url}/terms`, lastModified: legalModified },
   ];
