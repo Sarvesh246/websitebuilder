@@ -13,8 +13,9 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata({ description: siteConfig.description, path: "/" });
 
 /**
- * Structured data: only facts that exist (name, url, description, founder first name, public
- * email if configured). No address, phone, ratings, reviews, founding date, counts, or profiles.
+ * Structured data: only facts that exist (name, url, description, founder first name, business phone,
+ * owned profiles, public email if configured). Never an address, ratings, reviews, prices, founding
+ * date or counts: none are claimed anywhere on the site. Phone/profiles come from siteConfig.
  */
 const jsonLd = {
   "@context": "https://schema.org",
@@ -28,6 +29,16 @@ const jsonLd = {
       founder: { "@type": "Person", name: siteConfig.founder.name },
       knowsAbout: ["Web design", "Web development", "Responsive websites", "Portfolio websites"],
       ...(siteConfig.contactEmail && { email: siteConfig.contactEmail }),
+      ...(siteConfig.contactPhone && {
+        telephone: siteConfig.contactPhone,
+        contactPoint: {
+          "@type": "ContactPoint",
+          telephone: siteConfig.contactPhone,
+          contactType: "customer service",
+          availableLanguage: "English",
+        },
+      }),
+      ...(siteConfig.profiles.length > 0 && { sameAs: siteConfig.profiles }),
     },
     {
       "@type": "WebSite",
