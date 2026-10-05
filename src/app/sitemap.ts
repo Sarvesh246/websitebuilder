@@ -11,8 +11,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const guidesModified = new Date(guidesUpdated);
   return [
     { url: siteConfig.url },
-    ...guideLinks.map((link) => ({ url: `${siteConfig.url}${link.href}`, lastModified: guidesModified })),
     { url: `${siteConfig.url}/work` },
+    ...guideLinks.map((link) => ({ url: `${siteConfig.url}${link.href}`, lastModified: guidesModified })),
     { url: `${siteConfig.url}/privacy`, lastModified: legalModified },
     { url: `${siteConfig.url}/terms`, lastModified: legalModified },
   ];
