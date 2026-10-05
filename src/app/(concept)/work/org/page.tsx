@@ -81,7 +81,7 @@ export default function OrgConcept() {
 
       <section id="top" className="org-hero" aria-labelledby="org-h1">
         <div className="org-hero__bg" aria-hidden>
-          <Image src="/images/work/org/concert.webp" alt="" fill priority sizes="100vw" />
+          <Image src="/images/work/org/concert.webp" alt="Crowd at a concert under stage lights" fill priority sizes="100vw" />
         </div>
         <div className="org-hero__inner">
           <p className="org-kicker">Spring showcase / April 17 to 19</p>

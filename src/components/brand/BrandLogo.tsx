@@ -12,8 +12,8 @@ export const BrandLogo = () => (
   <span className="brand">
     <span className="brand__mark" aria-hidden>
       {/* 48px is the displayed size (.brand__mark): next/image then serves 48w/96w, not 96w/256w. */}
-      <Image src="/brand/mark-light.webp" alt="" width={48} height={48} className="pic--light" />
-      <Image src="/brand/mark-dark.webp" alt="" width={48} height={48} className="pic--dark" />
+      <Image src="/brand/mark-light.webp" alt="Northframe Builds logo" width={48} height={48} className="pic--light" />
+      <Image src="/brand/mark-dark.webp" alt="Northframe Builds logo" width={48} height={48} className="pic--dark" />
     </span>
     <span className="brand__word">{siteConfig.name}</span>
   </span>

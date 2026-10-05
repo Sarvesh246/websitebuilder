@@ -101,7 +101,7 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
             <Image
               key={p.n}
               src={p.img}
-              alt=""
+              alt={`${p.title} project preview`}
               fill
               sizes="320px"
               className="pf-preview__img"

@@ -70,7 +70,7 @@ export const ConceptCard = ({ concept, index }: { concept: Concept; index: numbe
       >
         <Image
           src={concept.image}
-          alt=""
+          alt={`${concept.title} website concept preview`}
           fill
           sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 100vw"
           className="cc__img"
