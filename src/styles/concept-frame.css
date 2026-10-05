@@ -1,0 +1,116 @@
+/* Shell shared by the concept sites. Concept palettes live in their own scoped files. */
+.cx {
+  --cx-bar: 2.5rem;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  min-height: 100vh;
+  padding-top: var(--cx-bar);
+  animation: cx-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.cx *,
+.cx *::before,
+.cx *::after {
+  box-sizing: border-box;
+}
+.cx-page {
+  display: block;
+}
+/* Photo from the /work card that is still covering the screen when a concept opens from it. */
+.cx-arrival {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  pointer-events: none;
+}
+html[data-arrive] .cx {
+  animation: none;
+}
+html[data-arrive] .cx-arrival {
+  animation: cx-arrive 0.9s 0.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes cx-arrive {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes cx-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.cx-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 200;
+  height: var(--cx-bar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+  background: #0d0f12;
+  color: #eef1f5;
+  font: 500 0.8rem/1 var(--font-figtree, system-ui), system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
+}
+.cx-bar a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+.cx-bar a:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+.cx-bar a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+.cx-bar__cta {
+  background: #eef1f5;
+  color: #0d0f12 !important;
+  font-weight: 600;
+}
+.cx-bar__cta:hover {
+  background: #fff !important;
+}
+.cx-bar__note {
+  margin: 0;
+  color: rgb(238 241 245 / 0.65);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+@media (max-width: 760px) {
+  .cx-bar__fiction,
+  .cx-bar__note span[aria-hidden] {
+    display: none;
+  }
+}
+@media (max-width: 460px) {
+  .cx-bar__note {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cx {
+    animation: none;
+  }
+}

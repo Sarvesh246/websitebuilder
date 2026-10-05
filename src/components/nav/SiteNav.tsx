@@ -18,6 +18,13 @@ import { useScrolledPast } from "@/hooks/useScrolledPast";
 const subscribeNone = () => () => {};
 const hasSessionCookie = () => /(?:^|;\s*)sb-[^=]*-auth-token/.test(document.cookie);
 
+// Feeds the cursor position to the Concepts glow as CSS variables (no state, no re-render).
+const trackPointer = (event: React.PointerEvent<HTMLElement>) => {
+  const box = event.currentTarget.getBoundingClientRect();
+  event.currentTarget.style.setProperty("--mx", `${event.clientX - box.left}px`);
+  event.currentTarget.style.setProperty("--my", `${event.clientY - box.top}px`);
+};
+
 /**
  * Site header. Desktop (lg+): logo, centred links, theme toggle and CTA on one line.
  * Below lg: a compact bar (logo, theme, menu button) that opens a full-height sheet with
@@ -76,7 +83,12 @@ export const SiteNav = () => {
             <ul>
               {navLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="site-nav__link">
+                  <Link
+                    href={link.href}
+                    className={link.glow ? "site-nav__link site-nav__link--glow" : "site-nav__link"}
+                    onPointerMove={link.glow ? trackPointer : undefined}
+                  >
+                    {link.glow && <span aria-hidden className="site-nav__dot" />}
                     {link.label}
                   </Link>
                 </li>
