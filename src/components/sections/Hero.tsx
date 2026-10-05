@@ -27,7 +27,7 @@ export const Hero = () => (
           Professional websites without agency prices.
         </h1>
         <p className="t-lead hero__lead hero-enter" style={step(2)}>
-          Custom-designed sites for creators, student orgs, and small businesses, with the polish of a product studio.
+          Affordable web design for students, creators, student orgs, and small businesses, with the polish of a product studio.
         </p>
         <div className="hero__cta hero-enter" style={step(3)}>
           <Button href={siteConfig.cta.href} size="lg" icon="diag" className="w-full sm:w-auto">

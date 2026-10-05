@@ -9,7 +9,7 @@ const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"], display: 
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
+  title: { default: siteConfig.homeTitle, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
   applicationName: siteConfig.name,
   // Google Search Console ownership token (public by design; keep it or Search Console unverifies the site).

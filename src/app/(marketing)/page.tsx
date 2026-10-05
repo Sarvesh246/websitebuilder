@@ -26,6 +26,7 @@ const jsonLd = {
       url: siteConfig.url,
       description: siteConfig.description,
       founder: { "@type": "Person", name: siteConfig.founder.name },
+      knowsAbout: ["Web design", "Web development", "Responsive websites", "Portfolio websites"],
       ...(siteConfig.contactEmail && { email: siteConfig.contactEmail }),
     },
     {
@@ -33,7 +34,22 @@ const jsonLd = {
       "@id": `${siteConfig.url}/#website`,
       name: siteConfig.name,
       url: siteConfig.url,
+      inLanguage: "en-US",
       publisher: { "@id": `${siteConfig.url}/#organization` },
+    },
+    {
+      // What is sold and to whom. No price, rating, area or review fields: none are claimed anywhere on the site.
+      "@type": "Service",
+      "@id": `${siteConfig.url}/#service`,
+      name: "Web design and development",
+      serviceType: "Web design",
+      url: siteConfig.url,
+      description: siteConfig.description,
+      provider: { "@id": `${siteConfig.url}/#organization` },
+      audience: {
+        "@type": "Audience",
+        audienceType: "Students, creators, student organizations, and small businesses",
+      },
     },
   ],
 };
