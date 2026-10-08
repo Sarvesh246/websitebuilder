@@ -4,6 +4,7 @@ import {
   type AdminOverview, type FeedbackRound, type Message, type Milestone, type PaymentRow, type ProjectDetail, type ProjectFile,
   type ProjectStage, type ProjectSummary,
 } from "./types";
+import { dayKey } from "./format";
 
 export type Perspective = "admin" | "client";
 
@@ -214,7 +215,7 @@ export const buildOverview = (
   },
   now: Date = new Date(),
 ): AdminOverview => {
-  const today = now.toISOString().slice(0, 10);
+  const today = dayKey(now); // same day basis as the overdue chip (isOverdue)
   const open = input.projects.filter((p) => isOpenStage(p.stage));
 
   const months: { key: string; month: string; collected: number }[] = [];

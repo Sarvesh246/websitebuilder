@@ -24,6 +24,26 @@ describe("deposit checkout", () => {
     expect(repo.ledger[0]).toMatchObject({ type: "deposit", status: "pending", amount: 10000 });
   });
 
+  it("expires the previous open session when a new one replaces it (no double payment from two tabs)", async () => {
+    const repo = new FakeRepo(makeProject());
+    const { deps, mocks } = makeDeps(repo);
+    await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
+    expect(mocks.sessionsExpire).not.toHaveBeenCalled();
+    mocks.sessionsCreate.mockResolvedValueOnce({ id: "cs_2", url: "https://checkout.stripe.test/cs_2" });
+    await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
+    expect(mocks.sessionsExpire).toHaveBeenCalledWith("cs_1");
+    expect(repo.ledger[0].stripe_session_id).toBe("cs_2");
+  });
+
+  it("still returns the new session when expiring the old one fails", async () => {
+    const repo = new FakeRepo(makeProject());
+    const { deps, mocks } = makeDeps(repo);
+    await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
+    mocks.sessionsCreate.mockResolvedValueOnce({ id: "cs_2", url: "https://checkout.stripe.test/cs_2" });
+    mocks.sessionsExpire.mockRejectedValueOnce(new Error("session already complete"));
+    await expect(createDepositCheckout(PROJECT_ID, OWNER, true, deps)).resolves.toEqual({ url: "https://checkout.stripe.test/cs_2" });
+  });
+
   it("Launch pays in full and does not save a card", async () => {
     const repo = new FakeRepo(makeProject({ package: "launch", total_amount: 5000, deposit_amount: 5000, remaining_amount: 0, final_payment_status: "not_required" }));
     const { deps, mocks } = makeDeps(repo);

@@ -15,7 +15,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // staleTimes: a portal tab visited in the last 30s reopens from the client cache (server actions still refresh it).
   // (experimental.inlineCss was tried for the render-blocking CSS: it has no effect on prerendered pages, only dynamic ones.)
-  experimental: { serverActions: { bodySizeLimit: "26mb" }, staleTimes: { dynamic: 30 } },
+  // Server actions keep the default 1MB body limit: uploads go straight to storage with signed URLs,
+  // so no action carries file bytes (a 26MB limit only let anyone make every action buffer 26MB).
+  experimental: { staleTimes: { dynamic: 30 } },
   poweredByHeader: false,
   images: {
     // AVIF first (smaller than WebP where supported), WebP fallback.

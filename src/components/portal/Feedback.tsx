@@ -43,20 +43,26 @@ const Composer = ({ projectId }: { projectId: string }) => {
   const { pending, error, run, setError } = useAction();
   const busy = pending || pct !== null;
 
+  // The uploaded screenshot is kept for retries, so a failed comment save never re-uploads (and orphans) it.
+  const uploaded = useRef<{ file: File; id: string } | null>(null);
+
   const submit = async () => {
     if (!body.trim()) return;
     let fileId: string | null = null;
-    if (shot) {
+    if (shot && uploaded.current?.file === shot) fileId = uploaded.current.id;
+    else if (shot) {
       setPct(0);
       const res = await uploadToProject(projectId, shot, setPct);
       setPct(null);
       if (!res.ok) return setError(res.error);
       fileId = res.id;
+      uploaded.current = { file: shot, id: res.id };
     }
     run(() => addFeedback(projectId, { page: page.trim() || undefined, body: body.trim(), fileId }), {
       onOk: () => {
         setBody("");
         setShot(null);
+        uploaded.current = null;
         if (shotInput.current) shotInput.current.value = "";
       },
     });

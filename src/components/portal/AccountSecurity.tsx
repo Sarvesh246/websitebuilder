@@ -118,21 +118,29 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
     setBusy(true);
     setError(null);
     const next = encodeURIComponent("/portal/settings");
-    const { error: err } = await (await browserAuth()).linkIdentity({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=${next}` } });
-    if (err) {
-      setBusy(false);
-      setError("Google could not be connected right now. Please try again later.");
+    try {
+      const { error: err } = await (await browserAuth()).linkIdentity({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=${next}` } });
+      if (!err) return; // the browser is leaving for Google
+    } catch {
+      // Network or a failed chunk load: same message as a refusal.
     }
+    setBusy(false);
+    setError("Google could not be connected right now. Please try again later.");
   };
   const disconnect = async () => {
     if (!google || (ids?.length ?? 0) < 2) return;
     if (!window.confirm("Disconnect Google? You will sign in with your email and password instead.")) return;
     setBusy(true);
     setError(null);
-    const auth = await browserAuth();
-    const { data } = await auth.getUserIdentities();
-    const identity = data?.identities.find((i) => i.identity_id === google.identity_id);
-    const { error: err } = identity ? await auth.unlinkIdentity(identity) : { error: new Error("missing") };
+    let err: unknown = null;
+    try {
+      const auth = await browserAuth();
+      const { data } = await auth.getUserIdentities();
+      const identity = data?.identities.find((i) => i.identity_id === google.identity_id);
+      err = identity ? (await auth.unlinkIdentity(identity)).error : new Error("missing");
+    } catch (caught) {
+      err = caught;
+    }
     setBusy(false);
     if (err) setError("Google could not be disconnected. Make sure you have set a password first.");
     else setVersion((v) => v + 1);

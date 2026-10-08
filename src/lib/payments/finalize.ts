@@ -47,7 +47,11 @@ export const finalizeDeposit = async (
 ): Promise<FinalizeResult> => {
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
-  if (!project || project.initial_payment_status === "paid") return "noop";
+  if (!project) return "noop";
+  if (project.initial_payment_status === "paid") {
+    if (project.stripe_deposit_pi && project.stripe_deposit_pi !== input.paymentIntentId) note("duplicate_deposit_payment", input.projectId);
+    return "noop";
+  }
   if (project.deposit_amount == null || input.amountReceived !== project.deposit_amount) {
     note("deposit_amount_mismatch", input.projectId);
     return "mismatch";
@@ -85,6 +89,7 @@ export const finalizeDeposit = async (
   });
   await repo.updateLedger(row.id, {
     status: "succeeded",
+    amount: input.amountReceived, // a pending row created before a price change can carry an old amount
     stripe_payment_intent_id: input.paymentIntentId,
     stripe_session_id: input.sessionId ?? row.stripe_session_id,
     failure_reason: null,
@@ -101,7 +106,11 @@ export const finalizeFinal = async (
 ): Promise<FinalizeResult> => {
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
-  if (!project || project.final_payment_status === "paid") return "noop";
+  if (!project) return "noop";
+  if (project.final_payment_status === "paid") {
+    if (project.stripe_final_pi && project.stripe_final_pi !== input.paymentIntentId) note("duplicate_final_payment", input.projectId);
+    return "noop";
+  }
   if (project.initial_payment_status !== "paid") {
     note("final_before_initial", input.projectId);
     return "noop";
@@ -138,6 +147,7 @@ export const finalizeFinal = async (
   });
   await repo.updateLedger(row.id, {
     status: "succeeded",
+    amount: input.amountReceived, // a pending row created before a price change can carry an old amount
     stripe_payment_intent_id: input.paymentIntentId,
     stripe_session_id: input.sessionId ?? row.stripe_session_id,
     failure_reason: null,

@@ -42,22 +42,24 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (busy) return;
-    if (!/^\S+@\S+\.\S+$/.test(email)) return setError("Enter a valid email address.");
+    // Autofill and phone keyboards often add a trailing space.
+    const address = email.trim();
+    if (!/^\S+@\S+\.\S+$/.test(address)) return setError("Enter a valid email address.");
     if (password.length < 8) return setError("Use a password of at least 8 characters.");
     setBusy(true);
     setError("");
     try {
       const supabase = createClient();
       if (mode === "login") {
-        const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+        const { error: err } = await supabase.auth.signInWithPassword({ email: address, password });
         if (err) throw err;
         router.push(target);
         router.refresh();
       } else {
         const { data, error: err } = await supabase.auth.signUp({
-          email,
+          email: address,
           password,
-          options: { data: { full_name: name.trim() }, emailRedirectTo: callback() },
+          options: { data: { full_name: name.trim().slice(0, 100) }, emailRedirectTo: callback() },
         });
         if (err) throw err;
         if (data.session) {

@@ -16,7 +16,7 @@ import { useScrolledPast } from "@/hooks/useScrolledPast";
 // presence lets the header say "Dashboard" without a request, so marketing pages stay static.
 // It is only a label hint: /portal re-verifies the session and sends signed-out visitors to /login.
 const subscribeNone = () => () => {};
-const hasSessionCookie = () => /(?:^|;\s*)sb-[^=]*-auth-token/.test(document.cookie);
+const hasSessionCookie = () => /(?:^|;\s*)sb-[^=;]*-auth-token(?:\.\d+)?=/.test(document.cookie);
 
 // Feeds the cursor position to the Concepts glow as CSS variables (no state, no re-render).
 const trackPointer = (event: React.PointerEvent<HTMLElement>) => {

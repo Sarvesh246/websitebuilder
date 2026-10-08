@@ -15,6 +15,19 @@ const depositKey = (projectId: string) => `project:${projectId}:deposit`;
 const HALF_HOUR = 30 * 60 * 1000;
 /** Stripe rejects a reused idempotency key whose request body changed (new host, amount or customer), so the key carries a fingerprint of those inputs. */
 const fingerprint = (...parts: Array<string | number>) => createHash("sha256").update(parts.join("|")).digest("hex").slice(0, 12);
+/**
+ * A new Checkout session replaces the previous one for the same obligation. Expire the old one so a
+ * customer holding two tabs cannot pay twice (the webhook would record only the first payment). Best
+ * effort: an already-completed or already-expired session simply refuses.
+ */
+export const expireStaleSession = async (stripe: PaymentsDeps["stripe"], previousId: string | null | undefined, currentId: string) => {
+  if (!previousId || previousId === currentId) return;
+  try {
+    await stripe.checkout.sessions.expire(previousId);
+  } catch {
+    // Completed, expired or unknown on this key: nothing to cancel.
+  }
+};
 const packageName: Record<ProjectPayRow["package"], string> = { launch: "Launch", presence: "Presence", business: "Business", custom: "Custom" };
 
 const loadProject = async (deps: PaymentsDeps, projectId: string): Promise<ProjectPayRow> => {
@@ -105,6 +118,7 @@ export const createDepositCheckout = async (
   );
   if (!session.url) throw new PaymentError("Could not start checkout. Please try again.");
 
+  await expireStaleSession(stripe, ledger.stripe_session_id ?? project.stripe_session_id, session.id);
   await repo.updateLedger(ledger.id, { stripe_session_id: session.id });
   await repo.updateProject(project.id, { stripe_session_id: session.id });
   return { url: session.url };
@@ -162,6 +176,7 @@ export const createFinalCheckout = async (
   );
   if (!session.url) throw new PaymentError("Could not start checkout. Please try again.");
 
+  await expireStaleSession(stripe, ledger.stripe_session_id, session.id);
   await repo.updateLedger(ledger.id, { stripe_session_id: session.id });
   return { url: session.url };
 };

@@ -82,8 +82,9 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
     case "charge.dispute.created": {
       const dispute = event.data.object;
       let paymentIntentId = asId(dispute.payment_intent);
-      if (!paymentIntentId) {
-        const charge = await deps.stripe.charges.retrieve(asId(dispute.charge) ?? "");
+      const chargeId = asId(dispute.charge);
+      if (!paymentIntentId && chargeId) {
+        const charge = await deps.stripe.charges.retrieve(chargeId);
         paymentIntentId = asId(charge.payment_intent);
       }
       if (!paymentIntentId) return;
