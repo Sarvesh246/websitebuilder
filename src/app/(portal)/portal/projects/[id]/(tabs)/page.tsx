@@ -4,7 +4,7 @@ import { getContext, loadProject, loadWorkflow, portalMeta } from "@/components/
 import { ApproveButton } from "@/components/portal/ProjectActions";
 import { ActivityList, MoneySummary, Requirements } from "@/components/portal/ProjectBlocks";
 import { Ring } from "@/components/portal/charts/Ring";
-import { stageSentence } from "@/components/portal/copy";
+import { approvalChargeLabel, approvalNote, stageSentence } from "@/components/portal/copy";
 import { Card, Timeline } from "@/components/portal/parts";
 import { ProgressBar } from "@/components/portal/charts/ProgressBar";
 import { WaitingOn } from "@/components/portal/WaitingOn";
@@ -53,9 +53,9 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
           <div className="pt-prompt" id="approve">
             <div>
               <p className="pt-strong">Ready to sign off?</p>
-              <p className="pt-small">Approving tells the studio the design is final. It never charges anything.</p>
+              <p className="pt-small">{approvalNote(approvalChargeLabel(p), "Approving tells the studio the design is final.")}</p>
             </div>
-            <ApproveButton projectId={p.id} />
+            <ApproveButton projectId={p.id} chargeLabel={approvalChargeLabel(p)} />
           </div>
         )}
       </div>

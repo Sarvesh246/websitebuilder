@@ -28,6 +28,21 @@ export const expireStaleSession = async (stripe: PaymentsDeps["stripe"], previou
     // Completed, expired or unknown on this key: nothing to cancel.
   }
 };
+/**
+ * Closes every open Checkout link on a project (call when it is cancelled or its account is deleted), so
+ * nobody can pay for work that will not happen. Best effort and safe to repeat: never throws, and paid or
+ * expired sessions simply refuse. Returns how many sessions were checked.
+ */
+export const expireProjectSessions = async (projectId: string, deps?: PaymentsDeps): Promise<number> => {
+  try {
+    const d = deps ?? defaultDeps();
+    const open = (await d.repo.listLedger(projectId)).filter((r) => r.stripe_session_id && r.type !== "refund" && r.status !== "succeeded");
+    await Promise.all(open.map((r) => expireStaleSession(d.stripe, r.stripe_session_id, "")));
+    return open.length;
+  } catch {
+    return 0; // payments not configured, or storage unavailable: nothing could have been opened through us
+  }
+};
 const packageName: Record<ProjectPayRow["package"], string> = { launch: "Launch", presence: "Presence", business: "Business", custom: "Custom" };
 
 const loadProject = async (deps: PaymentsDeps, projectId: string): Promise<ProjectPayRow> => {
@@ -110,7 +125,8 @@ export const createDepositCheckout = async (
         },
       ],
       metadata,
-      payment_intent_data: { metadata, ...(split ? { setup_future_usage: "off_session" as const } : {}) },
+      // Stripe emails its receipt to the client (live mode) for every payment.
+      payment_intent_data: { metadata, receipt_email: project.email || viewer.email, ...(split ? { setup_future_usage: "off_session" as const } : {}) },
       success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/checkout`,
     },
@@ -168,7 +184,7 @@ export const createFinalCheckout = async (
         },
       ],
       metadata,
-      payment_intent_data: { metadata },
+      payment_intent_data: { metadata, ...(project.email ? { receipt_email: project.email } : {}) },
       success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/payments`,
     },

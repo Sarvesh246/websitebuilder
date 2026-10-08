@@ -110,3 +110,35 @@ export const sendAutoReply = async (data: InquiryValues) => {
     console.error("[inquiry] auto-reply failed:", error instanceof Error ? error.message : "unknown");
   }
 };
+
+/**
+ * Plain alert to the studio inbox (payments: automatic refunds and anything flagged for review).
+ * Best effort and never throws: the portal event is the record, the email is the nudge. Callers pass ids
+ * and fixed reason codes only, never client content.
+ */
+export const notifyStudio = async (subject: string, lines: string[]) => {
+  const cfg = emailConfig();
+  if (!cfg) return;
+  try {
+    await send(cfg, { to: cfg.to, subject: subject.replace(/[\r\n]+/g, " ").slice(0, 150), text: lines.join("\n") });
+  } catch (error) {
+    console.error("[payments] studio alert failed:", error instanceof Error ? error.message : "unknown");
+  }
+};
+
+/**
+ * Plain-text email to a client about their own project (payment reminders). Returns whether the provider
+ * accepted it; never throws. The recipient is always the address stored on the project, never user input.
+ */
+export const sendClientMail = async (to: string, subject: string, lines: string[]): Promise<boolean> => {
+  const cfg = emailConfig();
+  const address = to.trim();
+  if (!cfg || !/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(address)) return false;
+  try {
+    await send(cfg, { to: address, subject: subject.replace(/[\r\n]+/g, " ").slice(0, 150), text: lines.join("\n"), replyTo: cfg.to });
+    return true;
+  } catch (error) {
+    console.error("[payments] client email failed:", error instanceof Error ? error.message : "unknown");
+    return false;
+  }
+};

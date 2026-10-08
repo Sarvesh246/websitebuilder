@@ -1,6 +1,7 @@
 import { dueSummary } from "@/lib/payments/plan";
 import { packageName } from "./parts";
-import type { PaymentStatus, ProjectStage, ProjectSummary } from "@/lib/portal/types";
+import type { PaymentStatus, ProjectDetail, ProjectStage, ProjectSummary } from "@/lib/portal/types";
+import { formatUsd } from "@/lib/money";
 
 /** What the client owes and when, from the stored snapshot (no Stripe, no client input). */
 export const dueFor = (p: ProjectSummary) =>
@@ -40,3 +41,17 @@ export const monthLabel = (m: string): string => {
   if (!hit) return m;
   return new Date(Number(hit[1]), Number(hit[2]) - 1, 1).toLocaleDateString("en-US", { month: "short" });
 };
+
+/**
+ * The balance a client's approval will charge to their saved card, formatted, or null when approving
+ * charges nothing (paid in full, nothing saved yet, or already paid). Mirrors collectFinalBalance's rules.
+ */
+export const approvalChargeLabel = (p: Pick<ProjectDetail, "initialPayment" | "finalPayment" | "money">): string | null => {
+  const remaining = p.money.remaining ?? 0;
+  if (p.initialPayment !== "paid" || remaining <= 0) return null;
+  if (!["pending", "failed", "requires_action"].includes(p.finalPayment)) return null;
+  return formatUsd(remaining);
+};
+
+export const approvalNote = (charge: string | null, base: string): string =>
+  charge ? `${base} Your remaining balance of ${charge} is then charged to the card you saved at checkout.` : `${base} It doesn't charge anything.`;

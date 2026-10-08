@@ -1,4 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "ignoreCommand": "git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- src public package.json package-lock.json next.config.ts postcss.config.mjs tsconfig.json next-env.d.ts vercel.json"
+  "ignoreCommand": "git diff --quiet ${VERCEL_GIT_PREVIOUS_SHA:-HEAD^} HEAD -- src public package.json package-lock.json next.config.ts postcss.config.mjs tsconfig.json next-env.d.ts vercel.json",
+  "crons": [
+    {
+      "path": "/api/cron/payments",
+      "schedule": "0 14 * * *"
+    }
+  ]
 }

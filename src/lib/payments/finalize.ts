@@ -1,6 +1,8 @@
 import "server-only";
 import { serverLog } from "@/lib/observability/serverLog";
 import type { LedgerRow, ProjectPayRow } from "@/lib/payments/repo";
+import { refundDuplicatePayment } from "@/lib/payments/autoRefund";
+import { flagForReview, remindBalanceDue } from "@/lib/payments/notify";
 import type { PaymentsDeps } from "@/lib/payments/stripe";
 
 /**
@@ -8,7 +10,7 @@ import type { PaymentsDeps } from "@/lib/payments/stripe";
  * off-session charge calls the SAME functions when Stripe already reports success. Each one is guarded by
  * a compare-and-set on the current state, so replays and races change state once.
  */
-export type FinalizeResult = "applied" | "noop" | "mismatch";
+export type FinalizeResult = "applied" | "noop" | "mismatch" | "duplicate";
 
 const depositKey = (projectId: string) => `project:${projectId}:deposit`;
 export const finalKey = (projectId: string) => `project:${projectId}:final`;
@@ -18,6 +20,42 @@ const refundKey = (paymentIntentId: string, cumulative: number) => `refund:${pay
 const note = (kind: string, projectId: string) => serverLog("error", `payments.${kind}`, { project: projectId });
 
 const CLOSED = ["cancelled", "completed"];
+
+type Obligation = "deposit" | "final_balance";
+const recordedIntent = (p: ProjectPayRow, stage: Obligation) => (stage === "deposit" ? p.stripe_deposit_pi : p.stripe_final_pi);
+const isPaid = (p: ProjectPayRow, stage: Obligation) => (stage === "deposit" ? p.initial_payment_status : p.final_payment_status) === "paid";
+
+/** A second payment for an obligation already paid by a different intent: refunded automatically after live checks, or flagged. */
+const handleDuplicate = async (deps: PaymentsDeps, project: ProjectPayRow, stage: Obligation, paymentIntentId: string): Promise<FinalizeResult> => {
+  const recordedId = recordedIntent(project, stage);
+  if (recordedId === paymentIntentId) return "noop"; // replay of the payment we recorded
+  note(stage === "deposit" ? "duplicate_deposit_payment" : "duplicate_final_payment", project.id);
+  await refundDuplicatePayment(deps, { projectId: project.id, stage, duplicateId: paymentIntentId, recordedId });
+  return "duplicate";
+};
+
+/**
+ * Two different payments can arrive at the same moment: both see "unpaid", one wins the compare-and-set.
+ * The loser re-reads the row; if the obligation is now paid by the other intent, its payment is the duplicate.
+ */
+const afterLostRace = async (deps: PaymentsDeps, projectId: string, stage: Obligation, paymentIntentId: string): Promise<FinalizeResult> => {
+  const now = await deps.repo.getProject(projectId);
+  return now && isPaid(now, stage) ? handleDuplicate(deps, now, stage, paymentIntentId) : "noop";
+};
+
+/** A received amount that does not match the stored price is never recorded or refunded automatically. */
+const flagMismatch = async (deps: PaymentsDeps, projectId: string, kind: string, paymentIntentId: string): Promise<FinalizeResult> => {
+  note(kind, projectId);
+  await flagForReview(deps, {
+    key: `mismatch:${paymentIntentId}`,
+    projectId,
+    timeline: "A payment did not match the expected amount. The studio is reviewing it.",
+    subject: "payment amount mismatch",
+    detail: "Stripe reported a payment whose amount does not match the price stored for this project. It was not recorded and not refunded. Check it in Stripe.",
+    paymentIntentId,
+  });
+  return "mismatch";
+};
 
 /**
  * The saved payment method and Stripe's hosted receipt for a PaymentIntent. Best effort: a failed lookup
@@ -48,14 +86,8 @@ export const finalizeDeposit = async (
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
   if (!project) return "noop";
-  if (project.initial_payment_status === "paid") {
-    if (project.stripe_deposit_pi && project.stripe_deposit_pi !== input.paymentIntentId) note("duplicate_deposit_payment", input.projectId);
-    return "noop";
-  }
-  if (project.deposit_amount == null || input.amountReceived !== project.deposit_amount) {
-    note("deposit_amount_mismatch", input.projectId);
-    return "mismatch";
-  }
+  if (isPaid(project, "deposit")) return handleDuplicate(deps, project, "deposit", input.paymentIntentId);
+  if (project.deposit_amount == null || input.amountReceived !== project.deposit_amount) return flagMismatch(deps, input.projectId, "deposit_amount_mismatch", input.paymentIntentId);
 
   const remaining = project.remaining_amount ?? 0;
   const split = remaining > 0;
@@ -77,7 +109,7 @@ export const finalizeDeposit = async (
   if (!split && project.total_amount != null && project.final_payment_status === "pending") patch.final_payment_status = "not_required";
 
   const applied = await repo.updateProjectIf(input.projectId, patch, { initial_payment_status: ["pending", "processing", "failed"] });
-  if (!applied) return "noop";
+  if (!applied) return afterLostRace(deps, input.projectId, "deposit", input.paymentIntentId);
 
   const row = await repo.upsertLedger({
     project_id: input.projectId,
@@ -97,6 +129,18 @@ export const finalizeDeposit = async (
     receipt_url: details?.receiptUrl ?? null,
   });
   await repo.addEvent(input.projectId, "payment_received", split ? "Initial payment received" : "Payment received in full", "system");
+  // Closing a project expires its checkout links, so this should not happen; if it does, a person decides.
+  if (project.status === "cancelled") {
+    note("payment_on_cancelled_project", input.projectId);
+    await flagForReview(deps, {
+      key: `cancelled:${input.paymentIntentId}`,
+      projectId: input.projectId,
+      timeline: "A payment arrived after the project was cancelled. The studio is reviewing it.",
+      subject: "payment on a cancelled project",
+      detail: "A payment was received after this project was cancelled. It was recorded, not refunded. Decide in the portal whether to refund it.",
+      paymentIntentId: input.paymentIntentId,
+    });
+  }
   return "applied";
 };
 
@@ -107,18 +151,12 @@ export const finalizeFinal = async (
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
   if (!project) return "noop";
-  if (project.final_payment_status === "paid") {
-    if (project.stripe_final_pi && project.stripe_final_pi !== input.paymentIntentId) note("duplicate_final_payment", input.projectId);
-    return "noop";
-  }
+  if (isPaid(project, "final_balance")) return handleDuplicate(deps, project, "final_balance", input.paymentIntentId);
   if (project.initial_payment_status !== "paid") {
     note("final_before_initial", input.projectId);
     return "noop";
   }
-  if (!project.remaining_amount || input.amountReceived !== project.remaining_amount) {
-    note("final_amount_mismatch", input.projectId);
-    return "mismatch";
-  }
+  if (!project.remaining_amount || input.amountReceived !== project.remaining_amount) return flagMismatch(deps, input.projectId, "final_amount_mismatch", input.paymentIntentId);
 
   const paidAt = now().toISOString();
   const applied = await repo.updateProjectIf(
@@ -135,7 +173,7 @@ export const finalizeFinal = async (
     },
     { final_payment_status: ["pending", "processing", "failed", "requires_action"] },
   );
-  if (!applied) return "noop";
+  if (!applied) return afterLostRace(deps, input.projectId, "final_balance", input.paymentIntentId);
 
   const row = await repo.upsertLedger({
     project_id: input.projectId,
@@ -207,6 +245,9 @@ export const recordFinalFailure = async (
     input.requiresAction ? "Final payment needs card confirmation" : "Final payment was declined",
     "system",
   );
+  // Tell the client straight away (paced and capped; best effort, never blocks recording the failure).
+  const updated = await repo.getProject(input.projectId).catch(() => null);
+  if (updated) await remindBalanceDue(deps, updated).catch(() => false);
   return "applied";
 };
 

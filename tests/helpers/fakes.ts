@@ -48,6 +48,7 @@ export const makePaidDepositProject = (overrides: Partial<ProjectPayRow> = {}) =
     stripe_customer_id: "cus_1",
     stripe_payment_method_id: "pm_1",
     stripe_deposit_pi: "pi_dep",
+    future_charge_authorized: true,
     ...overrides,
   });
 
@@ -55,7 +56,9 @@ export const makePaidDepositProject = (overrides: Partial<ProjectPayRow> = {}) =
 export class FakeRepo implements PaymentsRepo {
   projects = new Map<string, ProjectPayRow>();
   ledger: LedgerRow[] = [];
-  events: { projectId: string; kind: string }[] = [];
+  events: { projectId: string; kind: string; at: string }[] = [];
+  /** Clock for event timestamps (tests set it to control reminder pacing). */
+  clock = () => new Date().toISOString();
   webhookEvents = new Set<string>();
   profileCustomers = new Map<string, string>();
   private seq = 0;
@@ -146,8 +149,15 @@ export class FakeRepo implements PaymentsRepo {
   async forgetWebhookEvent(eventId: string) {
     this.webhookEvents.delete(eventId);
   }
+  async eventStats(projectId: string, kind: string) {
+    const mine = this.events.filter((e) => e.projectId === projectId && e.kind === kind);
+    return { count: mine.length, lastAt: mine.length ? mine[mine.length - 1].at : null };
+  }
+  async listRecentProjects() {
+    return [...this.projects.values()];
+  }
   async addEvent(projectId: string, kind: string) {
-    this.events.push({ projectId, kind });
+    this.events.push({ projectId, kind, at: this.clock() });
   }
 }
 
@@ -157,6 +167,7 @@ export const makeStripe = () => {
   const mocks = {
     paymentIntentsCreate: vi.fn(),
     paymentIntentsRetrieve: vi.fn(async () => ({ payment_method: "pm_saved" })),
+    paymentIntentsSearch: vi.fn(async () => ({ data: [] as unknown[], has_more: false, next_page: null })),
     customersCreate: vi.fn(async () => ({ id: "cus_new" })),
     customersRetrieve: vi.fn(async (id: string) => ({ id })),
     sessionsCreate: vi.fn(async () => ({ id: "cs_1", url: "https://checkout.stripe.test/cs_1" })),
@@ -165,7 +176,7 @@ export const makeStripe = () => {
     chargesRetrieve: vi.fn(async () => ({ payment_intent: "pi_x" })),
   };
   Object.assign(stripe, {
-    paymentIntents: { create: mocks.paymentIntentsCreate, retrieve: mocks.paymentIntentsRetrieve },
+    paymentIntents: { create: mocks.paymentIntentsCreate, retrieve: mocks.paymentIntentsRetrieve, search: mocks.paymentIntentsSearch },
     customers: { create: mocks.customersCreate, retrieve: mocks.customersRetrieve },
     checkout: { sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire } },
     refunds: { create: mocks.refundsCreate },
