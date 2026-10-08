@@ -12,8 +12,13 @@ type StripeFailure = { type?: string; code?: string; decline_code?: string; paym
 
 const isCardError = (err: unknown): err is StripeFailure => (err as StripeFailure | null)?.type === "StripeCardError";
 
+/** Who triggered the charge: the studio, or the system when the client approved the final version. */
+export type CollectActor = Viewer | "client_approval";
+
 /**
- * Charges the remaining balance off-session on the card saved at checkout. Admin only.
+ * Charges the remaining balance off-session on the card saved at checkout. Studio, or automatically on the
+ * client's approval of the final version (what the checkout authorization covers: "after the included
+ * revision stage is completed"). Never without that stored authorization.
  * Exactly one caller wins the atomic claim (SQL claim_final_payment), so concurrent or repeated calls
  * can never create a second PaymentIntent. Stripe's idempotency key is derived from the count of
  * recorded failures, so a retry after a lost response reuses the same intent while a retry after a real
@@ -21,15 +26,19 @@ const isCardError = (err: unknown): err is StripeFailure => (err as StripeFailur
  */
 export const collectFinalBalance = async (
   projectId: string,
-  viewer: Viewer,
+  actor: CollectActor,
   deps: PaymentsDeps = defaultDeps(),
 ): Promise<CollectResult> => {
-  if (viewer.role !== "admin") throw new PaymentError("Only the studio can collect the final payment.");
+  if (actor !== "client_approval" && actor.role !== "admin") throw new PaymentError("Only the studio can collect the final payment.");
   const { repo, stripe } = deps;
 
   const before = await repo.getProject(projectId);
   if (!before) return { outcome: "not_eligible", message: "Project not found." };
   if (before.final_payment_status === "paid") return { outcome: "already_paid", message: "The final payment has already been received." };
+  // The saved card may only be charged with the client's stored authorization from checkout.
+  if (before.future_charge_authorized !== true) {
+    return { outcome: "not_eligible", message: "The client has not authorized a saved-card charge. Send them a payment link instead." };
+  }
 
   const claim = await repo.claimFinalPayment(projectId);
   if (!claim) {
@@ -69,13 +78,19 @@ export const collectFinalBalance = async (
         off_session: true,
         confirm: true,
         description: "Northframe website: remaining balance",
+        ...(before.email ? { receipt_email: before.email } : {}),
         metadata: { project_id: projectId, package_id: before.package, payment_stage: "final_balance", collect: "off_session", user_id: before.user_id ?? "" },
       },
       { idempotencyKey: `project:${projectId}:final:${failures}` },
     );
 
     if (intent.status === "succeeded") {
-      await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received });
+      const settled = await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received });
+      if (settled === "duplicate") {
+        // The client paid the balance another way at the same moment; this charge is refunded (or flagged) automatically.
+        return { outcome: "already_paid", message: "The balance was already paid another way. This extra charge is being refunded automatically." };
+      }
+      if (settled === "mismatch") return { outcome: "processing", message: "Stripe reported an unexpected amount. Check the payment in Stripe before doing anything else." };
       return { outcome: "paid", message: "The final payment was collected. The project is ready for launch." };
     }
     if (intent.status === "processing") {

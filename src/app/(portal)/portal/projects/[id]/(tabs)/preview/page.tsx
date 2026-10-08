@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getContext, loadProject, loadWorkflow, portalMeta } from "@/components/portal/loaders";
 import { FeedbackPanel } from "@/components/portal/Feedback";
 import { ApproveButton } from "@/components/portal/ProjectActions";
+import { approvalChargeLabel, approvalNote } from "@/components/portal/copy";
 import { Card, EmptyState } from "@/components/portal/parts";
 import { shortDate } from "@/lib/portal/format";
 import { canGiveFeedback, draftRound, roundInProgress } from "@/lib/portal/workflow";
@@ -82,9 +83,9 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
           <div className="pt-prompt pt-prompt--stack">
             <div>
               <p className="pt-strong">Happy with it as it is?</p>
-              <p className="pt-small">Approving tells the studio the design is final and ends the revision rounds. It never charges anything.</p>
+              <p className="pt-small">{approvalNote(approvalChargeLabel(p), "Approving tells the studio the design is final and ends the revision rounds.")}</p>
             </div>
-            <ApproveButton projectId={p.id} />
+            <ApproveButton projectId={p.id} chargeLabel={approvalChargeLabel(p)} />
           </div>
         )}
         {p.approvedAt && (

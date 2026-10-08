@@ -30,10 +30,13 @@ export type ProjectPayRow = {
   refund_status: string;
   refunded_amount: number;
   dispute_status: string | null;
+  /** The client authorized the later off-session charge at checkout (split packages only). */
+  future_charge_authorized?: boolean | null;
+  /** Bumped by a trigger on every change; used to tell a stuck final-charge claim from one in flight. */
+  updated_at?: string;
   /** Write-only from this module (not selected back). */
   terms_accepted_at?: string;
   terms_version?: string;
-  future_charge_authorized?: boolean;
   stripe_session_id?: string;
   cancelled_at?: string | null;
 };
@@ -92,10 +95,14 @@ export type PaymentsRepo = {
   forgetWebhookEvent(eventId: string): Promise<void>;
 
   addEvent(projectId: string, kind: string, title: string, actorRole: "client" | "admin" | "system"): Promise<void>;
+  /** How many events of one kind a project has, and when the latest was. Drives reminder pacing. */
+  eventStats(projectId: string, kind: string): Promise<{ count: number; lastAt: string | null }>;
+  /** Projects created since the given time, newest first (bounded): the daily reconciliation's working set. */
+  listRecentProjects(sinceIso: string, limit: number): Promise<ProjectPayRow[]>;
 };
 
 const PROJECT_COLUMNS =
-  "id, user_id, package, email, client_name, status, payment_status, currency, total_amount, deposit_amount, remaining_amount, amount_paid, initial_payment_status, final_payment_status, stripe_customer_id, stripe_payment_method_id, stripe_deposit_pi, stripe_final_pi, initial_paid_at, final_paid_at, cancellation_requested_at, refund_status, refunded_amount, dispute_status";
+  "id, user_id, package, email, client_name, status, payment_status, currency, total_amount, deposit_amount, remaining_amount, amount_paid, initial_payment_status, final_payment_status, stripe_customer_id, stripe_payment_method_id, stripe_deposit_pi, stripe_final_pi, initial_paid_at, final_paid_at, cancellation_requested_at, refund_status, refunded_amount, dispute_status, future_charge_authorized, updated_at";
 const LEDGER_COLUMNS =
   "id, project_id, type, status, amount, currency, stripe_session_id, stripe_payment_intent_id, stripe_refund_id, failure_reason, idempotency_key, created_at, paid_at";
 
@@ -189,6 +196,24 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
       return fail(`db_${error.code ?? "error"}`);
     },
     forgetWebhookEvent: (eventId) => check(db.from("stripe_webhook_events").delete().eq("event_id", eventId)),
+
+    eventStats: async (projectId, kind) => {
+      const { data, count, error } = await db
+        .from("project_events")
+        .select("created_at", { count: "exact" })
+        .eq("project_id", projectId)
+        .eq("kind", kind)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      if (error) fail(`db_${error.code ?? "error"}`);
+      return { count: count ?? 0, lastAt: (data?.[0] as { created_at?: string } | undefined)?.created_at ?? null };
+    },
+
+    listRecentProjects: async (sinceIso, limit) => {
+      const { data, error } = await db.from("project_requests").select(PROJECT_COLUMNS).gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(limit);
+      if (error) fail(`db_${error.code ?? "error"}`);
+      return (data ?? []) as ProjectPayRow[];
+    },
 
     addEvent: (projectId, kind, title, actorRole) =>
       check(db.from("project_events").insert({ project_id: projectId, kind, title, actor_role: actorRole })),

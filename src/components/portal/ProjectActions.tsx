@@ -68,15 +68,30 @@ const ConfirmDialog = ({
   );
 };
 
-export const ApproveButton = ({ projectId }: { projectId: string }) => {
-  const { pending, error, run } = useAction();
+/**
+ * Approving completes the revision stage. When a balance is due on the saved card, the client confirms the
+ * exact amount first, because approval is what triggers that charge (see approveFinalVersion).
+ */
+export const ApproveButton = ({ projectId, chargeLabel }: { projectId: string; chargeLabel?: string | null }) => {
+  const [open, setOpen] = useState(false);
+  const { pending, error, notice, run } = useAction();
+  const approve = () =>
+    run(() => approveFinalVersion(projectId), {
+      success: (r) => (r as { notice?: string }).notice ?? "",
+      onOk: () => setOpen(false),
+    });
   return (
     <div className="pt-stack">
-      <button type="button" className="btn btn-primary" disabled={pending} aria-busy={pending} onClick={() => run(() => approveFinalVersion(projectId))}>
+      <button type="button" className="btn btn-primary" disabled={pending} aria-busy={pending} onClick={() => (chargeLabel ? setOpen(true) : approve())}>
         <BadgeCheck aria-hidden size={17} strokeWidth={1.9} />
         {pending ? "Approving" : "Approve final version"}
       </button>
-      <Feedback error={error} notice={null} />
+      {chargeLabel && (
+        <ConfirmDialog open={open} onClose={() => setOpen(false)} title="Approve and pay the balance?" confirmLabel={`Approve and pay ${chargeLabel}`} onConfirm={approve} busy={pending}>
+          <p>Approving ends the revision rounds. Your remaining balance of {chargeLabel} is then charged to the card you saved at checkout, as you authorized.</p>
+        </ConfirmDialog>
+      )}
+      <Feedback error={error} notice={notice} />
     </div>
   );
 };

@@ -11,6 +11,9 @@ import { CUSTOM_INTAKE_PREFIX, intakeTemplates } from "@/config/intake";
 import { parsePackageId } from "@/config/inquiry";
 import { MAX_UPLOAD_BYTES, UPLOAD_BUCKET, UPLOAD_TYPES, uploadErrors } from "@/config/uploads";
 import { createAdminClient } from "@/utils/supabase/server";
+import { expireProjectSessions } from "@/lib/payments/checkout";
+import { collectFinalBalance, type CollectOutcome } from "@/lib/payments/finalBalance";
+import { serverLog } from "@/lib/observability/serverLog";
 
 type Fail = { ok: false; error: string };
 type Done<T = object> = { ok: true } & T;
@@ -305,6 +308,8 @@ export const setStage = async (projectId: string, stage: ProjectStage): Promise<
   if (stage === "cancelled") patch.cancelled_at = new Date().toISOString();
   const { error } = await ctx.db.from("project_requests").update(patch).eq("id", projectId);
   if (error) return fail(GENERIC);
+  // A cancelled project must not be payable: close any checkout link the client still has open.
+  if (stage === "cancelled") await expireProjectSessions(projectId);
   await logEvent(ctx.db, projectId, "stage", stageEventTitle[stage] ?? "Stage updated", "admin");
   revalidate();
   return { ok: true };
@@ -368,19 +373,46 @@ export const setRevisions = async (projectId: string, input: { included?: number
   return { ok: true };
 };
 
-/** Records the client's approval. It never charges anything: collecting the balance is a separate admin action. */
-export const approveFinalVersion = async (projectId: string): Promise<Result> => {
+/** What the client is told after approving, per charge outcome (the studio's own wording lives in finalBalance.ts). */
+const approvalCharge: Partial<Record<CollectOutcome, string>> = {
+  paid: "Thank you. Your remaining balance was charged to your saved card and your project is ready for launch.",
+  processing: "Thank you. Your remaining balance payment is processing. This page updates when it clears.",
+  requires_action: "Thank you. Your bank needs you to confirm the remaining balance: use Pay remaining balance below.",
+  failed: "Thank you. Your saved card could not be charged for the remaining balance: use Pay remaining balance below.",
+};
+
+/**
+ * Records the client's approval, which completes the revision stage. For split packages that stage is
+ * exactly when the checkout authorization lets the studio charge the saved card, so the remaining balance
+ * is collected automatically right here (the same single-attempt, atomically claimed charge the studio's
+ * button runs). Approval is recorded even if the charge cannot run; the studio can still collect by hand.
+ */
+export const approveFinalVersion = async (projectId: string): Promise<Result<{ notice?: string }>> => {
   const ctx = await begin();
   if (isFail(ctx)) return ctx;
   if (ctx.perspective !== "client" || ctx.viewer.role === "admin") return fail("Only the project owner can approve the final version.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   if (project.approved_at) return { ok: true };
-  const { error } = await ctx.db.from("project_requests").update({ approved_at: new Date().toISOString() }).eq("id", projectId).is("approved_at", null);
+  const { data: approved, error } = await ctx.db.from("project_requests").update({ approved_at: new Date().toISOString() })
+    .eq("id", projectId).is("approved_at", null).select("id");
   if (error) return fail(GENERIC);
+  if (!approved?.length) return { ok: true }; // a parallel click approved it first; that call handles the charge
   await logEvent(ctx.db, projectId, "approval", "Final version approved", "client");
+
+  let notice: string | undefined;
+  const balanceDue = project.initial_payment_status === "paid" && (project.remaining_amount ?? 0) > 0 && project.final_payment_status !== "paid";
+  if (balanceDue) {
+    try {
+      const charge = await collectFinalBalance(projectId, "client_approval");
+      notice = approvalCharge[charge.outcome];
+    } catch {
+      // Stripe unreachable or not configured: nothing was charged (the claim is released). The studio can collect later.
+      serverLog("error", "payments.approval_charge_failed", { project: projectId });
+    }
+  }
   revalidate();
-  return { ok: true };
+  return { ok: true, notice };
 };
 
 // ---------------------------------------------------------------- account
@@ -636,6 +668,8 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
     return fail("You have a project in progress. Message the studio to wrap it up before deleting your account.");
   }
   const ids = owned.map((p) => p.id);
+  // Close open checkout links first so no payment can land on a project that is about to disappear.
+  await Promise.all(ids.map((id) => expireProjectSessions(id)));
   if (ids.length > 0) {
     const { data: files } = await ctx.db.from("project_files").select("path").in("project_id", ids).returns<{ path: string }[]>();
     const paths = (files ?? []).map((f) => f.path);

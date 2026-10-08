@@ -103,6 +103,6 @@ describe("payment success page", () => {
       }
     };
     walk(path.resolve(__dirname, "../src"));
-    expect(finalizeUsers.sort()).toEqual(["lib/payments/checkout.ts", "lib/payments/finalBalance.ts", "lib/payments/refunds.ts", "lib/payments/webhook.ts"]);
+    expect(finalizeUsers.sort()).toEqual(["lib/payments/checkout.ts", "lib/payments/finalBalance.ts", "lib/payments/reconcile.ts", "lib/payments/refunds.ts", "lib/payments/webhook.ts"]);
   });
 });
