@@ -1,7 +1,7 @@
 "use client";
 
 import { BadgeCheck, CreditCard, RotateCcw, XCircle } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { payRemainingBalance, collectFinalPayment, refundPayment, requestCancellation } from "@/lib/payments/actions";
 import { approveFinalVersion } from "@/lib/portal/actions";
 import { useAction } from "./useAction";
@@ -40,6 +40,7 @@ const ConfirmDialog = ({
   busy: boolean;
 }) => {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId(); // several dialogs can share a page
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -51,9 +52,9 @@ const ConfirmDialog = ({
       ref={ref}
       className="pt-dialog"
       onClose={onClose}
-      aria-labelledby="pt-dialog-title"
+      aria-labelledby={titleId}
     >
-      <h2 id="pt-dialog-title">{title}</h2>
+      <h2 id={titleId}>{title}</h2>
       <div className="pt-small">{children}</div>
       <div className="pt-dialog__actions">
         <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} disabled={busy}>
@@ -150,7 +151,9 @@ export const CollectFinalButton = ({ projectId, amountLabel, disabled }: { proje
 export const outcomeMessage = (outcome: string | undefined, fallback?: string) => (outcome && outcomeText[outcome]) || fallback || "";
 
 export const RefundForm = ({ projectId, payments }: { projectId: string; payments: { id: string; label: string; amountCents: number }[] }) => {
-  const [paymentId, setPaymentId] = useState(payments[0]?.id ?? "");
+  const [chosenId, setPaymentId] = useState(payments[0]?.id ?? "");
+  // After a refresh the list can change (a payment fully refunded drops out): never submit a stale id.
+  const paymentId = payments.some((p) => p.id === chosenId) ? chosenId : (payments[0]?.id ?? "");
   const [amount, setAmount] = useState("");
   const [confirming, setConfirming] = useState(false);
   const { pending, error, notice, run } = useAction();

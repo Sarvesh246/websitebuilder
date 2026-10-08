@@ -1,22 +1,29 @@
 /** Client-safe display helpers for portal dates and names. No server imports. */
 const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-/** Date-only strings ("2026-10-03") are calendar days, so they parse as local dates and never shift. */
-const parse = (iso: string): Date => {
-  const m = DATE_ONLY.exec(iso);
-  return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(iso);
+/**
+ * One display timezone for the studio's portal. Server components render on UTC hosts and client
+ * components in the visitor's zone; pinning both to the studio's zone keeps server and browser output
+ * identical (no hydration mismatch) and stops "Today" flipping at 7pm local.
+ */
+export const DISPLAY_TZ = "America/Chicago";
+
+const dayKeyFormat = new Intl.DateTimeFormat("en-CA", { timeZone: DISPLAY_TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+
+/** Calendar day as a UTC-midnight timestamp. Date-only strings are days already; timestamps use DISPLAY_TZ. */
+const calendarDay = (value: string | Date): number => {
+  const m = typeof value === "string" ? DATE_ONLY.exec(value) : null;
+  if (m) return Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const d = typeof value === "string" ? new Date(value) : value;
+  if (Number.isNaN(d.getTime())) return NaN;
+  const [y, mo, da] = dayKeyFormat.format(d).split("-").map(Number);
+  return Date.UTC(y, mo - 1, da);
 };
 
-const startOfToday = (): Date => {
-  const now = new Date();
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-};
+/** Today's calendar day ("2026-10-07") in DISPLAY_TZ, the same basis as relativeDay and isOverdue. */
+export const dayKey = (at: Date = new Date()): string => dayKeyFormat.format(at);
 
-const dayDiff = (iso: string): number => {
-  const d = parse(iso);
-  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return Math.round((target.getTime() - startOfToday().getTime()) / 86_400_000);
-};
+const dayDiff = (iso: string): number => Math.round((calendarDay(iso) - calendarDay(new Date())) / 86_400_000);
 
 const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? "" : "s"}`;
 
@@ -33,14 +40,15 @@ export const relativeDay = (iso: string | null | undefined): string => {
 
 export const shortDate = (iso: string | null | undefined): string => {
   if (!iso) return "";
-  const d = parse(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const sameYear = d.getFullYear() === new Date().getFullYear();
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
+  const day = calendarDay(iso);
+  if (Number.isNaN(day)) return "";
+  const d = new Date(day);
+  const sameYear = d.getUTCFullYear() === new Date(calendarDay(new Date())).getUTCFullYear();
+  return d.toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
 };
 
 /** "3:05 PM". */
-export const clockTime = (iso: string): string => new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+export const clockTime = (iso: string): string => new Date(iso).toLocaleTimeString("en-US", { timeZone: DISPLAY_TZ, hour: "numeric", minute: "2-digit" });
 
 export const timeAgo = (iso: string | null | undefined): string => {
   if (!iso) return "";

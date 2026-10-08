@@ -158,14 +158,16 @@ export const makeStripe = () => {
     paymentIntentsCreate: vi.fn(),
     paymentIntentsRetrieve: vi.fn(async () => ({ payment_method: "pm_saved" })),
     customersCreate: vi.fn(async () => ({ id: "cus_new" })),
+    customersRetrieve: vi.fn(async (id: string) => ({ id })),
     sessionsCreate: vi.fn(async () => ({ id: "cs_1", url: "https://checkout.stripe.test/cs_1" })),
+    sessionsExpire: vi.fn(async () => ({ status: "expired" })),
     refundsCreate: vi.fn(async () => ({ id: "re_1" })),
     chargesRetrieve: vi.fn(async () => ({ payment_intent: "pi_x" })),
   };
   Object.assign(stripe, {
     paymentIntents: { create: mocks.paymentIntentsCreate, retrieve: mocks.paymentIntentsRetrieve },
-    customers: { create: mocks.customersCreate },
-    checkout: { sessions: { create: mocks.sessionsCreate } },
+    customers: { create: mocks.customersCreate, retrieve: mocks.customersRetrieve },
+    checkout: { sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire } },
     refunds: { create: mocks.refundsCreate },
     charges: { retrieve: mocks.chargesRetrieve },
   });

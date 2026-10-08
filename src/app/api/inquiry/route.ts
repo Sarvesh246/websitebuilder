@@ -53,14 +53,15 @@ export async function POST(request: Request) {
   const submissionId = typeof body.submissionId === "string" ? body.submissionId.toLowerCase() : "";
   if (!UUID.test(submissionId)) return json({ error: "bad_request" }, 400);
 
+  // An account is required to send a request: it owns the project in the portal. Checked before the
+  // rate limit so a signed-out attempt never uses up one of the visitor's slots.
+  const viewer = await getViewer();
+  if (!viewer) return json({ error: "unauthorized" }, 401);
+
   // Only valid submissions count toward the limit, so a visitor fixing typos is never locked out.
   // Prefer the platform-set client IP; without one, share a looser bucket instead of blocking everyone.
   const ip = request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   if (!(ip ? rateLimit(ip) : rateLimit("unknown", 30))) return json({ error: "rate_limited" }, 429);
-
-  // An account is required to send a request: it owns the project in the portal.
-  const viewer = await getViewer();
-  if (!viewer) return json({ error: "unauthorized" }, 401);
 
   if (!storageConfigured()) {
     serverLog("error", "inquiry.storage_not_configured");

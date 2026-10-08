@@ -203,12 +203,15 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
     sendingRef.current = true;
     setStatus("sending");
     setFailure("");
+    // AbortSignal.timeout is missing before Safari 16: a plain controller + timer works everywhere.
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS);
     try {
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...result.data, hp, elapsed: Date.now() - startedAt.current, submissionId: submissionId.current }),
-        signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
+        signal: controller.signal,
       });
       if (res.ok) {
         try {
@@ -250,6 +253,7 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
       setFailure(copy.errorBody);
       setStatus("error");
     } finally {
+      window.clearTimeout(timer);
       sendingRef.current = false;
     }
   };
@@ -523,7 +527,7 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
               <div aria-hidden className="hp">
                 <label>
                   Leave this field empty
-                  <input type="text" name="website_url" tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} />
+                  <input type="text" name="nf_hp_field" tabIndex={-1} autoComplete="off" data-1p-ignore data-lpignore="true" value={hp} onChange={(e) => setHp(e.target.value)} />
                 </label>
               </div>
             </div>

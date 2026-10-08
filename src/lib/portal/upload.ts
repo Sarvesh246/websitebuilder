@@ -26,7 +26,11 @@ const send = (url: string, file: File, contentType: string, onProgress: (pct: nu
     xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
     xhr.onerror = () => resolve(false);
     xhr.onabort = () => resolve(false);
-    signal?.addEventListener("abort", () => xhr.abort());
+    // A stalled connection would otherwise hold an upload slot forever.
+    xhr.timeout = 10 * 60_000;
+    xhr.ontimeout = () => resolve(false);
+    if (signal?.aborted) return resolve(false);
+    signal?.addEventListener("abort", () => xhr.abort(), { once: true });
     const body = new FormData();
     body.append("cacheControl", "3600");
     body.append("", new Blob([file], { type: contentType }), file.name);

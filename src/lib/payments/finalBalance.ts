@@ -1,5 +1,6 @@
 import "server-only";
 import { serverLog } from "@/lib/observability/serverLog";
+import { expireStaleSession } from "@/lib/payments/checkout";
 import { finalizeFinal, finalKey, recordFinalFailure } from "@/lib/payments/finalize";
 import { defaultDeps, PaymentError, type PaymentsDeps } from "@/lib/payments/stripe";
 import type { Viewer } from "@/lib/portal/types";
@@ -48,6 +49,8 @@ export const collectFinalBalance = async (
     idempotency_key: finalKey(projectId),
   });
   if (obligation.status !== "processing") await repo.updateLedger(obligation.id, { status: "processing", failure_reason: null });
+  // A hosted "pay remaining balance" link may still be open: close it so the client can't pay it too.
+  await expireStaleSession(stripe, obligation.stripe_session_id, "");
 
   if (!claim.stripe_customer_id || !claim.stripe_payment_method_id) {
     await recordFinalFailure(deps, { projectId, paymentIntentId: null, reason: "no_saved_payment_method", requiresAction: true });

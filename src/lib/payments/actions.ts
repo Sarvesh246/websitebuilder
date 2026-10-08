@@ -4,7 +4,7 @@ import { createDepositCheckout, createFinalCheckout } from "@/lib/payments/check
 import { collectFinalBalance, type CollectOutcome } from "@/lib/payments/finalBalance";
 import { refundPayment as refundPaymentLib, requestCancellation as requestCancellationLib } from "@/lib/payments/refunds";
 import { PaymentError } from "@/lib/payments/stripe";
-import { demoMode, getViewer } from "@/lib/auth/session";
+import { demoMode, getPerspective, getViewer } from "@/lib/auth/session";
 import type { Viewer } from "@/lib/portal/types";
 
 /**
@@ -22,6 +22,8 @@ const actor = async (role?: "admin"): Promise<Viewer> => {
   const viewer = await getViewer();
   if (!viewer) throw new PaymentError("Please sign in to continue.");
   if (role === "admin" && viewer.role !== "admin") throw new PaymentError("Not allowed.");
+  // Like every other studio action, money actions are refused while the admin previews the client view.
+  if (role === "admin" && (await getPerspective(viewer)) !== "admin") throw new PaymentError("Preview mode: switch back to your admin view to do this.");
   return viewer;
 };
 

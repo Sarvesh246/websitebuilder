@@ -1,3 +1,4 @@
+import { createFinalCheckout } from "@/lib/payments/checkout";
 import { describe, expect, it } from "vitest";
 import { collectFinalBalance } from "@/lib/payments/finalBalance";
 import { finalizeDeposit, finalizeFinal } from "@/lib/payments/finalize";
@@ -27,6 +28,15 @@ describe("collectFinalBalance", () => {
     expect(options.idempotencyKey).toBe(`project:${PROJECT_ID}:final:0`);
     const project = repo.projects.get(PROJECT_ID)!;
     expect(project).toMatchObject({ final_payment_status: "paid", payment_status: "paid", status: "ready_for_launch", amount_paid: 20000 });
+  });
+
+  it("expires an open hosted balance link before charging the saved card", async () => {
+    const repo = new FakeRepo(makePaidDepositProject());
+    const { deps, mocks } = makeDeps(repo);
+    await createFinalCheckout(PROJECT_ID, OWNER, deps);
+    mocks.paymentIntentsCreate.mockResolvedValue(succeeded);
+    await collectFinalBalance(PROJECT_ID, ADMIN, deps);
+    expect(mocks.sessionsExpire).toHaveBeenCalledWith("cs_1");
   });
 
   it("does not charge again once paid", async () => {
