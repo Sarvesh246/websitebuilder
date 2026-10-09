@@ -57,7 +57,7 @@ export const aboutPage = {
       points: [
         "No fake reviews, client counts, or promised search rankings.",
         "No locked platforms: clients own the domain, the code, and their accounts.",
-        "No monthly fee from the studio. Package prices are one-time.",
+        "No monthly fee from the studio. Package prices are one-time (see [running a website without a monthly fee](/guides/website-without-a-monthly-fee)).",
       ],
     },
   ],
