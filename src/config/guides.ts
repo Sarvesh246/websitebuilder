@@ -15,7 +15,7 @@ import {
 } from "@/config/pricing";
 
 /** Date the guides were last revised (sitemap lastmod). Bump when any text below changes. */
-export const guidesUpdated = "2026-10-05";
+export const guidesUpdated = "2026-10-09";
 
 const tier = (id: Exclude<PackageId, "custom">): PackageTier => {
   const found = packageTiers.find((t) => t.id === id);
@@ -33,12 +33,18 @@ export const priceLine = (id: Exclude<PackageId, "custom">): string => {
 
 export type GuideFaq = { q: string; a: string };
 
+/**
+ * Paragraphs, bullets and FAQ answers may hold in-body internal links written `[anchor](/path)`
+ * (lib/richText.ts). tests/seoLinks.test.ts checks every target exists.
+ */
 export type GuideSection = {
   heading: string;
   /** Paragraphs. */
   body?: readonly string[];
   /** Short bullet list shown under the paragraphs. */
   points?: readonly string[];
+  /** Comparison table shown between the paragraphs and the bullets. The first column labels each row. */
+  table?: { caption: string; columns: readonly string[]; rows: readonly (readonly string[])[] };
 };
 
 export type AudienceGuide = {
@@ -77,21 +83,21 @@ export const audienceGuides: readonly AudienceGuide[] = [
         points: [
           "Your best projects, each with a short description of what you made and your part in it.",
           "A resume or experience section that reads quickly on a phone.",
-          "Clear contact details and links to profiles such as GitHub or LinkedIn.",
+          "Clear contact details and links to profiles such as GitHub or LinkedIn (see [portfolio website vs LinkedIn](/guides/portfolio-website-vs-linkedin) for how the two work together).",
           "A layout that works on phones, because links are often opened there first.",
         ],
       },
       {
         heading: "One page, done properly",
         body: [
-          "The Launch package is a single custom-designed page: projects, resume, and a contact section. It is deliberately small, which is what keeps the price low and the result focused.",
-          "If you have case studies, a freelance side business, or a lot of work to show, the Presence package adds up to three pages, a contact form, and SEO and analytics setup.",
+          "The Launch package is a single custom-designed page: projects, resume, and a contact section. It is deliberately small, which is what keeps the price low and the result focused. [How much a student website costs](/guides/how-much-does-a-student-website-cost) compares it with the other options.",
+          "If you have case studies, a freelance side business, or a lot of work to show, the Presence package adds up to three pages, a contact form, and SEO and analytics setup. The [student portfolio website checklist](/guides/student-portfolio-website-checklist) helps you decide what goes on the page.",
         ],
       },
       {
         heading: "It stays yours after graduation",
         body: [
-          "Your domain is registered in your name, the finished code is yours to keep, and hosting and analytics live under your own login. The site is not tied to a school account or a template platform, so it still works for you after you leave campus.",
+          "Your domain is registered in your name, the finished code is yours to keep, and hosting and analytics live under your own login. The site is not tied to a school account or a template platform, so it still works for you after you leave campus. The package price is paid once, and [running a website without a monthly fee](/guides/website-without-a-monthly-fee) explains the small yearly costs that remain.",
         ],
       },
     ],
@@ -140,7 +146,7 @@ export const audienceGuides: readonly AudienceGuide[] = [
         heading: "Built for handover",
         body: [
           "Hosting, analytics, and the domain are set up under a login your organization controls. Registering them with a shared organization email, rather than one officer's personal address, means the next board can take over without chasing anyone down.",
-          "The finished code is yours to keep, so a future officer or developer can update it without starting over.",
+          "The finished code is yours to keep, so a future officer or developer can update it without starting over. The [student organization website checklist](/guides/student-organization-website-checklist) covers the pages and accounts to set up, and the [website handoff checklist](/guides/website-handoff-checklist) what to pass on.",
         ],
       },
       {
@@ -183,7 +189,7 @@ export const audienceGuides: readonly AudienceGuide[] = [
       {
         heading: "What the site is there to do",
         body: [
-          "Visitors usually arrive with one question: can this business help me, and how do I reach it? The pages are planned around that, not around filling space.",
+          "Visitors usually arrive with one question: can this business help me, and how do I reach it? The pages are planned around that, not around filling space. [What pages a small business website needs](/guides/what-pages-does-a-small-business-website-need) goes through each one, and [how much a small business website costs](/guides/how-much-does-a-small-business-website-cost) explains the price.",
         ],
         points: [
           "A clear page for each main service, in plain language.",
@@ -201,7 +207,7 @@ export const audienceGuides: readonly AudienceGuide[] = [
       {
         heading: "No lock-in",
         body: [
-          "Your domain, hosting, and analytics live under your own logins, and the finished code is yours. Domain registration and paid third-party services, such as premium hosting or email plans, are billed separately where required.",
+          "Your domain, hosting, and analytics live under your own logins, and the finished code is yours. Domain registration and paid third-party services, such as premium hosting or email plans, are billed separately where required. There is no monthly fee from Northframe, which is the main difference from a [website builder like Wix or Squarespace](/guides/custom-website-vs-website-builder).",
           "If a request goes beyond your package, the price is updated and you approve it before work continues.",
         ],
       },
@@ -250,13 +256,13 @@ export const audienceGuides: readonly AudienceGuide[] = [
       {
         heading: "How many pages do you need?",
         body: [
-          "The Presence package covers up to three pages, which suits a home page, a work or gallery page, and an about or contact page. Just starting out with a smaller body of work? The one-page Launch package is a good first step, and you can move up later.",
+          "The Presence package covers up to three pages, which suits a home page, a work or gallery page, and an about or contact page. Just starting out with a smaller body of work? The one-page Launch package is a good first step, and you can move up later. The [student portfolio website checklist](/guides/student-portfolio-website-checklist) works for any portfolio, not only students.",
         ],
       },
       {
         heading: "Owned by you",
         body: [
-          "Your domain is registered in your name, and your hosting and analytics sit under your own logins. If you move platforms or work with a different developer later, nothing is held hostage.",
+          "Your domain is registered in your name, and your hosting and analytics sit under your own logins. If you move platforms or work with a different developer later, nothing is held hostage. Choosing between a custom site and a builder? See [custom website vs Wix or Squarespace](/guides/custom-website-vs-website-builder), and [portfolio website vs LinkedIn](/guides/portfolio-website-vs-linkedin) if you are deciding whether you need a site at all.",
         ],
       },
     ],
@@ -310,7 +316,7 @@ export const faqPage = {
       items: [
         {
           q: "How much does a website cost?",
-          a: `${publicPrices} Prices are one-time, not monthly.`,
+          a: `${publicPrices} Prices are one-time, not monthly. The [website cost calculator](/tools/website-cost-calculator) shows which package fits, and [running a website without a monthly fee](/guides/website-without-a-monthly-fee) covers the domain and hosting costs that remain.`,
         },
         {
           q: "What is Founding Client Pricing?",
@@ -318,7 +324,7 @@ export const faqPage = {
         },
         {
           q: "Which package should I choose?",
-          a: `Launch suits student portfolios and resumes. Presence suits creators and professionals who need up to three pages. Business suits organizations and small businesses that need up to five. ${customTier.name} is for projects with accounts, databases, payments, or other custom functionality.`,
+          a: `Launch suits [student portfolios and resumes](/web-design-for-students). Presence suits [creators and professionals](/portfolio-websites-for-creators) who need up to three pages. Business suits [student organizations](/student-organization-websites) and [small businesses](/small-business-websites) that need up to five. ${customTier.name} is for projects with accounts, databases, payments, or other custom functionality.`,
         },
         {
           q: "What does every package include?",
@@ -339,7 +345,7 @@ export const faqPage = {
       items: [
         {
           q: "What does the process look like?",
-          a: "Four steps, in order. Define: goals, pages, and content are agreed before any design starts. Design: layout, type, and color take shape around your content. Build: the design becomes a fast, responsive site you can review. Launch: domain, hosting, and accounts are set up in your name.",
+          a: "Four steps, in order. Define: goals, pages, and content are agreed before any design starts. Design: layout, type, and color take shape around your content. Build: the design becomes a fast, responsive site you can review. Launch: domain, hosting, and accounts are set up in your name. For a business site, [what pages a small business website needs](/guides/what-pages-does-a-small-business-website-need) is a good list to bring to the Define step.",
         },
         {
           q: "How long will it take?",
@@ -373,7 +379,7 @@ export const faqPage = {
       items: [
         {
           q: "Who owns my website?",
-          a: "You do. Your domain is registered in your name, the finished code is yours to keep, host, and change, and hosting, analytics, and email live under your own logins. There is no locked platform and no dependency on Northframe to keep your site running.",
+          a: "You do. Your domain is registered in your name, the finished code is yours to keep, host, and change, and hosting, analytics, and email live under your own logins. There is no locked platform and no dependency on Northframe to keep your site running. [Website ownership explained](/guides/domain-hosting-and-website-ownership) goes into each piece.",
         },
         {
           q: "Will my site show up on Google?",

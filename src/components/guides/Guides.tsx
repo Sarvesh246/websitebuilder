@@ -12,6 +12,7 @@ import { startHref } from "@/config/inquiry";
 import { commonInclusions, customTier, packageTiers } from "@/config/pricing";
 import { aboutPage } from "@/config/about";
 import { siteConfig } from "@/config/site";
+import { parseRich, plainText } from "@/lib/richText";
 import { founderId, founderNode, graph, organizationNode, orgId, toJsonLd } from "@/lib/structuredData";
 
 type Crumb = { name: string; path: string };
@@ -108,15 +109,61 @@ const serviceJsonLd = (name: string, description: string, path: string) => ({
   provider: orgRef,
 });
 
+/** Copy with `[anchor](/path)` links rendered as in-body internal links (see lib/richText.ts). */
+const Rich = ({ text }: { text: string }) =>
+  parseRich(text).map((part, i) =>
+    part.href ? (
+      <Link key={i} href={part.href}>
+        {part.text}
+      </Link>
+    ) : (
+      <Fragment key={i}>{part.text}</Fragment>
+    ),
+  );
+
 const Sections = ({ sections }: { sections: readonly GuideSection[] }) =>
   sections.map((section) => (
     <section key={section.heading} id={slugify(section.heading)} className="legal__section">
       <h2 className="t-h4">{section.heading}</h2>
-      {section.body?.map((p) => <p key={p}>{p}</p>)}
+      {section.body?.map((p) => (
+        <p key={p}>
+          <Rich text={p} />
+        </p>
+      ))}
+      {section.table && (
+        <div className="guide__table">
+          <table>
+            <caption className="sr-only">{section.table.caption}</caption>
+            <thead>
+              <tr>
+                {section.table.columns.map((c, i) => (
+                  <th key={c} scope="col">
+                    {i === 0 ? <span className="sr-only">{c}</span> : c}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {section.table.rows.map(([label, ...cells]) => (
+                <tr key={label}>
+                  <th scope="row">{label}</th>
+                  {cells.map((cell, i) => (
+                    <td key={i} data-label={section.table?.columns[i + 1]}>
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {section.points && (
         <ul>
           {section.points.map((point) => (
-            <li key={point}>{point}</li>
+            <li key={point}>
+              <Rich text={point} />
+            </li>
           ))}
         </ul>
       )}
@@ -128,7 +175,9 @@ const FaqList = ({ items }: { items: readonly GuideFaq[] }) => (
     {items.map((item) => (
       <div key={item.q} className="guide__qa">
         <h3 className="t-h4">{item.q}</h3>
-        <p>{item.a}</p>
+        <p>
+          <Rich text={item.a} />
+        </p>
       </div>
     ))}
   </div>
@@ -235,7 +284,7 @@ const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: faqPage.groups.flatMap((g) =>
-    g.items.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: item.a } })),
+    g.items.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: plainText(item.a) } })),
   ),
 };
 
