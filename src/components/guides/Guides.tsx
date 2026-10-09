@@ -377,8 +377,8 @@ export const ArticleView = ({ slug }: { slug: string }) => {
         <div className="guide__card">
           <p>{hub.description}</p>
           <div className="guide__actions">
-            <Button href={`/${hub.slug}`} icon="diag">
-              Read the {hub.label.toLowerCase()} page
+            <Button href={`/${hub.slug}`} icon="diag" aria-label={`Read more: ${hub.label}`}>
+              Read more
             </Button>
             <Button href="/#pricing" variant="secondary">
               View Pricing
