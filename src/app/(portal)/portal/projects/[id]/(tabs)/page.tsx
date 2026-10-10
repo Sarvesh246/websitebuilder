@@ -36,7 +36,7 @@ export default async function ProjectOverviewPage({ params }: PageProps<"/portal
                 {isAdmin ? "Current stage" : "Where things stand"}
               </p>
               <p className="pt-small" style={{ margin: "0.35rem 0 1rem", fontSize: "0.98rem" }}>
-                {isAdmin ? `In ${stageLabel[p.stage].toLowerCase()}. Progress follows the milestones below.` : stageSentence[p.stage]}
+                {isAdmin ? `${stageLabel[p.stage]}. Progress follows the milestones below.` : stageSentence[p.stage]}
               </p>
               <ProgressBar value={p.progress} label="Project progress" />
               <p className="pt-small" style={{ marginTop: "0.75rem" }}>

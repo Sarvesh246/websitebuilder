@@ -1,5 +1,5 @@
 import { after } from "next/server";
-import { getViewer } from "@/lib/auth/session";
+import { demoMode, getViewer } from "@/lib/auth/session";
 import { limits } from "@/config/inquiry";
 import { deliverInquiry, emailConfig, sendAutoReply } from "@/lib/inquiry/email";
 import { saveProjectRequest, StorageError, storageConfigured } from "@/lib/inquiry/projectRequest";
@@ -19,6 +19,7 @@ const json = (body: Record<string, unknown>, status = 200) =>
   Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function POST(request: Request) {
+  if (demoMode()) return json({ error: "unavailable" }, 503);
   // Same-origin only: blocks other sites posting here from a visitor's browser.
   const origin = request.headers.get("origin");
   if (origin) {
@@ -31,8 +32,23 @@ export async function POST(request: Request) {
   if (!request.headers.get("content-type")?.includes("application/json")) return json({ error: "bad_request" }, 415);
   if (Number(request.headers.get("content-length") ?? 0) > limits.body) return json({ error: "too_large" }, 413);
 
-  const text = await request.text();
-  if (text.length > limits.body) return json({ error: "too_large" }, 413);
+  const reader = request.body?.getReader();
+  if (!reader) return json({ error: "bad_request" }, 400);
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > limits.body) { await reader.cancel(); return json({ error: "too_large" }, 413); }
+      chunks.push(value);
+    }
+  } catch { return json({ error: "bad_request" }, 400); }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  const text = new TextDecoder().decode(bytes);
   let body: Record<string, unknown>;
   try {
     const parsed: unknown = JSON.parse(text);
@@ -61,7 +77,7 @@ export async function POST(request: Request) {
   // Only valid submissions count toward the limit, so a visitor fixing typos is never locked out.
   // Prefer the platform-set client IP; without one, share a looser bucket instead of blocking everyone.
   const ip = request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  if (!(ip ? rateLimit(ip) : rateLimit("unknown", 30))) return json({ error: "rate_limited" }, 429);
+  if (!rateLimit(`account:${viewer.userId}`) || !(ip ? rateLimit(`ip:${ip}`) : rateLimit("unknown", 30))) return json({ error: "rate_limited" }, 429);
 
   if (!storageConfigured()) {
     serverLog("error", "inquiry.storage_not_configured");

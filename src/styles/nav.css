@@ -206,17 +206,6 @@
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .site-nav__sheet {
-      animation: sheet-in var(--dur-base) var(--ease-out);
-    }
-  }
-  @keyframes sheet-in {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-  }
   .site-nav__sheet-link {
     display: flex;
     align-items: center;

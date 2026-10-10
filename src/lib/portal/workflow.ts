@@ -133,7 +133,7 @@ export const waitingOn = (p: ProjectDetail, input: { checklist: ChecklistItem[];
 export const invoiceNumber = (pay: Pick<PaymentRow, "id" | "createdAt" | "paidAt">) => {
   const d = new Date(pay.paidAt ?? pay.createdAt);
   const ym = `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  return `NF-${ym}-${pay.id.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+  return `NF-${ym}-${pay.id.toUpperCase()}`;
 };
 
 /** Only money that actually arrived gets an invoice. */

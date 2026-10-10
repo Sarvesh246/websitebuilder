@@ -31,7 +31,13 @@ export async function proxy(request: NextRequest) {
   if (!signedIn && request.nextUrl.pathname.startsWith("/portal")) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", request.nextUrl.pathname + request.nextUrl.search);
-    return NextResponse.redirect(login);
+    const redirect = NextResponse.redirect(login);
+    for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+    for (const name of ["cache-control", "expires", "pragma"]) {
+      const value = response.headers.get(name);
+      if (value) redirect.headers.set(name, value);
+    }
+    return redirect;
   }
   return response;
 }

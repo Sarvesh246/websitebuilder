@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Fraunces, Karla } from "next/font/google";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { MenuTabs } from "@/components/concept/cafe/MenuTabs";
+import { DemoContacts } from "@/components/concept/DemoContacts";
 import { OpenNow } from "@/components/concept/cafe/OpenNow";
 import { Reveal } from "@/components/concept/cafe/Reveal";
 import { conceptMetadata } from "@/lib/seo";
@@ -40,7 +41,7 @@ export default function CafePage() {
             <a href="#hours">Hours</a>
             <a href="#visit">Visit</a>
           </nav>
-          <a href="#visit" className="cafe-btn cafe-btn--sm">Order ahead</a>
+          <a href="#visit" className="cafe-btn cafe-btn--sm">Plan a visit</a>
         </div>
       </header>
 
@@ -54,7 +55,7 @@ export default function CafePage() {
             Marlow &amp; Finch bakes every morning and pours every cup by hand. Stay a while, or grab something warm for the walk.
           </p>
           <div className="cafe-hero__cta">
-            <a href="#visit" className="cafe-btn">Order ahead</a>
+            <a href="#visit" className="cafe-btn">Plan a visit</a>
             <a href="#menu" className="cafe-link">See the menu</a>
           </div>
           <p className="cafe-script" aria-hidden>
@@ -156,9 +157,7 @@ export default function CafePage() {
                 </table>
               </div>
               <div className="cafe-visit__cta">
-                <a href="#visit" className="cafe-btn cafe-btn--light">Order ahead</a>
-                <a href="#visit" className="cafe-link cafe-link--light">Call the cafe</a>
-                <a href="#visit" className="cafe-link cafe-link--light">Email us</a>
+                <DemoContacts variant="cafe" />
               </div>
             </div>
             <div className="cafe-map" role="img" aria-label="Stylised map showing the cafe on Alder Street">
@@ -196,7 +195,7 @@ export default function CafePage() {
             <a href="#hours">Hours</a>
             <a href="#visit">Visit</a>
           </nav>
-          <a href="#visit" className="cafe-btn cafe-btn--light">Order ahead</a>
+          <a href="#visit" className="cafe-btn cafe-btn--light">Plan a visit</a>
         </div>
         <p className="cafe-foot__fine">A concept website. Marlow &amp; Finch is a fictional cafe.</p>
       </footer>

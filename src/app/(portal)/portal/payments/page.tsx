@@ -19,8 +19,8 @@ export default async function PaymentsPage() {
   const { viewer, perspective } = await getContext("/portal/payments");
   const isAdmin = perspective === "admin";
   const [payments, overview] = await Promise.all([
-    listPayments(viewer, perspective).catch(() => []),
-    isAdmin ? getAdminOverview(viewer).catch(() => null) : Promise.resolve(null),
+    listPayments(viewer, perspective),
+    isAdmin ? getAdminOverview(viewer) : Promise.resolve(null),
   ]);
 
   const list = (

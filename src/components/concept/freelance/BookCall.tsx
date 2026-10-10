@@ -26,7 +26,7 @@ export const BookCall = () => {
       {booked ? (
         <div className="fl-book__done" role="status">
           <p className="fl-book__donetext">
-            You are on the calendar: {day} at {time}. Juno will bring the questions, you bring the mess.
+            Demo time selected: {day} at {time}. Nothing was added to a calendar.
           </p>
           <button type="button" className="fl-pill fl-pill--ghost" onClick={reset}>
             Pick another time

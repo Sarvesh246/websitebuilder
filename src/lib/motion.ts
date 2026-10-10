@@ -13,5 +13,8 @@ export const ease = {
 
 export const duration = { fast: 0.15, base: 0.26, slow: 0.64 } as const;
 
+/** Responsive, lightly damped positional motion. Opacity uses a short fade separately. */
+export const spring = { type: "spring", stiffness: 420, damping: 36, mass: 1 } as const;
+
 /** Distance a reveal travels (px). Small on purpose: motion should be felt, not watched. Mirrors --reveal-y in base.css. */
 export const revealDistance = 16;

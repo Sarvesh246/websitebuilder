@@ -8,7 +8,7 @@ import { useEffect } from "react";
  */
 export const ArrivalVeil = ({ image }: { image: string }) => {
   useEffect(() => {
-    const id = window.setTimeout(() => delete document.documentElement.dataset.arrive, 1100);
+    const id = window.setTimeout(() => delete document.documentElement.dataset.arrive, 300);
     return () => window.clearTimeout(id);
   }, []);
   return <div aria-hidden className="cx-arrival" style={{ backgroundImage: `url(${image})` }} />;

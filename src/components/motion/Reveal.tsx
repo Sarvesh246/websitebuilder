@@ -22,7 +22,8 @@ const sharedObserver = () =>
         (entry.target as Revealable).__reveal?.();
       }
     },
-    { threshold: 0.2 },
+    // Tall sections must reveal when they enter, even if 20% can never fit in a phone viewport.
+    { threshold: 0, rootMargin: "0px 0px -24px 0px" },
   ));
 
 /** Reveals `el` (via `show`) once it is 20% in view. Shows immediately where IntersectionObserver is missing. */

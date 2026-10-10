@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+import { AnimatePresence, m } from "motion/react";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { BrandLogo } from "@/components/brand/BrandLogo";
 import { Container } from "@/components/layout/Container";
@@ -11,6 +12,7 @@ import { navLinks } from "@/config/nav";
 import { siteConfig } from "@/config/site";
 import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import { useScrolledPast } from "@/hooks/useScrolledPast";
+import { spring } from "@/lib/motion";
 
 // Supabase keeps the session in an `sb-<ref>-auth-token` cookie (chunked as `.0`, `.1`). Reading its
 // presence lets the header say "Dashboard" without a request, so marketing pages stay static.
@@ -35,25 +37,39 @@ export const SiteNav = () => {
   const sentinelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const sheetId = useId();
   const scrolled = useScrolledPast(sentinelRef);
   const [open, setOpen] = useState(false);
+  const [present, setPresent] = useState(false);
   const signedIn = useSyncExternalStore(subscribeNone, hasSessionCookie, () => false);
   const accountLabel = signedIn ? "Dashboard" : "Log in";
 
-  useLockBodyScroll(open);
+  useLockBodyScroll(present);
 
   useEffect(() => {
-    if (!open) return;
+    if (!present) return;
     sheetRef.current?.querySelector<HTMLElement>("a")?.focus();
     // Everything outside the header is inert while the sheet is open (focus trap + no screen reader leakage).
-    const behind = Array.from(document.querySelectorAll<HTMLElement>("main, footer"));
-    behind.forEach((el) => el.setAttribute("inert", ""));
+    const behind = Array.from(document.querySelectorAll<HTMLElement>("main, footer, .skip-link"));
+    const priorInert = behind.map((el) => el.inert);
+    behind.forEach((el) => { el.inert = true; });
 
     const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      toggleRef.current?.focus();
+      if (event.key === "Escape") {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(headerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]') ?? [])
+        .filter((el) => el.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault(); last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first?.focus();
+      }
     };
     // Sheet is mobile-only: close it if the viewport grows into the desktop layout.
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -62,18 +78,18 @@ export const SiteNav = () => {
     document.addEventListener("keydown", onKey);
     desktop.addEventListener("change", onChange);
     return () => {
-      behind.forEach((el) => el.removeAttribute("inert"));
+      behind.forEach((el, index) => { el.inert = priorInert[index]; });
       document.removeEventListener("keydown", onKey);
       desktop.removeEventListener("change", onChange);
     };
-  }, [open]);
+  }, [present]);
 
   const close = () => setOpen(false);
 
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="pointer-events-none absolute top-0 left-0 h-6 w-px" />
-      <header className="site-nav" data-scrolled={scrolled || open}>
+      <header ref={headerRef} className="site-nav" data-scrolled={scrolled || present} role={present ? "dialog" : undefined} aria-modal={present ? true : undefined} aria-label={present ? "Menu" : undefined}>
         <Container className="site-nav__inner">
           <Link href="/" className="brand" aria-label={`${siteConfig.name} home`} onClick={close}>
             <BrandLogo />
@@ -110,15 +126,18 @@ export const SiteNav = () => {
               aria-expanded={open}
               aria-controls={sheetId}
               aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => setOpen((value) => !value)}
+              onClick={() => { if (!open) setPresent(true); setOpen((value) => !value); }}
             >
               {open ? <X aria-hidden size={22} strokeWidth={1.6} /> : <Menu aria-hidden size={22} strokeWidth={1.6} />}
             </button>
           </div>
         </Container>
 
+        <AnimatePresence onExitComplete={() => setPresent(false)}>
         {open && (
-          <div ref={sheetRef} id={sheetId} className="site-nav__sheet lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <m.div ref={sheetRef} id={sheetId} className="site-nav__sheet lg:hidden"
+            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            transition={{ ...spring, opacity: { duration: 0.15 } }}>
             <nav aria-label="Mobile">
               <ul>
                 {navLinks.map((link) => (
@@ -138,8 +157,9 @@ export const SiteNav = () => {
             <Button href={siteConfig.cta.href} size="lg" block icon="diag" onClick={close}>
               {siteConfig.cta.label}
             </Button>
-          </div>
+          </m.div>
         )}
+        </AnimatePresence>
       </header>
     </>
   );

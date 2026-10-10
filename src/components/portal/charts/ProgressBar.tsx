@@ -17,7 +17,7 @@ export const ProgressBar = ({ value, label, showValue = true, tone = "accent", s
   return (
     <div className={cn("pt-progress", `pt-progress--${size}`, `pt-progress--${tone}`, className)}>
       <div className="pt-progress__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={label ?? "Progress"}>
-        <span className="pt-progress__fill" style={{ width: `${pct}%` }} />
+        <span className="pt-progress__fill" style={{ width: "100%", transform: `scaleX(${pct / 100})` }} />
       </div>
       {showValue && <span className="pt-progress__value">{pct}%</span>}
     </div>

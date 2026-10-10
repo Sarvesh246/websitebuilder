@@ -16,5 +16,5 @@ export async function GET(request: Request) {
       // fall through to the error redirect
     }
   }
-  return NextResponse.redirect(`${origin}/login?error=callback`);
+  return NextResponse.redirect(`${origin}/login?error=callback&next=${encodeURIComponent(next)}`);
 }

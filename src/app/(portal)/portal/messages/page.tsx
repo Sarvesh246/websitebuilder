@@ -10,12 +10,12 @@ export const metadata = portalMeta("Messages");
 
 export default async function InboxPage() {
   const { viewer, perspective } = await getContext("/portal/messages");
-  const inbox = await listInbox(viewer, perspective).catch(() => []);
+  const inbox = await listInbox(viewer, perspective);
   const isAdmin = perspective === "admin";
 
   return (
     <>
-      <PageHeader eyebrow={isAdmin ? "Studio" : "Your portal"} title="Messages" sub={isAdmin ? "One conversation per project. Unread ones come first in your sidebar badge." : "Your conversations with the studio, one per project."} />
+      <PageHeader eyebrow={isAdmin ? "Studio" : "Your portal"} title="Messages" sub={isAdmin ? "One conversation per project. Unread conversations have a dot and are counted in the navigation badge." : "Your conversations with the studio, one per project."} />
       {inbox.length === 0 ? (
         <Card>
           <EmptyState

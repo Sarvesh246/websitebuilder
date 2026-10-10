@@ -9,16 +9,17 @@ import { uploadToProject } from "@/lib/portal/upload";
 import { draftRound, roundInProgress } from "@/lib/portal/workflow";
 import { useFileOpener } from "./FileTools";
 import { useAction } from "./useAction";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const IMAGE_ACCEPT = ".png,.jpg,.jpeg,.gif,.webp";
 
 const Screenshot = ({ fileId, name }: { fileId: string; name: string | null }) => {
-  const { pending, open } = useFileOpener();
+  const { pending, error, open } = useFileOpener();
   return (
-    <button type="button" className="pt-fb-shot" disabled={pending} onClick={() => open(fileId)}>
+    <span><button type="button" className="pt-fb-shot" disabled={pending} onClick={() => open(fileId)}>
       <Paperclip aria-hidden size={13} />
       {name ?? "Screenshot"}
-    </button>
+    </button>{error && <span className="pt-msg pt-msg--error" role="alert">{error}</span>}</span>
   );
 };
 
@@ -45,9 +46,12 @@ const Composer = ({ projectId }: { projectId: string }) => {
 
   // The uploaded screenshot is kept for retries, so a failed comment save never re-uploads (and orphans) it.
   const uploaded = useRef<{ file: File; id: string } | null>(null);
+  const submitting = useRef(false);
 
   const submit = async () => {
-    if (!body.trim()) return;
+    if (!body.trim() || submitting.current) return;
+    submitting.current = true;
+    try {
     let fileId: string | null = null;
     if (shot && uploaded.current?.file === shot) fileId = uploaded.current.id;
     else if (shot) {
@@ -58,7 +62,7 @@ const Composer = ({ projectId }: { projectId: string }) => {
       fileId = res.id;
       uploaded.current = { file: shot, id: res.id };
     }
-    run(() => addFeedback(projectId, { page: page.trim() || undefined, body: body.trim(), fileId }), {
+    await run(() => addFeedback(projectId, { page: page.trim() || undefined, body: body.trim(), fileId }), {
       onOk: () => {
         setBody("");
         setShot(null);
@@ -66,6 +70,7 @@ const Composer = ({ projectId }: { projectId: string }) => {
         if (shotInput.current) shotInput.current.value = "";
       },
     });
+    } finally { submitting.current = false; }
   };
 
   return (
@@ -78,7 +83,7 @@ const Composer = ({ projectId }: { projectId: string }) => {
     >
       <div className="pt-field">
         <label htmlFor="pt-fb-page">Page or section</label>
-        <input id="pt-fb-page" className="pt-input" list="pt-fb-pages" placeholder="e.g. Home, hero" maxLength={120} value={page} onChange={(e) => setPage(e.target.value)} />
+        <input id="pt-fb-page" disabled={busy} className="pt-input" list="pt-fb-pages" placeholder="e.g. Home, hero" maxLength={120} value={page} onChange={(e) => setPage(e.target.value)} />
         <datalist id="pt-fb-pages">
           {["Home", "About", "Services", "Contact", "Footer", "Navigation", "Mobile layout", "Everywhere"].map((o) => (
             <option key={o} value={o} />
@@ -89,6 +94,7 @@ const Composer = ({ projectId }: { projectId: string }) => {
         <label htmlFor="pt-fb-body">What would you like changed?</label>
         <textarea
           id="pt-fb-body"
+          disabled={busy}
           className="pt-textarea"
           rows={3}
           maxLength={2000}
@@ -98,20 +104,20 @@ const Composer = ({ projectId }: { projectId: string }) => {
         />
       </div>
       <div className="pt-fb-composer__row">
-        <input ref={shotInput} id={shotId} type="file" accept={IMAGE_ACCEPT} className="sr-only" onChange={(e) => setShot(e.target.files?.[0] ?? null)} />
+        <input ref={shotInput} id={shotId} disabled={busy} type="file" accept={IMAGE_ACCEPT} className="sr-only" onChange={(e) => setShot(e.target.files?.[0] ?? null)} />
         {shot ? (
           <span className="pt-chip pt-chip--outline">
             <Paperclip aria-hidden size={13} />
             {shot.name}
-            <button type="button" className="pt-chip__x" aria-label="Remove screenshot" onClick={() => setShot(null)}>
+            <button type="button" disabled={busy} className="pt-chip__x" aria-label="Remove screenshot" onClick={() => setShot(null)}>
               <X aria-hidden size={12} />
             </button>
           </span>
         ) : (
-          <label htmlFor={shotId} className="btn btn-secondary btn-sm">
+          <button type="button" disabled={busy} onClick={() => shotInput.current?.click()} className="btn btn-secondary btn-sm">
             <ImagePlus aria-hidden size={15} />
             Attach screenshot
-          </label>
+          </button>
         )}
         <button type="submit" className="btn btn-primary btn-sm" disabled={busy || !body.trim()} aria-busy={busy}>
           {pct !== null ? `Uploading ${pct}%` : pending ? "Adding" : "Add comment"}
@@ -127,10 +133,12 @@ const Composer = ({ projectId }: { projectId: string }) => {
 };
 
 const DraftList = ({ projectId, round, used, included }: { projectId: string; round: FeedbackRound | null; used: number; included: number }) => {
+  const [confirmExtra, setConfirmExtra] = useState(false);
   const remove = useAction();
   const send = useAction();
   const items = round?.items ?? [];
   const extra = used >= included;
+  const sendRound = () => send.run(() => submitFeedback(projectId), { success: "Sent. The studio will work through your comments.", onOk: () => setConfirmExtra(false) });
   if (items.length === 0) return null;
   return (
     <div className="pt-fb-draft">
@@ -141,7 +149,7 @@ const DraftList = ({ projectId, round, used, included }: { projectId: string; ro
       <ul className="pt-fb-list">
         {items.map((item) => (
           <Comment key={item.id} item={item}>
-            <button type="button" className="icon-btn" aria-label="Delete comment" disabled={remove.pending} onClick={() => remove.run(() => deleteFeedback(item.id))}>
+            <button type="button" className="icon-btn" aria-label="Delete comment" disabled={remove.pending || send.pending} onClick={() => remove.run(() => deleteFeedback(item.id))}>
               <Trash2 aria-hidden size={16} strokeWidth={1.8} />
             </button>
           </Comment>
@@ -156,17 +164,18 @@ const DraftList = ({ projectId, round, used, included }: { projectId: string; ro
         <button
           type="button"
           className="btn btn-primary"
-          disabled={send.pending}
+          disabled={send.pending || remove.pending}
           aria-busy={send.pending}
-          onClick={() => {
-            if (extra && !window.confirm("This round is beyond your included revisions. Send it anyway?")) return;
-            send.run(() => submitFeedback(projectId), { success: "Sent. The studio will work through your comments." });
-          }}
+          onClick={() => extra ? setConfirmExtra(true) : sendRound()}
         >
           <Send aria-hidden size={16} />
           {send.pending ? "Sending" : `Send round ${round?.number}`}
         </button>
       </div>
+      <ConfirmDialog open={confirmExtra} onClose={() => setConfirmExtra(false)} title="Send an extra revision round?" confirmLabel="Send round" busy={send.pending} onConfirm={sendRound}>
+        <p>This round is beyond your included revisions. The studio will confirm any extra cost before starting it.</p>
+        {send.error && <p className="pt-msg pt-msg--error" role="alert">{send.error}</p>}
+      </ConfirmDialog>
       {(send.error || remove.error) && (
         <p className="pt-msg pt-msg--error" role="alert">
           {send.error ?? remove.error}
@@ -177,7 +186,7 @@ const DraftList = ({ projectId, round, used, included }: { projectId: string; ro
 };
 
 const AdminItem = ({ item }: { item: FeedbackItem }) => {
-  const { pending, run } = useAction();
+  const { pending, error, run } = useAction();
   const done = item.status === "done";
   return (
     <Comment item={item}>
@@ -191,25 +200,29 @@ const AdminItem = ({ item }: { item: FeedbackItem }) => {
         <Check aria-hidden size={14} strokeWidth={2.6} />
         {done ? "Done" : "Mark done"}
       </button>
+      {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
     </Comment>
   );
 };
 
 const ResolveButton = ({ roundId, open }: { roundId: string; open: number }) => {
   const { pending, error, run } = useAction();
+  const [confirmResolve, setConfirmResolve] = useState(false);
+  const resolve = () => run(() => resolveFeedbackRound(roundId), { onOk: () => setConfirmResolve(false) });
   return (
     <div className="pt-stack" style={{ justifyItems: "start" }}>
       <button
         type="button"
         className="btn btn-primary btn-sm"
         disabled={pending}
-        onClick={() => {
-          if (open > 0 && !window.confirm(`${open} ${open === 1 ? "comment is" : "comments are"} not marked done. Mark the round addressed anyway?`)) return;
-          run(() => resolveFeedbackRound(roundId));
-        }}
+        onClick={() => open > 0 ? setConfirmResolve(true) : resolve()}
       >
         {pending ? "Saving" : "Mark round addressed"}
       </button>
+      <ConfirmDialog open={confirmResolve} onClose={() => setConfirmResolve(false)} title="Mark the round addressed?" confirmLabel="Mark addressed" busy={pending} onConfirm={resolve}>
+        <p>{open} {open === 1 ? "comment is" : "comments are"} not marked done. Confirm only if the requested changes are ready for another client review.</p>
+        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+      </ConfirmDialog>
       {error && (
         <p className="pt-msg pt-msg--error" role="alert">
           {error}

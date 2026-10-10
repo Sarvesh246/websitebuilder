@@ -4,6 +4,7 @@ import { KeyRound, Link2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { deleteAccount } from "@/lib/portal/actions";
 import { useAction } from "./useAction";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type Identity = { identity_id: string; provider: string; email?: string };
 
@@ -29,7 +30,7 @@ export const PasswordForm = ({ disabled }: { disabled?: boolean }) => {
   const mismatch = again.length > 0 && pw !== again;
 
   const submit = async () => {
-    if (pw.length < MIN_PASSWORD || pw !== again) return;
+    if (disabled || state.pending || pw.length < MIN_PASSWORD || pw !== again) return;
     setState({ pending: true, error: null, notice: null });
     try {
       const { error } = await (await browserAuth()).updateUser({ password: pw });
@@ -61,14 +62,14 @@ export const PasswordForm = ({ disabled }: { disabled?: boolean }) => {
       {/* Hidden username helps password managers save the new password against the right account. */}
       <div className="pt-field">
         <label htmlFor="pt-pw-new">New password</label>
-        <input id="pt-pw-new" type="password" className="pt-input" autoComplete="new-password" minLength={MIN_PASSWORD} value={pw} disabled={disabled} onChange={(e) => setPw(e.target.value)} aria-describedby="pt-pw-hint" />
+        <input id="pt-pw-new" type="password" className="pt-input" autoComplete="new-password" minLength={MIN_PASSWORD} value={pw} disabled={disabled || state.pending} onChange={(e) => setPw(e.target.value)} aria-describedby="pt-pw-hint" />
         <p id="pt-pw-hint" className="pt-small">
           At least {MIN_PASSWORD} characters. If you only sign in with Google, this adds a password as a second way in.
         </p>
       </div>
       <div className="pt-field">
         <label htmlFor="pt-pw-again">Confirm new password</label>
-        <input id="pt-pw-again" type="password" className="pt-input" autoComplete="new-password" value={again} disabled={disabled} onChange={(e) => setAgain(e.target.value)} aria-invalid={mismatch || undefined} />
+        <input id="pt-pw-again" type="password" className="pt-input" autoComplete="new-password" value={again} disabled={disabled || state.pending} onChange={(e) => setAgain(e.target.value)} aria-invalid={mismatch || undefined} />
         {mismatch && <p className="pt-small" role="alert">The passwords do not match yet.</p>}
       </div>
       <div className="pt-form-row">
@@ -98,6 +99,7 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
   const [ids, setIds] = useState<Identity[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmDisconnect, setConfirmDisconnect] = useState(false);
 
   const [version, setVersion] = useState(0);
   useEffect(() => {
@@ -128,8 +130,7 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
     setError("Google could not be connected right now. Please try again later.");
   };
   const disconnect = async () => {
-    if (!google || (ids?.length ?? 0) < 2) return;
-    if (!window.confirm("Disconnect Google? You will sign in with your email and password instead.")) return;
+    if (disabled || busy || !google || (ids?.length ?? 0) < 2) return;
     setBusy(true);
     setError(null);
     let err: unknown = null;
@@ -143,10 +144,10 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
     }
     setBusy(false);
     if (err) setError("Google could not be disconnected. Make sure you have set a password first.");
-    else setVersion((v) => v + 1);
+    else { setVersion((v) => v + 1); setConfirmDisconnect(false); }
   };
 
-  if (disabled) return <p className="pt-small">Not available in demo mode.</p>;
+  if (disabled) return <p className="pt-small">Sign-in changes are unavailable in this read-only view.</p>;
   return (
     <div className="pt-stack">
       {ids === null ? (
@@ -162,7 +163,7 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
               <div className="pt-row__aside">
                 <span className="pt-chip pt-chip--done">Connected</span>
                 {i.provider === "google" && ids.length > 1 && (
-                  <button type="button" className="btn-link pt-small" disabled={busy} onClick={() => void disconnect()}>
+                  <button type="button" className="btn-link pt-small" disabled={busy} onClick={() => setConfirmDisconnect(true)}>
                     Disconnect
                   </button>
                 )}
@@ -182,6 +183,10 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
           {error}
         </p>
       )}
+      <ConfirmDialog open={confirmDisconnect} onClose={() => setConfirmDisconnect(false)} title="Disconnect Google?" confirmLabel="Disconnect Google" busy={busy} onConfirm={() => void disconnect()}>
+        <p>Make sure you can sign in with your email and password before removing Google.</p>
+        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+      </ConfirmDialog>
     </div>
   );
 };

@@ -38,6 +38,7 @@ export type DueInput = {
   remaining_amount: number | null;
   initial_payment_status: string;
   final_payment_status: string;
+  status?: string;
 };
 
 export type DueSummary = {
@@ -45,7 +46,7 @@ export type DueSummary = {
   dueNow: number;
   /** Cents that will fall due later (after revisions). */
   dueLater: number;
-  label: "Awaiting quote" | "Due today" | "Due after revisions" | "Final payment due" | "Paid in full";
+  label: "Awaiting quote" | "Due today" | "Due after revisions" | "Final payment due" | "Paid in full" | "Payment processing";
 };
 
 /** What a client owes and when, derived only from the stored snapshot and payment states. */
@@ -53,11 +54,14 @@ export const dueSummary = (row: DueInput): DueSummary => {
   if (row.deposit_amount == null) return { dueNow: 0, dueLater: 0, label: "Awaiting quote" };
   const remaining = row.remaining_amount ?? 0;
   const finalSettled = remaining === 0 || row.final_payment_status === "paid" || row.final_payment_status === "not_required";
+  if (row.initial_payment_status === "processing" || (row.initial_payment_status === "paid" && row.final_payment_status === "processing")) {
+    return { dueNow: 0, dueLater: row.initial_payment_status === "processing" ? row.deposit_amount + remaining : remaining, label: "Payment processing" };
+  }
   if (row.initial_payment_status !== "paid") {
     return { dueNow: row.deposit_amount, dueLater: finalSettled ? 0 : remaining, label: "Due today" };
   }
   if (finalSettled) return { dueNow: 0, dueLater: 0, label: "Paid in full" };
-  if (row.final_payment_status === "failed" || row.final_payment_status === "requires_action") {
+  if (row.final_payment_status === "failed" || row.final_payment_status === "requires_action" || row.status === "awaiting_final_payment") {
     return { dueNow: remaining, dueLater: 0, label: "Final payment due" };
   }
   return { dueNow: 0, dueLater: remaining, label: "Due after revisions" };

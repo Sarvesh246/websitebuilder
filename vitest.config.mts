@@ -1,12 +1,15 @@
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
+
+const root = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      "@": path.resolve(root, "src"),
       // "server-only" throws outside the Next server bundle; tests run server code directly.
-      "server-only": path.resolve(__dirname, "tests/helpers/empty.ts"),
+      "server-only": path.resolve(root, "tests/helpers/empty.ts"),
     },
   },
   test: {

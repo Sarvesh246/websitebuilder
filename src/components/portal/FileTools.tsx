@@ -8,6 +8,7 @@ import { MAX_UPLOAD_MB, UPLOAD_ACCEPT } from "@/config/uploads";
 import { uploadToProject } from "@/lib/portal/upload";
 import { cn } from "@/lib/cn";
 import { useAction } from "./useAction";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 type Job = { key: string; name: string; pct: number; state: "uploading" | "done" | "error"; error?: string };
 
@@ -81,9 +82,9 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
         disabled={disabled}
         onChange={(e) => void start(Array.from(e.target.files ?? []))}
       />
-      <label htmlFor={inputId} className="btn btn-secondary btn-sm" aria-disabled={disabled || undefined}>
+      <button type="button" className="btn btn-secondary btn-sm" disabled={disabled} onClick={() => input.current?.click()}>
         {busy ? "Add more files" : "Choose files"}
-      </label>
+      </button>
       {disabledReason && <p className="pt-small">{disabledReason}</p>}
       {jobs.length > 0 && (
         <ul className="pt-uploads" aria-label="Uploads">
@@ -116,16 +117,17 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
   );
 };
 
-/** Opens a short-lived signed link for a project file in a new tab. */
+/** Downloads through a short-lived signed link without relying on a popup. */
 export const useFileOpener = () => {
   const { pending, error, run } = useAction();
   const open = (fileId: string) =>
-    run(() => fileDownloadUrl(fileId), { refresh: false, onOk: (r) => r.url && window.open(r.url, "_blank", "noopener,noreferrer") });
+    run(() => fileDownloadUrl(fileId), { refresh: false, onOk: (r) => { if (r.url) window.location.assign(r.url); } });
   return { pending, error, open, run };
 };
 
 export const FileActions = ({ fileId, name, canDelete }: { fileId: string; name: string; canDelete: boolean }) => {
   const { pending, error, open, run } = useFileOpener();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   return (
     <div style={{ display: "flex", gap: "0.4rem", alignItems: "center" }}>
       {error && (
@@ -148,13 +150,16 @@ export const FileActions = ({ fileId, name, canDelete }: { fileId: string; name:
           className="icon-btn"
           aria-label={`Delete ${name}`}
           disabled={pending}
-          onClick={() => {
-            if (window.confirm(`Delete ${name}? This cannot be undone.`)) run(() => deleteFile(fileId));
-          }}
+          onClick={() => setConfirmDelete(true)}
         >
           <Trash2 aria-hidden size={19} strokeWidth={1.75} />
         </button>
       )}
+      <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete this file?" confirmLabel="Delete file" busy={pending}
+        onConfirm={() => run(() => deleteFile(fileId), { onOk: () => setConfirmDelete(false) })}>
+        <p>{name} will be permanently removed. This cannot be undone.</p>
+        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+      </ConfirmDialog>
     </div>
   );
 };

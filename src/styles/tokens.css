@@ -207,6 +207,7 @@
   /* ---------- Motion ---------- */
   --dur-fast: 150ms;
   --dur-base: 260ms;
+  --dur-spring: 520ms;
   --dur-slow: 640ms;
   --dur-ambient: 24s;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -218,6 +219,15 @@
   --z-raised: 1;
   --z-nav: 50;
   --z-grain: 60;
+}
+
+/* Sampled solution of a damped spring: stiffness 420, damping 36, mass 1.
+   CSS keeps reveals and feedback on the compositor without a JS render loop.
+   Older browsers retain the cubic fallback; reduced-motion rules still win. */
+@supports (animation-timing-function: linear(0, 1)) {
+  :root, .dusk {
+    --ease-out: linear(0.0000, 0.0369, 0.1241, 0.2354, 0.3534, 0.4674, 0.5714, 0.6622, 0.7392, 0.8026, 0.8537, 0.8940, 0.9252, 0.9488, 0.9663, 0.9790, 0.9879, 0.9941, 0.9981, 1.0007, 1.0021, 1.0029, 1.0031, 1.0030, 1.0028, 1.0025, 1.0021, 1.0017, 1.0014, 1.0011, 1.0009, 1.0007, 1.0005, 1.0004, 1.0003, 1.0002, 1);
+  }
 }
 
 @media (min-width: 1024px) {

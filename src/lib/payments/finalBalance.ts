@@ -111,15 +111,9 @@ export const collectFinalBalance = async (
         ? { outcome: "requires_action", message: "The bank needs the client to confirm the payment. Send them a payment link." }
         : { outcome: "failed", message: "The saved card was declined. Send the client a payment link." };
     }
-    // Network or Stripe outage: release the claim. Retrying reuses the same idempotency key, so a
-    // charge that did go through is returned by Stripe, never repeated. The webhook also reconciles it.
+    // A lost response can still mean Stripe received the charge. Keep the claim until the webhook
+    // or reconciliation confirms its outcome, preventing a competing hosted checkout in the meantime.
     serverLog("error", "payments.final_charge_error", { project: projectId });
-    await repo.updateProjectIf(
-      projectId,
-      { final_payment_status: failures > 0 ? "failed" : "pending", payment_status: "deposit_paid" },
-      { final_payment_status: ["processing"] },
-    );
-    await repo.updateLedger(obligation.id, { status: failures > 0 ? "failed" : "pending" });
-    throw new PaymentError("Could not reach Stripe. Nothing was recorded as paid. Please try again.");
+    throw new PaymentError("Stripe's response could not be confirmed. The payment is being checked; do not pay again yet. Check the Payments tab or message the studio.");
   }
 };

@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { Gallery } from "@/components/concept/lens/Gallery";
+import { BookingForm } from "@/components/concept/lens/BookingForm";
 import { conceptMetadata } from "@/lib/seo";
 import "./lens.css";
 
@@ -92,24 +93,7 @@ export default function LensPage() {
             Let&rsquo;s make <em>something</em> quiet.
           </h2>
         </div>
-        <form className="lens-form" aria-label="Booking request (concept, not submitted)">
-          <div className="lens-field">
-            <label htmlFor="lens-name">Name</label>
-            <input id="lens-name" name="name" type="text" autoComplete="off" />
-          </div>
-          <div className="lens-field">
-            <label htmlFor="lens-date">Preferred date</label>
-            <input id="lens-date" name="date" type="date" />
-          </div>
-          <div className="lens-field lens-field--wide">
-            <label htmlFor="lens-brief">Brief</label>
-            <textarea id="lens-brief" name="brief" rows={3} />
-          </div>
-          <button type="button" className="lens-form__send">
-            Send request
-          </button>
-          <p className="lens-form__note">Concept form. Nothing is sent.</p>
-        </form>
+        <BookingForm />
       </section>
 
       <footer className="lens-foot">

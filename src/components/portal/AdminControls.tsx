@@ -5,6 +5,7 @@ import { useState } from "react";
 import { addMilestone, addNote, deleteMilestone, linkProjectToUser, setDeadline, setMilestoneStatus, setPreviewUrl, setRevisions, setStage } from "@/lib/portal/actions";
 import { type Milestone, type MilestoneStatus, type ProjectStage, projectStages, stageLabel } from "@/lib/portal/types";
 import { useAction } from "./useAction";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const Status = ({ error, notice }: { error: string | null; notice: string | null }) =>
   error ? (
@@ -130,6 +131,7 @@ export const ScheduleControls = ({
 
 const MilestoneRow = ({ m }: { m: Milestone }) => {
   const { pending, error, run } = useAction();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   return (
     <li className="pt-row">
       <div className="pt-row__main">
@@ -161,13 +163,16 @@ const MilestoneRow = ({ m }: { m: Milestone }) => {
           className="icon-btn"
           aria-label={`Delete milestone ${m.title}`}
           disabled={pending}
-          onClick={() => {
-            if (window.confirm(`Delete milestone "${m.title}"?`)) run(() => deleteMilestone(m.id));
-          }}
+          onClick={() => setConfirmDelete(true)}
         >
           <Trash2 aria-hidden size={18} strokeWidth={1.75} />
         </button>
       </div>
+      <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete milestone?" confirmLabel="Delete milestone" busy={pending}
+        onConfirm={() => run(() => deleteMilestone(m.id), { onOk: () => setConfirmDelete(false) })}>
+        <p>{m.title} will be removed from the project timeline.</p>
+        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+      </ConfirmDialog>
     </li>
   );
 };

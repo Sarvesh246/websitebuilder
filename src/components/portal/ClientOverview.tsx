@@ -109,7 +109,7 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
         <div className="pt-stack">
           <Card title="Next payment" action={<CreditCard aria-hidden size={18} className="pt-muted" />}>
             <p className="pt-stat__value" style={{ fontSize: "1.9rem" }}>
-              {due.label === "Awaiting quote" ? "Quote pending" : due.label === "Paid in full" ? "Paid in full" : formatUsd(payAmount)}
+              {due.label === "Awaiting quote" ? "Quote pending" : due.label === "Paid in full" || due.label === "Payment processing" ? due.label : formatUsd(payAmount)}
             </p>
             <p className="pt-small" style={{ marginTop: "0.35rem" }}>
               {due.label === "Due today" && "Due today to start the project."}
@@ -117,6 +117,7 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
               {due.label === "Final payment due" && "The final balance is due before launch."}
               {due.label === "Awaiting quote" && "The studio will send a price for your custom project."}
               {due.label === "Paid in full" && "Nothing more to pay."}
+              {due.label === "Payment processing" && "Waiting for confirmation. Check Payments before trying again."}
             </p>
             {(due.label === "Due today" || due.label === "Final payment due") && (
               <Link

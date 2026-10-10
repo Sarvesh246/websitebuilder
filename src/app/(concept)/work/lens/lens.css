@@ -5,7 +5,7 @@
   --lens-rule: rgba(233, 228, 216, 0.18);
   --lens-serif: var(--cx-display), "Cormorant Garamond", Georgia, serif;
   --lens-sans: var(--cx-sans), "Jost", system-ui, sans-serif;
-  --lens-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --lens-ease: var(--ease-out);
   --lens-nav-h: 3.75rem;
   background: var(--lens-bg);
   color: var(--lens-ink);
@@ -103,7 +103,7 @@
 }
 
 @media (max-width: 479px) {
-  .cx-lens .lens-nav__list li:nth-child(n + 3) {
+  .cx-lens .lens-nav__list li:nth-child(3) {
     display: none;
   }
   .cx-lens .lens-nav__mark {
@@ -185,7 +185,7 @@
     animation: lens-kenburns 28s var(--lens-ease) infinite alternate;
   }
   .cx-lens .lens-hero__copy > * {
-    animation: lens-rise 1.6s var(--lens-ease) both;
+    animation: lens-rise var(--dur-spring) var(--lens-ease) both;
   }
   .cx-lens .lens-hero__title {
     animation-delay: 0.25s;
@@ -274,7 +274,7 @@
   .cx-lens .lens-tile {
     opacity: 0;
     transform: translateY(2rem);
-    transition: opacity 1.2s var(--lens-ease), transform 1.2s var(--lens-ease);
+    transition: opacity .2s var(--ease-standard), transform var(--dur-spring) var(--lens-ease);
   }
   .cx-lens .lens-tile[data-in] {
     opacity: 1;
@@ -295,7 +295,7 @@
   display: block;
   width: 100%;
   height: auto;
-  transition: transform 1.6s var(--lens-ease);
+  transition: transform var(--dur-spring) var(--lens-ease);
 }
 
 .cx-lens .lens-tile__btn:hover .lens-tile__img,
@@ -527,7 +527,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.5rem 2rem;
-  padding: 1.5rem clamp(1rem, 4vw, 3rem) 2rem;
+  padding: 1.5rem clamp(1rem, 4vw, 3rem) calc(var(--cx-bar) + var(--lens-nav-h) + 2rem);
   border-top: 1px solid var(--lens-rule);
   font-size: 0.68rem;
   letter-spacing: 0.2em;
@@ -537,8 +537,14 @@
 
 /* ---------- lightbox ---------- */
 .cx-lens .lens-lb {
+  margin: 0;
+  border: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
   position: fixed;
-  top: var(--cx-bar);
+  top: 0;
   right: 0;
   bottom: 0;
   left: 0;
@@ -548,7 +554,6 @@
   background: rgba(6, 6, 7, 0.97);
   color: var(--lens-ink);
   padding: 0 0 env(safe-area-inset-bottom);
-  animation: lens-fade 0.4s var(--lens-ease) both;
 }
 
 @keyframes lens-fade {

@@ -6,7 +6,8 @@ import { PayBalanceButton, RequestCancellationButton } from "@/components/portal
 import { AdminPaymentTools, MoneySummary } from "@/components/portal/ProjectBlocks";
 import { dueFor, paymentStatusLabel, paymentTypeLabel } from "@/components/portal/copy";
 import { Card, EmptyState } from "@/components/portal/parts";
-import { CANCELLATION_WINDOW_DAYS, cancellationPolicy } from "@/config/payments";
+import { cancellationPolicy } from "@/config/payments";
+import { inCancellationWindow } from "@/lib/payments/cancellation";
 import { formatUsd } from "@/lib/money";
 import { shortDate } from "@/lib/portal/format";
 import type { ProjectDetail } from "@/lib/portal/types";
@@ -15,8 +16,6 @@ import { ReceiptLinks } from "@/components/portal/ReceiptLinks";
 
 export const metadata = portalMeta("Payments");
 
-const inCancellationWindow = (paidAt: string | null): boolean =>
-  paidAt ? Date.now() - new Date(paidAt).getTime() <= CANCELLATION_WINDOW_DAYS * 86_400_000 : false;
 
 type Obligation = { key: string; title: string; amount: number; state: string; tone: "done" | "accent" | "warn" | "outline"; when: string };
 
@@ -89,7 +88,7 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
               ))}
             </ul>
           )}
-          {p.initialPayment !== "paid" && p.money.deposit != null && !isAdmin && p.stage !== "cancelled" && (
+          {p.initialPayment !== "paid" && p.initialPayment !== "processing" && p.initialPayment !== "cancelled" && p.money.deposit != null && !isAdmin && p.stage !== "cancelled" && (
             <Link href={`/portal/projects/${p.id}/checkout`} className="btn btn-primary" style={{ marginTop: "1rem" }}>
               Pay {formatUsd(p.money.deposit)}
             </Link>

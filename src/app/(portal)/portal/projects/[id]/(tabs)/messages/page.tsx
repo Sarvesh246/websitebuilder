@@ -14,7 +14,7 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
   const { viewer, perspective } = await getContext(`/portal/projects/${id}/messages`);
   const p = await loadProject(viewer, perspective, id);
   if (!p) notFound();
-  const messages = await listMessages(viewer, perspective, id).catch(() => []);
+  const messages = await listMessages(viewer, perspective, id);
   const previewing = viewer.role === "admin" && perspective === "client";
   const unread = messages.filter((m) => !m.mine && !m.readAt).length;
 
@@ -29,7 +29,7 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
               : "Ask a question or share an update below. Replies appear here as soon as they are sent, no refresh needed."}
           </EmptyState>
         ) : (
-          <Thread count={messages.length}>
+          <><p className="pt-small">{messages.length >= 1000 ? "Showing the latest 1,000 messages." : perspective === "admin" ? "Project conversation with the client." : "Your conversation with the studio."}</p><Thread count={messages.length}>
             {messages.map((m) => (
               <div key={m.id} className="pt-bubble" data-mine={m.mine || undefined}>
                 <span className="pt-bubble__meta">
@@ -38,7 +38,7 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
                 {m.body}
               </div>
             ))}
-          </Thread>
+          </Thread></>
         )}
         <MessageComposer projectId={id} disabledReason={previewing ? "Preview mode: sending is disabled." : undefined} />
       </Card>

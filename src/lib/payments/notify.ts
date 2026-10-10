@@ -23,7 +23,12 @@ export const flagForReview = async (
   input: { key: string; projectId: string; timeline: string; subject: string; detail: string; paymentIntentId?: string | null },
 ): Promise<boolean> => {
   if (!(await firstTime(deps, `review:${input.key}`))) return false;
-  await deps.repo.addEvent(input.projectId, "payment_review", input.timeline, "system");
+  try {
+    await deps.repo.addEvent(input.projectId, "payment_review", input.timeline, "system");
+  } catch (error) {
+    await deps.repo.forgetWebhookEvent(`marker:review:${input.key}`.slice(0, 250));
+    throw error;
+  }
   await alertStudio(input.projectId, input.subject, input.detail, input.paymentIntentId ?? undefined);
   return true;
 };

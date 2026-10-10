@@ -5,7 +5,7 @@ import { formatUsd } from "@/lib/money";
 
 /** What the client owes and when, from the stored snapshot (no Stripe, no client input). */
 export const dueFor = (p: ProjectSummary) =>
-  dueSummary({ deposit_amount: p.money.deposit, remaining_amount: p.money.remaining, initial_payment_status: p.initialPayment, final_payment_status: p.finalPayment });
+  dueSummary({ deposit_amount: p.money.deposit, remaining_amount: p.money.remaining, initial_payment_status: p.initialPayment, final_payment_status: p.finalPayment, status: p.stage });
 
 export const stageSentence: Record<ProjectStage, string> = {
   requested: "Your request is in. The studio will review it and confirm the details.",
@@ -14,7 +14,7 @@ export const stageSentence: Record<ProjectStage, string> = {
   client_review: "A preview is ready for you to review. Send any changes you would like.",
   revisions: "Revisions are in progress based on your feedback.",
   awaiting_final_payment: "Your site is finished. The remaining balance is the last step before launch.",
-  ready_for_launch: "Paid and approved. Your site is ready to launch.",
+  ready_for_launch: "Payment is complete. Your site is ready to launch.",
   completed: "Your project is complete.",
   cancelled: "This project was cancelled.",
 };

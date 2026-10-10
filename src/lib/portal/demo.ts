@@ -35,6 +35,9 @@ type Seed = {
 };
 
 const seeds: Seed[] = [
+  { n: 10, name: "Alex Rowan", email: "alex@example.com", org: "Rowan Design", pkg: "launch", type: "portfolio", stage: "accepted",
+    created: 2, updated: 1, deadline: 14, money: [4900, 4900, 0], initial: "pending", final: "not_required", owner: DEMO_USER,
+    description: "One-page student portfolio ready for the initial payment.", features: ["gallery"], timeline: "2-4-weeks", rev: [1, 0] },
   { n: 1, name: "Tessa Marlowe", email: "tessa.marlowe@example.com", org: null, pkg: "launch", type: "Student portfolio", stage: "completed",
     created: 75, updated: 20, deadline: -25, money: [4900, 4900, 0], initial: "paid", final: "not_required", owner: DEMO_USER,
     description: "One-page portfolio for a design student: selected projects, a short bio and a resume download.",

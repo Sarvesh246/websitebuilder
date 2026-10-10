@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
+import { m } from "motion/react";
+import { spring } from "@/lib/motion";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 import type { LensPhoto } from "./photos";
 
 type Props = {
@@ -14,7 +17,8 @@ type Props = {
 const FOCUSABLE = "button:not([disabled])";
 
 export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
-  const root = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDialogElement>(null);
+  useLockBodyScroll(true);
   const touchX = useRef<number | null>(null);
   const photo = photos[index];
   const count = photos.length;
@@ -23,11 +27,11 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    root.current?.querySelector<HTMLElement>("[data-close]")?.focus();
+    const element = root.current;
+    element?.showModal();
+    element?.querySelector<HTMLElement>("[data-close]")?.focus();
     return () => {
-      document.body.style.overflow = overflow;
+      element?.close();
       previous?.focus?.();
     };
   }, []);
@@ -62,12 +66,15 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
   });
 
   return (
-    <div
+    <m.dialog
       ref={root}
+      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
+      transition={{ ...spring, opacity: { duration: .16 } }}
       className="lens-lb"
       role="dialog"
       aria-modal="true"
       aria-label={`${photo.title}, ${photo.place}, ${photo.year}`}
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -115,6 +122,6 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
           {photo.place} &middot; {photo.year}
         </span>
       </p>
-    </div>
+    </m.dialog>
   );
 };

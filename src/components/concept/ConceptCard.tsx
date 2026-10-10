@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type 
 import { createPortal } from "react-dom";
 import { conceptPath, packageName, type Concept } from "@/config/concepts";
 
-const EXPAND_MS = 620;
+const EXPAND_MS = 520;
 
 type Inset = { t: number; r: number; b: number; l: number };
 

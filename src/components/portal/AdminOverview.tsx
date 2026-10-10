@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { formatUsd } from "@/lib/money";
 import { getAdminOverview } from "@/lib/portal/data";
-import { shortDate, timeAgo } from "@/lib/portal/format";
+import { timeAgo } from "@/lib/portal/format";
 import { type Viewer, stageLabel } from "@/lib/portal/types";
 import { AreaChart } from "./charts/AreaChart";
 import { Donut } from "./charts/Donut";
@@ -113,7 +113,6 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
                     </Link>
                     <p className="pt-row__meta">
                       <StageChip stage={p.stage} />
-                      <span>{shortDate(p.deadline)}</span>
                     </p>
                   </div>
                   <div className="pt-row__aside">

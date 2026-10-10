@@ -14,7 +14,7 @@ export default async function CheckoutPage({ params }: PageProps<"/portal/projec
   // Always the client perspective: only the owner can pay for a project, admins included.
   const p = await loadProject(viewer, "client", id);
   if (!p) notFound();
-  if (p.initialPayment === "paid" || p.stage === "cancelled" || p.money.deposit == null) redirect(`/portal/projects/${id}`);
+  if (p.initialPayment === "paid" || p.initialPayment === "processing" || p.stage === "cancelled" || !p.money.deposit) redirect(`/portal/projects/${id}`);
 
   const split = (p.money.remaining ?? 0) > 0;
   const today = p.money.deposit;
@@ -22,24 +22,7 @@ export default async function CheckoutPage({ params }: PageProps<"/portal/projec
   return (
     <div style={{ maxWidth: "62rem" }}>
       <PageHeader back={{ href: `/portal/projects/${id}`, label: "Back to project" }} eyebrow="Checkout" title="Start your project" sub={`${projectTitle(p)} · ${packageName(p.package)} package`} />
-      <div className="pt-grid pt-cols-side" style={{ alignItems: "start" }}>
-        <Card title="Confirm and pay">
-          <div className="pt-stack">
-            <CheckoutForm projectId={id} amountLabel={formatUsd(today)} authorization={paymentAuthorization(split)} policyTitle={cancellationPolicy.title} />
-            <div className="pt-legal">
-              <p className="pt-strong" style={{ marginBottom: "0.4rem" }}>
-                {cancellationPolicy.title}
-              </p>
-              {cancellationPolicy.body.map((line) => (
-                <p key={line} style={{ marginBottom: "0.4rem" }}>
-                  {line}
-                </p>
-              ))}
-              <p>{cancellationPolicy.note}</p>
-            </div>
-          </div>
-        </Card>
-
+      <div className="pt-grid pt-checkout" style={{ alignItems: "start" }}>
         <Card title="Order summary">
           <dl className="pt-money">
             <div>
@@ -52,7 +35,7 @@ export default async function CheckoutPage({ params }: PageProps<"/portal/projec
             </div>
             <div>
               <dt>{split ? "Due after revisions" : "Remaining"}</dt>
-              <dd>{split ? formatUsd(p.money.remaining) : "Paid in full"}</dd>
+              <dd>{split ? formatUsd(p.money.remaining) : "$0 after today's payment"}</dd>
             </div>
             <div className="pt-money__total">
               <dt className="pt-strong">Pay today</dt>
@@ -64,6 +47,18 @@ export default async function CheckoutPage({ params }: PageProps<"/portal/projec
               ? "The remaining balance is only charged after the included revisions are finished. Launch happens after it is paid."
               : "A single payment covers the whole project."}
           </p>
+        </Card>
+        <Card title="Confirm and pay">
+          <div className="pt-stack">
+            <CheckoutForm projectId={id} amountLabel={formatUsd(today)} authorization={paymentAuthorization(split)} policyTitle={cancellationPolicy.title} />
+            <div className="pt-legal">
+              <p className="pt-strong" style={{ marginBottom: "0.4rem" }}>{cancellationPolicy.title}</p>
+              {cancellationPolicy.body.map((line) => (
+                <p key={line} style={{ marginBottom: "0.4rem" }}>{line}</p>
+              ))}
+              <p>{cancellationPolicy.note}</p>
+            </div>
+          </div>
         </Card>
       </div>
     </div>

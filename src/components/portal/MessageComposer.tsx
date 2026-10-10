@@ -13,8 +13,8 @@ export const MessageComposer = ({ projectId, disabledReason }: { projectId: stri
 
   const submit = () => {
     const text = body.trim();
-    if (!text || disabled) return;
-    run(() => sendMessage(projectId, text), { onOk: () => setBody("") });
+    if (!text || disabled || pending) return;
+    run(() => sendMessage(projectId, text), { onOk: () => setBody((current) => current.trim() === text ? "" : current) });
   };
 
   return (
@@ -38,7 +38,7 @@ export const MessageComposer = ({ projectId, disabledReason }: { projectId: stri
         disabled={disabled}
         onChange={(e) => setBody(e.target.value)}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+          if (!e.nativeEvent.isComposing && e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
             e.preventDefault();
             submit();
           }
@@ -60,7 +60,7 @@ export const MessageComposer = ({ projectId, disabledReason }: { projectId: stri
 /** Marks the other side's messages read once the thread is on screen. Runs after paint, never during render. */
 export const MarkRead = ({ projectId, unread }: { projectId: string; unread: number }) => {
   useEffect(() => {
-    if (unread > 0) void markMessagesRead(projectId);
+    if (unread > 0) void markMessagesRead(projectId).catch(() => undefined);
   }, [projectId, unread]);
   return null;
 };

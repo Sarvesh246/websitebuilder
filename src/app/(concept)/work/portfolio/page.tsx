@@ -2,6 +2,7 @@ import Image from "next/image";
 import { DM_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import { ConceptFrame } from "@/components/concept/ConceptFrame";
 import { ProjectList, type Project } from "@/components/concept/portfolio/ProjectList";
+import { DemoContacts } from "@/components/concept/DemoContacts";
 import { conceptMetadata } from "@/lib/seo";
 import "./portfolio.css";
 
@@ -25,7 +26,7 @@ const projects: Project[] = [
     year: "2026",
     blurb: "Research, interface and a React Native prototype for sharing bikes across a small campus.",
     img: "/images/work/portfolio/laptop.webp",
-    alt: "A laptop on a bright white desk showing an app interface",
+    alt: "A laptop displaying code on a bright white desk",
     w: 1400,
     h: 934,
   },
@@ -137,7 +138,7 @@ export default function PortfolioConcept() {
             </p>
             <p className="pf-status pf-fade" style={{ "--i": 6 } as React.CSSProperties}>
               <span className="pf-status__dot" aria-hidden />
-              Looking for internships, summer 2026
+              Open to internships and junior roles
             </p>
           </div>
         </section>
@@ -231,8 +232,8 @@ export default function PortfolioConcept() {
                   </ul>
                 </div>
               ))}
-              <a href="#contact" className="pf-btn pf-btn--ghost">
-                Download resume (PDF)
+              <a href="#resume" className="pf-btn pf-btn--ghost">
+                Read resume
               </a>
             </div>
           </div>
@@ -250,23 +251,7 @@ export default function PortfolioConcept() {
               Hiring for an internship, or want to talk about a small project? Write a line about what you are
               making and I will reply.
             </p>
-            <ul className="pf-contact__links">
-              <li>
-                <a href="#contact" className="pf-btn">
-                  Email me
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="pf-btn pf-btn--ghost">
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="pf-btn pf-btn--ghost">
-                  GitHub
-                </a>
-              </li>
-            </ul>
+            <DemoContacts variant="portfolio" />
           </div>
         </section>
 

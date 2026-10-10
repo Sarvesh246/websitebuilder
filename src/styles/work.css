@@ -93,7 +93,7 @@
   .cc__img {
     object-fit: cover;
     z-index: -3;
-    transition: transform 1.1s var(--ease-standard);
+    transition: transform var(--dur-spring) var(--ease-out);
   }
   .cc__shade {
     position: absolute;
@@ -262,7 +262,7 @@
     background-size: cover;
     background-position: center;
     clip-path: inset(var(--t) var(--r) var(--b) var(--l) round 24px);
-    animation: cc-open 0.62s cubic-bezier(0.7, 0, 0.2, 1) forwards;
+    animation: cc-open var(--dur-spring) var(--ease-out) forwards;
     display: grid;
     place-items: center;
     color: #fff;
@@ -273,7 +273,7 @@
     inset: 0;
     background: radial-gradient(60% 60% at 50% 50%, color-mix(in oklab, var(--glow) 40%, transparent), rgb(5 6 8 / 0.55));
     opacity: 0;
-    animation: cc-tint 0.62s ease forwards;
+    animation: cc-tint 220ms var(--ease-standard) forwards;
   }
   .cc-expand__label {
     position: relative;
@@ -282,7 +282,7 @@
     letter-spacing: -0.04em;
     opacity: 0;
     transform: translateY(12px);
-    animation: cc-label 0.5s 0.2s ease forwards;
+    animation: cc-label var(--dur-spring) 80ms var(--ease-out) forwards;
   }
   @keyframes cc-open {
     to {

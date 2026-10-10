@@ -5,8 +5,9 @@ export const metadata = { ...portalMeta("Portal"), title: { default: "Portal", t
 
 export default async function PortalLayout({ children }: LayoutProps<"/portal">) {
   const { viewer, perspective } = await getContext();
-  const projects = await loadProjects(viewer, perspective);
-  const unread = projects.reduce((n, p) => n + p.unreadMessages, 0);
+  // Keep the navigation available during an outage; page reads still reach the portal error boundary.
+  const projects = await loadProjects(viewer, perspective).catch(() => null);
+  const unread = projects?.reduce((n, p) => n + p.unreadMessages, 0) ?? 0;
   return (
     <PortalShell viewer={viewer} perspective={perspective} unreadMessages={unread}>
       {children}

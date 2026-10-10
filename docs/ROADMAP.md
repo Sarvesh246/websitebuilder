@@ -13,7 +13,7 @@ Each stage: update this roadmap last. Do not start the next stage until asked.
 | 7 | Responsive + mobile pass: safe areas, nav focus trap, section rhythm, compact mobile pricing, touch targets, overflow audit (Stage 4 sections still missing) | Done |
 | 8 | Art direction: environment system, glass rebuild, hero, Services/Why/Process/Ownership scenes, pricing platform, About, final CTA (Stage 4 sections built here) | Done |
 | 9 | Accessibility, performance, testing: keyboard/screen-reader pass, contrast, Lighthouse (LCP/CLS/INP), Playwright smoke tests, SEO/OG, analytics decision | Done |
-| 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | Partial: Ownership visual transformation done; launch audit still open |
+| 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | Code and browser audit done October 10; hosted migrations/provider verification pending. See AUDIT-2026-10-10.md |
 | 11 | Pricing clarity + conversion: Launch/Presence/Business/Custom naming, Founding Client Pricing, shared inclusions, comparison, CTA wording, preselection | Done |
 | 12 | SEO, metadata, social preview, icons, sitemap/robots, structured data, semantic audit | Done |
 

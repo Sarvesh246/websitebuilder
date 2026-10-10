@@ -71,6 +71,25 @@ export class FakeRepo implements PaymentsRepo {
     const p = this.projects.get(id);
     return p ? { ...p } : null;
   }
+  async recordRefundTotal(projectId: string, intentId: string, total: number, refundId?: string | null) {
+    const project = this.projects.get(projectId);
+    if (!project) return false;
+    const source = this.ledger.find((row) => row.project_id === projectId && row.stripe_payment_intent_id === intentId && row.type !== "refund");
+    if (!source) throw new Error("refund_source_missing");
+    if (!Number.isInteger(total) || total < 0 || total > source.amount) throw new Error("invalid_refund_total");
+    if (total === 0) return false;
+    const previous = this.ledger.filter(row => row.type === "refund" && row.idempotency_key.startsWith(`refund:${intentId}:`)).reduce((sum, row) => sum + row.amount, 0);
+    if (total > previous) {
+      this.ledger.push({ ...source, id: `led-${++this.seq}`, type: "refund", status: "succeeded", amount: total - previous,
+        idempotency_key: `refund:${intentId}:${total}`, stripe_payment_intent_id: null, stripe_refund_id: refundId ?? null, paid_at: this.clock() });
+    }
+    const refunded = this.ledger.filter(row => row.project_id === projectId && row.type === "refund").reduce((sum, row) => sum + row.amount, 0);
+    const full = (project.amount_paid ?? 0) > 0 && refunded >= (project.amount_paid ?? 0);
+    Object.assign(project, { refunded_amount: refunded, refund_status: full ? "full" : "partial", payment_status: project.dispute_status === "open" ? "disputed" : full ? "refunded" : "partially_refunded" });
+    source.status = Math.max(previous, total) >= source.amount ? "refunded" : "partially_refunded";
+    if (total > previous) this.events.push({ projectId, kind: "refund", at: this.clock() });
+    return total > previous;
+  }
   async updateProject(id: string, patch: Partial<ProjectPayRow>) {
     const p = this.projects.get(id);
     if (p) Object.assign(p, patch);
@@ -156,6 +175,7 @@ export class FakeRepo implements PaymentsRepo {
   async listRecentProjects() {
     return [...this.projects.values()];
   }
+  async markReconciled() {}
   async addEvent(projectId: string, kind: string) {
     this.events.push({ projectId, kind, at: this.clock() });
   }
@@ -167,18 +187,19 @@ export const makeStripe = () => {
   const mocks = {
     paymentIntentsCreate: vi.fn(),
     paymentIntentsRetrieve: vi.fn(async () => ({ payment_method: "pm_saved" })),
-    paymentIntentsSearch: vi.fn(async () => ({ data: [] as unknown[], has_more: false, next_page: null })),
+    paymentIntentsSearch: vi.fn(async () => ({ data: [] as unknown[], has_more: false, next_page: null as string | null })),
     customersCreate: vi.fn(async () => ({ id: "cus_new" })),
     customersRetrieve: vi.fn(async (id: string) => ({ id })),
     sessionsCreate: vi.fn(async () => ({ id: "cs_1", url: "https://checkout.stripe.test/cs_1" })),
     sessionsExpire: vi.fn(async () => ({ status: "expired" })),
-    refundsCreate: vi.fn(async () => ({ id: "re_1" })),
+    sessionsRetrieve: vi.fn(async (id: string) => ({ id, status: "open" as string })),
+    refundsCreate: vi.fn(async () => ({ id: "re_1", status: "succeeded" })),
     chargesRetrieve: vi.fn(async () => ({ payment_intent: "pi_x" })),
   };
   Object.assign(stripe, {
     paymentIntents: { create: mocks.paymentIntentsCreate, retrieve: mocks.paymentIntentsRetrieve, search: mocks.paymentIntentsSearch },
     customers: { create: mocks.customersCreate, retrieve: mocks.customersRetrieve },
-    checkout: { sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire } },
+    checkout: { sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire, retrieve: mocks.sessionsRetrieve } },
     refunds: { create: mocks.refundsCreate },
     charges: { retrieve: mocks.chargesRetrieve },
   });

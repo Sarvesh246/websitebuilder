@@ -12,7 +12,7 @@ import { Card } from "./parts";
  */
 export const AdminControls = async ({ project: p }: { project: ProjectDetail }) => {
   const viewer = await requireAdmin();
-  const notes = await listNotes(viewer, p.id).catch(() => []);
+  const notes = await listNotes(viewer, p.id);
   return (
     <div className="pt-grid pt-cols-2 pt-section-gap">
       <div className="pt-stack">

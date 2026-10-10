@@ -11,6 +11,7 @@ export const metadata = portalMeta("Settings");
 export default async function SettingsPage() {
   const { viewer, perspective } = await getContext("/portal/settings");
   const demo = demoMode();
+  const readOnly = demo || (viewer.role === "admin" && perspective === "client");
 
   return (
     <>
@@ -25,7 +26,7 @@ export default async function SettingsPage() {
       <div className="pt-grid pt-cols-2 pt-settings">
         <Card title="Profile" note="Your name as the studio sees it">
           <div className="pt-stack">
-            <NameForm initial={viewer.fullName ?? ""} />
+            <NameForm initial={viewer.fullName ?? ""} disabled={readOnly} />
             <dl className="pt-dl">
               <div>
                 <dt>Email</dt>
@@ -39,7 +40,7 @@ export default async function SettingsPage() {
           </div>
         </Card>
         <Card title="Password" note="Change the password you sign in with">
-          <PasswordForm disabled={demo} />
+          <PasswordForm disabled={readOnly} />
         </Card>
 
         <Card title="Appearance" note="Light by default, dusk at night. Saved in this browser.">
@@ -49,7 +50,7 @@ export default async function SettingsPage() {
           </div>
         </Card>
         <Card title="Sign-in methods" note="Ways you can get into the portal">
-          <ConnectedAccounts disabled={demo} />
+          <ConnectedAccounts disabled={readOnly} />
         </Card>
 
         {viewer.role === "admin" ? (

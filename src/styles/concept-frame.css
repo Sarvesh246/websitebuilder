@@ -1,4 +1,7 @@
 /* Shell shared by the concept sites. Concept palettes live in their own scoped files. */
+html:has(.cx) { scroll-padding-top: 0; }
+/* Concept headers have their own height; marketing anchor offsets must not leak into them. */
+.cx :where(section[id]) { scroll-margin-top: calc(var(--cx-bar) + 5rem); }
 .cx {
   --cx-bar: 2.5rem;
   position: relative;
@@ -6,7 +9,7 @@
   isolation: isolate;
   min-height: 100vh;
   padding-top: var(--cx-bar);
-  animation: cx-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: cx-in 180ms var(--ease-standard) both;
 }
 .cx *,
 .cx *::before,
@@ -30,7 +33,7 @@ html[data-arrive] .cx {
   animation: none;
 }
 html[data-arrive] .cx-arrival {
-  animation: cx-arrive 0.9s 0.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: cx-arrive 240ms var(--ease-standard) both;
 }
 @keyframes cx-arrive {
   0% {

@@ -20,6 +20,8 @@ export const WaitingOn = ({ items, stage }: { items: WaitingItem[]; stage: Proje
         <p className="pt-small">
           {stage === "completed"
             ? "Your project is complete. Everything is in your hands now."
+            : stage === "cancelled"
+              ? "This project is closed. Its files, messages and payment history remain available here."
             : `You are all caught up. The studio has the next step (${stageLabel[stage].toLowerCase()}), and you will see it here when something needs you.`}
         </p>
       </div>

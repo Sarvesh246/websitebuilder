@@ -1,10 +1,11 @@
 "use client";
 
 import { BadgeCheck, CreditCard, RotateCcw, XCircle } from "lucide-react";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useState } from "react";
 import { payRemainingBalance, collectFinalPayment, refundPayment, requestCancellation } from "@/lib/payments/actions";
 import { approveFinalVersion } from "@/lib/portal/actions";
 import { useAction } from "./useAction";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 const Feedback = ({ error, notice }: { error: string | null; notice: string | null }) => (
   <>
@@ -20,53 +21,6 @@ const Feedback = ({ error, notice }: { error: string | null; notice: string | nu
     )}
   </>
 );
-
-/** Native modal confirm. Focus is trapped and Escape closes it by the platform. */
-const ConfirmDialog = ({
-  open,
-  onClose,
-  title,
-  children,
-  confirmLabel,
-  onConfirm,
-  busy,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  children: ReactNode;
-  confirmLabel: string;
-  onConfirm: () => void;
-  busy: boolean;
-}) => {
-  const ref = useRef<HTMLDialogElement>(null);
-  const titleId = useId(); // several dialogs can share a page
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (open && !el.open) el.showModal();
-    if (!open && el.open) el.close();
-  }, [open]);
-  return (
-    <dialog
-      ref={ref}
-      className="pt-dialog"
-      onClose={onClose}
-      aria-labelledby={titleId}
-    >
-      <h2 id={titleId}>{title}</h2>
-      <div className="pt-small">{children}</div>
-      <div className="pt-dialog__actions">
-        <button type="button" className="btn btn-secondary btn-sm" onClick={onClose} disabled={busy}>
-          Cancel
-        </button>
-        <button type="button" className="btn btn-primary btn-sm" onClick={onConfirm} disabled={busy} aria-busy={busy}>
-          {busy ? "Working" : confirmLabel}
-        </button>
-      </div>
-    </dialog>
-  );
-};
 
 /**
  * Approving completes the revision stage. When a balance is due on the saved card, the client confirms the
@@ -175,14 +129,15 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
   if (payments.length === 0) return <p className="pt-small">No refundable payments yet.</p>;
 
   const cents = amount.trim() === "" ? undefined : Math.round(Number(amount) * 100);
-  const invalid = cents !== undefined && (!Number.isFinite(cents) || cents <= 0);
+  const selected = payments.find((p) => p.id === paymentId);
+  const invalid = cents !== undefined && (!/^\d+(?:\.\d{1,2})?$/.test(amount.trim()) || !Number.isSafeInteger(cents) || cents <= 0 || cents > (selected?.amountCents ?? 0));
 
   return (
     <div className="pt-stack">
       <div className="pt-form-row">
         <div className="pt-field">
           <label htmlFor="pt-refund-pay">Payment</label>
-          <select id="pt-refund-pay" className="pt-select" value={paymentId} onChange={(e) => setPaymentId(e.target.value)}>
+          <select id="pt-refund-pay" disabled={pending || confirming} className="pt-select" value={paymentId} onChange={(e) => setPaymentId(e.target.value)}>
             {payments.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
@@ -192,7 +147,8 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
         </div>
         <div className="pt-field">
           <label htmlFor="pt-refund-amt">Amount in dollars (blank = full)</label>
-          <input id="pt-refund-amt" className="pt-input" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Full amount" />
+          <input id="pt-refund-amt" className="pt-input" inputMode="decimal" value={amount} disabled={pending || confirming} onChange={(e) => setAmount(e.target.value)} placeholder="Full amount" aria-invalid={invalid || undefined} aria-describedby={invalid ? "pt-refund-error" : undefined} />
+          {invalid && <p id="pt-refund-error" className="pt-small" role="alert">Enter a positive amount with up to two decimals, no more than the selected payment.</p>}
         </div>
         <button type="button" className="btn btn-secondary btn-sm" disabled={invalid || !paymentId || pending} onClick={() => setConfirming(true)}>
           <RotateCcw aria-hidden size={15} />
@@ -207,7 +163,7 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
         busy={pending}
         onConfirm={() => run(() => refundPayment(projectId, paymentId, cents), { success: "Refund issued.", onOk: () => setConfirming(false) })}
       >
-        <p>The refund goes back to the original payment method through Stripe. It cannot be undone.</p>
+        <p>Refund {cents === undefined ? "the remaining refundable amount" : `$${(cents / 100).toFixed(2)}`} from {selected?.label} to the original payment method through Stripe. It cannot be undone.</p>
       </ConfirmDialog>
       <Feedback error={error} notice={notice} />
     </div>

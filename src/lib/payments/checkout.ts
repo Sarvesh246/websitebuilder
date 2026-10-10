@@ -33,13 +33,19 @@ export const expireStaleSession = async (stripe: PaymentsDeps["stripe"], previou
  * nobody can pay for work that will not happen. Best effort and safe to repeat: never throws, and paid or
  * expired sessions simply refuse. Returns how many sessions were checked.
  */
-export const expireProjectSessions = async (projectId: string, deps?: PaymentsDeps): Promise<number> => {
+export const expireProjectSessions = async (projectId: string, deps?: PaymentsDeps, strict = false): Promise<number> => {
   try {
     const d = deps ?? defaultDeps();
     const open = (await d.repo.listLedger(projectId)).filter((r) => r.stripe_session_id && r.type !== "refund" && r.status !== "succeeded");
-    await Promise.all(open.map((r) => expireStaleSession(d.stripe, r.stripe_session_id, "")));
+    await Promise.all(open.map(async (r) => {
+      if (!strict) return expireStaleSession(d.stripe, r.stripe_session_id, "");
+      const session = await d.stripe.checkout.sessions.retrieve(r.stripe_session_id!);
+      if (session.status === "complete") throw new PaymentError("A payment is still being confirmed. Check Payments before deleting your account.");
+      if (session.status === "open") await d.stripe.checkout.sessions.expire(session.id);
+    }));
     return open.length;
-  } catch {
+  } catch (error) {
+    if (strict) throw error;
     return 0; // payments not configured, or storage unavailable: nothing could have been opened through us
   }
 };
@@ -82,6 +88,7 @@ export const createDepositCheckout = async (
   const project = await loadProject(deps, projectId);
   if (project.user_id !== viewer.userId) throw new PaymentError("Project not found.");
   if (project.initial_payment_status === "paid") throw new PaymentError("The initial payment has already been made.");
+  if (project.initial_payment_status === "processing") throw new PaymentError("A payment is already being processed. Please check back shortly.");
   if (project.status === "cancelled") throw new PaymentError("This project was cancelled.");
   const deposit = project.deposit_amount;
   if (!deposit || deposit <= 0) throw new PaymentError("The price for this project has not been set yet.");
@@ -127,7 +134,7 @@ export const createDepositCheckout = async (
       metadata,
       // Stripe emails its receipt to the client (live mode) for every payment.
       payment_intent_data: { metadata, receipt_email: project.email || viewer.email, ...(split ? { setup_future_usage: "off_session" as const } : {}) },
-      success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/portal/projects/${project.id}/paid?payment=initial&session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/checkout`,
     },
     { idempotencyKey: `checkout:${depositKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}:${fingerprint(origin, deposit, customerId, split ? "s" : "f")}` },
@@ -185,7 +192,7 @@ export const createFinalCheckout = async (
       ],
       metadata,
       payment_intent_data: { metadata, ...(project.email ? { receipt_email: project.email } : {}) },
-      success_url: `${origin}/portal/projects/${project.id}/paid?session={CHECKOUT_SESSION_ID}`,
+      success_url: `${origin}/portal/projects/${project.id}/paid?payment=final_balance&session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/portal/projects/${project.id}/payments`,
     },
     { idempotencyKey: `checkout:${finalKey(project.id)}:${Math.floor(now().getTime() / HALF_HOUR)}:${fingerprint(origin, remaining, project.stripe_customer_id ?? project.email)}` },

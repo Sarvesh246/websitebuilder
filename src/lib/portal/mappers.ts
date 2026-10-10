@@ -5,6 +5,7 @@ import {
   type ProjectStage, type ProjectSummary,
 } from "./types";
 import { dayKey } from "./format";
+import { budgets, features, projectTypes, timelines } from "@/config/inquiry";
 
 export type Perspective = "admin" | "client";
 
@@ -59,6 +60,9 @@ export type EventDb = {
 
 const PACKAGES = ["launch", "presence", "business", "custom"] as const;
 const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
+/** Older and imported rows already carry labels; preserve them while resolving intake option ids. */
+const labelOf = (options: readonly { id: string; label: string }[], value: string | null) =>
+  options.find((option) => option.id === value)?.label ?? value;
 
 export const isOpenStage = (stage: ProjectStage) => stage !== "completed" && stage !== "cancelled";
 export const otherSide = (p: Perspective): "client" | "admin" => (p === "admin" ? "client" : "admin");
@@ -72,7 +76,7 @@ export const computeProgress = (stage: ProjectStage, milestones: { status: strin
   return Math.min(100, Math.max(0, Math.round(((done + active * 0.5) / milestones.length) * 100)));
 };
 
-const countsAsRefund = (status: string) => status !== "failed" && status !== "cancelled" && status !== "pending";
+const countsAsRefund = (status: string) => status === "succeeded";
 const countsAsPaid = (status: string) => status === "succeeded" || status === "refunded" || status === "partially_refunded";
 
 /** Net money collected from ledger rows: paid payments minus refund rows. */
@@ -134,7 +138,7 @@ export const toSummary = (
     email: row.email,
     organization: row.organization,
     package: (PACKAGES as readonly string[]).includes(row.package) ? (row.package as ProjectSummary["package"]) : "custom",
-    websiteType: row.website_type,
+    websiteType: labelOf(projectTypes, row.website_type),
     stage,
     progress: computeProgress(stage, ctx.milestones),
     deadline: row.deadline,
@@ -154,11 +158,11 @@ export const toDetail = (
 ): ProjectDetail => ({
   ...toSummary(row, { payments: ctx.payments, milestones: ctx.milestones, unread: ctx.unread }),
   description: row.project_description,
-  features: strings(row.features_needed),
+  features: strings(row.features_needed).map((value) => labelOf(features, value) ?? value),
   links: strings(row.inspiration_links),
   existingWebsite: row.existing_website,
-  timeline: row.timeline,
-  budget: row.budget,
+  timeline: labelOf(timelines, row.timeline),
+  budget: labelOf(budgets, row.budget),
   phone: row.phone,
   previewUrl: row.preview_url,
   revisionsIncluded: row.revisions_included,
@@ -203,7 +207,7 @@ export const filterAndSort = (list: ProjectSummary[], opts: ListOpts = {}): Proj
   return sorted;
 };
 
-const monthKey = (d: Date) => `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
+const monthKey = (d: Date) => dayKey(d).slice(0, 7);
 
 /** Shared by the live and demo paths so the dashboard math has one definition. */
 export const buildOverview = (
@@ -219,9 +223,10 @@ export const buildOverview = (
   const open = input.projects.filter((p) => isOpenStage(p.stage));
 
   const months: { key: string; month: string; collected: number }[] = [];
+  const [year, month] = today.split("-").map(Number);
   for (let i = 5; i >= 0; i--) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
-    months.push({ key: monthKey(d), month: d.toLocaleString("en-US", { month: "short", timeZone: "UTC" }), collected: 0 });
+    const d = new Date(Date.UTC(year, month - 1 - i, 1));
+    months.push({ key: d.toISOString().slice(0, 7), month: d.toLocaleString("en-US", { month: "short", timeZone: "UTC" }), collected: 0 });
   }
   for (const p of input.payments) {
     const isRefund = p.type === "refund";
@@ -233,16 +238,16 @@ export const buildOverview = (
   const newRequests = input.projects.filter((p) => p.stage === "requested").sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return {
     kpis: {
-      activeProjects: open.length,
+      activeProjects: open.filter((p) => p.stage !== "requested").length,
       newRequests: newRequests.length,
       collected: sumPaid(input.payments),
       outstanding: open
         .filter((p) => p.initialPayment === "paid" || p.stage === "accepted")
-        .reduce((sum, p) => sum + (p.money.remaining ?? 0), 0),
+        .reduce((sum, p) => sum + (p.initialPayment === "paid" ? (p.money.remaining ?? 0) : (p.money.total ?? 0)), 0),
       overdue: open.filter((p) => p.deadline != null && p.deadline < today).length,
       unread: input.unread,
     },
-    revenueByMonth: months.map(({ month, collected }) => ({ month, collected: Math.max(0, collected) })),
+    revenueByMonth: months.map(({ month, collected }) => ({ month, collected })),
     pipeline: projectStages.map((stage) => ({ stage, count: input.projects.filter((p) => p.stage === stage).length })),
     newRequests: newRequests.slice(0, 6),
     deadlines: open.filter((p) => p.deadline).sort((a, b) => (a.deadline as string).localeCompare(b.deadline as string)).slice(0, 6),

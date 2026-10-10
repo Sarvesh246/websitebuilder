@@ -13,6 +13,7 @@ export const createClient = async () => {
   if (!env) throw new Error("Supabase is not configured");
   const cookieStore = await cookies();
   return createServerClient(env.url, env.key, {
+    global: { fetch: (input, init) => fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(10_000) }) },
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (list) => {

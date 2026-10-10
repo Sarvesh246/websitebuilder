@@ -121,7 +121,7 @@
      (transform is not a backdrop root). Hidden only once JS is known to run ([data-js], head script). */
   [data-reveal] {
     --_reveal-at: calc(var(--reveal-delay, 0s) + var(--reveal-i, 0) * var(--reveal-stagger, 0s));
-    transition: transform var(--dur-slow) var(--ease-out) var(--_reveal-at);
+    transition: transform var(--dur-spring) var(--ease-out) var(--_reveal-at);
   }
   [data-reveal] > :not(:has(.pane, .pkg, .pkg-common, .about__text, [class*="glass"])),
   [data-reveal] :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
@@ -141,6 +141,13 @@
   @media (prefers-reduced-motion: reduce) {
     :root[data-js] [data-reveal]:not([data-in]) {
       transform: none;
+    }
+    :root[data-js] [data-reveal] {
+      --_reveal-at: 0s;
+    }
+    :root[data-js] [data-reveal]:not([data-in]) > *,
+    :root[data-js] [data-reveal]:not([data-in]) :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
+      opacity: 1;
     }
   }
 

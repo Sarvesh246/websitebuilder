@@ -14,7 +14,6 @@ export type FinalizeResult = "applied" | "noop" | "mismatch" | "duplicate";
 
 const depositKey = (projectId: string) => `project:${projectId}:deposit`;
 export const finalKey = (projectId: string) => `project:${projectId}:final`;
-const refundKey = (paymentIntentId: string, cumulative: number) => `refund:${paymentIntentId}:${cumulative}`;
 
 /** Log class + ids only, never amounts, card data, secrets or Stripe messages. */
 const note = (kind: string, projectId: string) => serverLog("error", `payments.${kind}`, { project: projectId });
@@ -79,14 +78,38 @@ export const intentDetails = async (
   }
 };
 
+/** Repair a partially committed finalization after a DB failure. A paid project alone is not a complete ledger. */
+const repairPaidLedger = async (deps: PaymentsDeps, project: ProjectPayRow, stage: Obligation, paymentIntentId: string, sessionId?: string | null): Promise<FinalizeResult> => {
+  const key = stage === "deposit" ? depositKey(project.id) : finalKey(project.id);
+  const existing = await deps.repo.getLedgerByKey(key);
+  if (existing?.stripe_payment_intent_id === paymentIntentId && ["succeeded", "partially_refunded", "refunded"].includes(existing.status)) return "noop";
+  const amount = stage === "deposit" ? project.deposit_amount : (project.amount_paid ?? 0) - (project.deposit_amount ?? 0);
+  if (!amount || amount <= 0) return "noop";
+  const details = await intentDetails(deps.stripe, paymentIntentId);
+  const row = existing ?? await deps.repo.upsertLedger({
+    project_id: project.id, type: stage === "deposit" ? (project.final_payment_status === "not_required" ? "full" : "deposit") : "final_balance",
+    status: "succeeded", amount, currency: project.currency, idempotency_key: key,
+  });
+  await deps.repo.updateLedger(row.id, {
+    status: "succeeded", amount, stripe_payment_intent_id: paymentIntentId,
+    stripe_session_id: sessionId ?? row.stripe_session_id,
+    paid_at: (stage === "deposit" ? project.initial_paid_at : project.final_paid_at) ?? deps.now().toISOString(),
+    failure_reason: null, receipt_url: details?.receiptUrl ?? null,
+  });
+  return "applied";
+};
+
 export const finalizeDeposit = async (
   deps: PaymentsDeps,
-  input: { projectId: string; paymentIntentId: string; amountReceived: number; sessionId?: string | null; paymentMethodId?: string | null },
+  input: { projectId: string; paymentIntentId: string; amountReceived: number; currency?: string; sessionId?: string | null; paymentMethodId?: string | null },
 ): Promise<FinalizeResult> => {
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
   if (!project) return "noop";
-  if (isPaid(project, "deposit")) return handleDuplicate(deps, project, "deposit", input.paymentIntentId);
+  if (input.currency && input.currency !== project.currency) return flagMismatch(deps, input.projectId, "deposit_currency_mismatch", input.paymentIntentId);
+  if (isPaid(project, "deposit")) return project.stripe_deposit_pi === input.paymentIntentId
+    ? repairPaidLedger(deps, project, "deposit", input.paymentIntentId, input.sessionId)
+    : handleDuplicate(deps, project, "deposit", input.paymentIntentId);
   if (project.deposit_amount == null || input.amountReceived !== project.deposit_amount) return flagMismatch(deps, input.projectId, "deposit_amount_mismatch", input.paymentIntentId);
 
   const remaining = project.remaining_amount ?? 0;
@@ -146,12 +169,15 @@ export const finalizeDeposit = async (
 
 export const finalizeFinal = async (
   deps: PaymentsDeps,
-  input: { projectId: string; paymentIntentId: string; amountReceived: number; sessionId?: string | null },
+  input: { projectId: string; paymentIntentId: string; amountReceived: number; currency?: string; sessionId?: string | null },
 ): Promise<FinalizeResult> => {
   const { repo, stripe, now } = deps;
   const project = await repo.getProject(input.projectId);
   if (!project) return "noop";
-  if (isPaid(project, "final_balance")) return handleDuplicate(deps, project, "final_balance", input.paymentIntentId);
+  if (input.currency && input.currency !== project.currency) return flagMismatch(deps, input.projectId, "final_currency_mismatch", input.paymentIntentId);
+  if (isPaid(project, "final_balance")) return project.stripe_final_pi === input.paymentIntentId
+    ? repairPaidLedger(deps, project, "final_balance", input.paymentIntentId, input.sessionId)
+    : handleDuplicate(deps, project, "final_balance", input.paymentIntentId);
   if (project.initial_payment_status !== "paid") {
     note("final_before_initial", input.projectId);
     return "noop";
@@ -283,41 +309,8 @@ export const applyRefundedTotal = async (
   deps: PaymentsDeps,
   input: { projectId: string; paymentIntentId: string; refundedTotal: number; stripeRefundId?: string | null },
 ): Promise<FinalizeResult> => {
-  const { repo, now } = deps;
-  const project = await repo.getProject(input.projectId);
-  if (!project) return "noop";
-
-  const before = await repo.listLedger(input.projectId);
-  const diff = input.refundedTotal - refundedForIntent(before, input.paymentIntentId);
-  if (diff <= 0) return "noop";
-
-  await repo.upsertLedger({
-    project_id: input.projectId,
-    type: "refund",
-    status: "succeeded",
-    amount: diff,
-    currency: project.currency,
-    idempotency_key: refundKey(input.paymentIntentId, input.refundedTotal),
-    stripe_refund_id: input.stripeRefundId ?? null,
-    paid_at: now().toISOString(),
-  });
-
-  const rows = await repo.listLedger(input.projectId);
-  const totalRefunded = rows.filter((r) => r.type === "refund").reduce((sum, r) => sum + r.amount, 0);
-  const paid = project.amount_paid ?? 0;
-  const full = paid > 0 && totalRefunded >= paid;
-  await repo.updateProject(input.projectId, {
-    refunded_amount: totalRefunded,
-    refund_status: full ? "full" : "partial",
-    payment_status: full ? "refunded" : "partially_refunded",
-  });
-
-  const source = await repo.findLedgerByPaymentIntent(input.paymentIntentId);
-  if (source) {
-    await repo.updateLedger(source.id, { status: input.refundedTotal >= source.amount ? "refunded" : "partially_refunded" });
-  }
-  await repo.addEvent(input.projectId, "refund", full ? "Payment refunded" : "Payment partially refunded", "system");
-  return "applied";
+  const applied = await deps.repo.recordRefundTotal(input.projectId, input.paymentIntentId, input.refundedTotal, input.stripeRefundId);
+  return applied ? "applied" : "noop";
 };
 
 export const recordDispute = async (deps: PaymentsDeps, input: { projectId: string }): Promise<FinalizeResult> => {

@@ -24,12 +24,12 @@
      and the glass would render un-frosted until the fade ended. */
   @media (prefers-reduced-motion: no-preference) {
     .stage-enter {
-      animation: stage-in 1100ms var(--ease-out) both;
-      animation-delay: calc(220ms + var(--i, 0) * 140ms);
+      animation: stage-in var(--dur-spring) var(--ease-out) both;
+      animation-delay: calc(60ms + var(--i, 0) * 60ms);
     }
     .stage-enter .pane {
-      animation: stage-fade 900ms var(--ease-out) both;
-      animation-delay: calc(220ms + var(--i, 0) * 140ms);
+      animation: stage-fade 240ms var(--ease-standard) both;
+      animation-delay: calc(60ms + var(--i, 0) * 60ms);
     }
   }
   @keyframes stage-in {

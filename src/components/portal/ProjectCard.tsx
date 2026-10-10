@@ -8,7 +8,8 @@ import { DeadlineChip, StageChip, packageName } from "./parts";
 
 /** Compact project card: the client's project list and the multi-project overview. */
 export const ProjectCard = ({ project }: { project: ProjectSummary }) => {
-  const owing = project.money.remaining ?? 0;
+  const owing = (project.initialPayment === "paid" ? project.money.remaining : project.money.total) ?? 0;
+  const processing = project.initialPayment === "processing" || project.finalPayment === "processing";
   return (
     <article className="pt-card">
       <div className="pt-row" style={{ padding: 0 }}>
@@ -28,7 +29,9 @@ export const ProjectCard = ({ project }: { project: ProjectSummary }) => {
       <div className="pt-row" style={{ padding: 0 }}>
         <div className="pt-tags">
           <DeadlineChip deadline={project.deadline} stage={project.stage} />
-          {owing > 0 && project.stage !== "cancelled" && <span className="pt-chip pt-chip--outline">{formatUsd(owing)} remaining</span>}
+          {project.stage !== "cancelled" && (processing
+            ? <span className="pt-chip pt-chip--outline">Payment processing</span>
+            : owing > 0 && <span className="pt-chip pt-chip--outline">{formatUsd(owing)} {project.initialPayment === "paid" ? "remaining" : "unpaid"}</span>)}
           {project.unreadMessages > 0 && (
             <span className="pt-chip pt-chip--accent">
               <span className="pt-dot" aria-hidden /> {project.unreadMessages} new

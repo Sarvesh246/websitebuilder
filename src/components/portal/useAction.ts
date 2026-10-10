@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 
 /** Loose result shape shared by every portal server action. */
 export type ActionResult = { ok: boolean; error?: string; url?: string; message?: string; outcome?: string };
@@ -12,11 +12,14 @@ export const useAction = () => {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const running = useRef(false);
 
   const run = (
     fn: () => Promise<ActionResult>,
     opts: { refresh?: boolean; success?: string | ((r: ActionResult) => string); onOk?: (r: ActionResult) => void } = {},
   ) => {
+    if (running.current) return;
+    running.current = true;
     setError(null);
     setNotice(null);
     start(async () => {
@@ -32,6 +35,8 @@ export const useAction = () => {
         if (opts.refresh !== false) router.refresh();
       } catch {
         setError("Something went wrong. Please try again.");
+      } finally {
+        running.current = false;
       }
     });
   };

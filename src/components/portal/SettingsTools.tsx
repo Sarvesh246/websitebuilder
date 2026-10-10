@@ -38,7 +38,7 @@ export const ViewAsToggle = ({ active }: { active: boolean }) => {
   );
 };
 
-export const NameForm = ({ initial }: { initial: string }) => {
+export const NameForm = ({ initial, disabled }: { initial: string; disabled?: boolean }) => {
   const [name, setName] = useState(initial);
   const { pending, error, notice, run } = useAction();
   return (
@@ -51,10 +51,10 @@ export const NameForm = ({ initial }: { initial: string }) => {
     >
       <div className="pt-field">
         <label htmlFor="pt-fullname">Full name</label>
-        <input id="pt-fullname" className="pt-input" value={name} maxLength={120} autoComplete="name" onChange={(e) => setName(e.target.value)} />
+        <input id="pt-fullname" className="pt-input" disabled={disabled || pending} value={name} maxLength={100} autoComplete="name" onChange={(e) => setName(e.target.value)} />
       </div>
       <div className="pt-form-row">
-        <button type="submit" className="btn btn-primary btn-sm" disabled={pending || name.trim().length < 1 || name.trim() === initial}>
+        <button type="submit" className="btn btn-primary btn-sm" disabled={disabled || pending || name.trim().length < 1 || name.trim() === initial}>
           {pending ? "Saving" : "Save name"}
         </button>
         {notice && (

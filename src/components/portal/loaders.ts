@@ -17,27 +17,15 @@ export const getContext = cache(async (next = "/portal") => {
 
 /** One project's detail, shared between a layout and its page within a request. Null = not found or not yours. */
 export const loadProject = cache(async (viewer: Viewer, perspective: "admin" | "client", id: string): Promise<ProjectDetail | null> => {
-  try {
-    return await getProject(viewer, perspective, id);
-  } catch {
-    return null;
-  }
+  return getProject(viewer, perspective, id);
 });
 
-/** Feedback rounds + checklist for a project the page already loaded. Empty (never throws) when unavailable. */
+/** Failed reads reach the error boundary rather than masquerading as an empty checklist. */
 export const loadWorkflow = async (viewer: Viewer, perspective: "admin" | "client", project: Pick<ProjectSummary, "id" | "package">): Promise<Workflow> => {
-  try {
-    return await getWorkflow(viewer, perspective, project);
-  } catch {
-    return { rounds: [], checklist: [] };
-  }
+  return getWorkflow(viewer, perspective, project);
 };
 
 /** The viewer's project list, shared between the shell (unread badge) and the page within one request. */
 export const loadProjects = cache(async (viewer: Viewer, perspective: "admin" | "client"): Promise<ProjectSummary[]> => {
-  try {
-    return await listProjects(viewer, perspective);
-  } catch {
-    return [];
-  }
+  return listProjects(viewer, perspective);
 });

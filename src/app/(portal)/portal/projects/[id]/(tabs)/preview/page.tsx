@@ -97,7 +97,7 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
           <ol className="pt-steps">
             <li>Open the preview and note anything to change.</li>
             <li>Add one comment per change, with the page and a screenshot if it helps.</li>
-            <li>Send the round. Each round uses one of your {p.revisionsIncluded} included revisions.</li>
+            <li>Send the round. Each round uses one of your {p.revisionsIncluded} included revision {p.revisionsIncluded === 1 ? "round" : "rounds"}.</li>
             <li>The studio works through it and lets you know when the round is addressed.</li>
           </ol>
         </Card>

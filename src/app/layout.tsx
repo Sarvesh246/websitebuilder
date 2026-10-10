@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Figtree, Nunito } from "next/font/google";
 import { ThemePreload } from "@/components/nav/ThemePreload";
 import { Grain } from "@/components/visual/Ambient";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { bingVerification, siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -77,7 +78,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <Grain />
         <ThemePreload />
       </body>

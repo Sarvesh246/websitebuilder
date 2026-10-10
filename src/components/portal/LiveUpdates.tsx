@@ -42,7 +42,7 @@ export const LiveUpdates = ({ enabled, viewerId }: { enabled: boolean; viewerId:
           })
           .subscribe();
         unsubscribe = () => void supabase.removeChannel(channel);
-      });
+      }).catch(() => undefined);
     }
     return () => {
       cancelled = true;
@@ -57,12 +57,16 @@ export const LiveUpdates = ({ enabled, viewerId }: { enabled: boolean; viewerId:
 /** Message thread that opens at the newest message and follows new ones as they arrive. */
 export const Thread = ({ count, children }: { count: number; children: ReactNode }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const follow = useRef(true);
   useLayoutEffect(() => {
     const el = ref.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (el && follow.current) el.scrollTop = el.scrollHeight;
   }, [count]);
   return (
-    <div ref={ref} className="pt-thread" role="log" aria-label="Messages" aria-live="polite" tabIndex={0}>
+    <div ref={ref} onScroll={(event) => {
+      const el = event.currentTarget;
+      follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    }} className="pt-thread" role="log" aria-label="Messages" aria-live="polite" tabIndex={0}>
       {children}
     </div>
   );

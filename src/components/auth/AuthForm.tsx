@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { TextField } from "@/components/inquiry/fields";
 import { GlassSurface } from "@/components/ui/GlassSurface";
 import { safeNext } from "@/lib/auth/next";
@@ -20,6 +20,7 @@ const copy = {
 const friendly = (message: string) => {
   const m = message.toLowerCase();
   if (m.includes("invalid login")) return "That email and password don't match.";
+  if (m.includes("email not confirmed")) return "Open the confirmation link in your email before signing in. Check your spam folder too.";
   if (m.includes("already registered") || m.includes("already been registered")) return "An account with this email already exists. Try signing in.";
   if (m.includes("password") && m.includes("characters")) return "Use a password of at least 8 characters.";
   if (m.includes("rate") || m.includes("too many")) return "Too many attempts. Please wait a minute and try again.";
@@ -34,20 +35,30 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
   const [error, setError] = useState(notice ?? "");
+  const [invalid, setInvalid] = useState<"email" | "password" | null>(null);
   const [sent, setSent] = useState(false);
 
   const callback = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(target)}`;
 
-  const submit = async (event: FormEvent) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (busy) return;
+    if (inFlight.current) return;
     // Autofill and phone keyboards often add a trailing space.
     const address = email.trim();
-    if (!/^\S+@\S+\.\S+$/.test(address)) return setError("Enter a valid email address.");
-    if (password.length < 8) return setError("Use a password of at least 8 characters.");
+    const reject = (field: "email" | "password", message: string) => {
+      setInvalid(field);
+      setError(message);
+      (event.currentTarget.elements.namedItem(field) as HTMLInputElement | null)?.focus();
+    };
+    if (!/^\S+@\S+\.\S+$/.test(address)) return reject("email", "Enter a valid email address.");
+    if (mode === "signup" && password.length < 8) return reject("password", "Use a password of at least 8 characters.");
+    if (!password) return reject("password", "Enter your password.");
+    inFlight.current = true;
     setBusy(true);
     setError("");
+    setInvalid(null);
     try {
       const supabase = createClient();
       if (mode === "login") {
@@ -70,16 +81,23 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
     } catch (err) {
       setError(friendly(err instanceof Error ? err.message : ""));
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   };
 
   const google = async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setBusy(true);
     setError("");
+    setInvalid(null);
     try {
       const { error: err } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback() } });
       if (err) throw err;
     } catch {
+      inFlight.current = false;
+      setBusy(false);
       setError("Google sign-in isn't available right now. Use your email instead.");
     }
   };
@@ -100,7 +118,7 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
     <GlassSurface variant="elevated" className="auth__panel">
       <h1 className="t-h3">{c.title}</h1>
       <p className="t-body auth__lead">{c.lead}</p>
-      <button type="button" className="btn btn-secondary btn-block" onClick={google}>
+      <button type="button" disabled={busy} className="btn btn-secondary btn-block" onClick={google}>
         <svg aria-hidden width="18" height="18" viewBox="0 0 24 24">
           <path fill="currentColor" d="M21.35 11.1H12v2.98h5.35c-.23 1.4-1.66 4.1-5.35 4.1a5.98 5.98 0 0 1 0-11.96c1.9 0 3.17.8 3.9 1.5l2.66-2.56C17.5 3.5 15 2.4 12 2.4a9.6 9.6 0 1 0 0 19.2c5.54 0 9.2-3.9 9.2-9.38 0-.63-.07-1.1-.15-1.12Z" />
         </svg>
@@ -110,18 +128,20 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
         <span>or</span>
       </p>
       <form onSubmit={submit} noValidate className="auth__form">
-        {mode === "signup" && <TextField label="Full name" name="name" autoComplete="name" value={name} onValueChange={setName} />}
-        <TextField label="Email" name="email" type="email" inputMode="email" autoComplete="email" value={email} onValueChange={setEmail} />
+        {mode === "signup" && <TextField disabled={busy} label="Full name" name="name" maxLength={100} autoComplete="name" value={name} onValueChange={setName} />}
+        <TextField disabled={busy} label="Email" name="email" type="email" maxLength={254} inputMode="email" autoComplete="email" value={email} error={invalid === "email" ? error : undefined} onValueChange={setEmail} />
         <TextField
           label="Password"
           name="password"
+          disabled={busy}
           type="password"
           autoComplete={mode === "login" ? "current-password" : "new-password"}
           hint={mode === "signup" ? "At least 8 characters." : undefined}
           value={password}
+          error={invalid === "password" ? error : undefined}
           onValueChange={setPassword}
         />
-        {error && (
+        {error && !invalid && (
           <p role="alert" className="flow__error">
             <span className="sr-only">Error: </span>
             {error}
@@ -132,6 +152,7 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
           {c.submit}
         </button>
       </form>
+      {mode === "signup" && <p className="t-small">Review our <Link href="/terms" className="auth__link">Terms</Link> and <Link href="/privacy" className="auth__link">Privacy Policy</Link> before creating your account.</p>}
       <p className="auth__alt">
         {c.alt}{" "}
         <Link href={`${c.altHref}${next ? `?next=${encodeURIComponent(next)}` : ""}`} className="auth__link">

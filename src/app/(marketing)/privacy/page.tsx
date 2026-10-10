@@ -17,8 +17,7 @@ export default function PrivacyPage() {
     >
       <LegalSection title="Information collected">
         <p>
-          The only personal information this site collects is what you type into the{" "}
-          <Link href="/start">project inquiry form</Link> and choose to send:
+          The <Link href="/start">project inquiry form</Link> collects the details you choose to send:
         </p>
         <ul>
           <li>Your name and email address (required).</li>
@@ -69,8 +68,8 @@ export default function PrivacyPage() {
       <LegalSection title="Service providers">
         <p>
           Inquiries are stored in a private database hosted by Supabase, a database provider, and a copy is sent by email
-          through Resend, an email delivery service, to Northframe&apos;s inbox. Payments are handled by Stripe, a payment processor. None of these providers uses your submission for
-          anything other than storing and delivering it. The site&apos;s hosting provider serves the pages and runs the
+          through Resend, an email delivery service, to Northframe&apos;s inbox. Payments are handled by Stripe, a payment processor.
+          These services process information for the purposes described here, subject to their own privacy policies. The site&apos;s hosting provider serves the pages and runs the
           form&apos;s server code.
         </p>
         <p>
@@ -90,21 +89,23 @@ export default function PrivacyPage() {
         </p>
         <p>
           You can delete your account yourself from Settings in the portal. That removes your sign-in, profile, messages and
-          files, and any request you never paid for. Records of payments you made (amounts, dates and Stripe references) are
-          kept, unlinked from your account, because they are needed for accounting. Account deletion is not available while a
+          files. Requests with no payment history are removed. Project and payment records with payment history are
+          kept, unlinked from your sign-in account, because they are needed for accounting and support. Those records may
+          include the contact details and project information supplied with the request. Account deletion is not available while a
           paid project is still in progress.
         </p>
       </LegalSection>
 
       <LegalSection title="Cookies and analytics">
         <p>
-          This site sets no cookies and runs no analytics, advertising, or tracking scripts. It saves two things in your
-          browser only: your light or dark theme choice (local storage) and the temporary form draft described above
-          (session storage). Neither is sent to Northframe. If analytics are added later, this page will be updated first.
+          Essential sign-in cookies keep your account session active and support secure sign-in. A studio-only cookie
+          remembers client preview mode. This site runs no browser analytics, advertising, or tracking scripts. It also
+          saves your light or dark theme choice in local storage and the temporary form draft in session storage.
+          The theme choice and unsent draft stay in your browser. If browser analytics are added later, this page will be updated first.
         </p>
         <p>
           When something fails on the server, such as a payment event or a project request that could not be saved, a
-          short error record is sent to PostHog, a logging service, so problems can be found and fixed. These records
+          short error record may be sent to PostHog, a logging service, when server logging is configured, so problems can be found and fixed. These records
           hold only a fixed event name and technical reference IDs. They never include your name, email address, message
           text, or card details, and no logging or tracking script runs in your browser.
         </p>

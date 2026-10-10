@@ -17,7 +17,7 @@ export default async function ProjectFilesPage({ params }: PageProps<"/portal/pr
   const p = await loadProject(viewer, perspective, id);
   if (!p) notFound();
   const [files, work] = await Promise.all([
-    listFiles(viewer, perspective, id).catch(() => []),
+    listFiles(viewer, perspective, id),
     loadWorkflow(viewer, perspective, p),
   ]);
   const previewing = viewer.role === "admin" && perspective === "client";

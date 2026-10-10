@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence } from "motion/react";
 import { Lightbox } from "./Lightbox";
 import { lensPhotos, type LensCategory, type LensPhoto } from "./photos";
 
@@ -42,7 +43,7 @@ const Tile = ({ photo, priority, onOpen }: TileProps) => {
           height={photo.height}
           alt={photo.alt}
           sizes="(min-width: 1400px) 33vw, (min-width: 700px) 50vw, 100vw"
-          quality={70}
+          quality={75}
           priority={priority}
         />
         <span className="lens-tile__cap" aria-hidden>
@@ -82,7 +83,7 @@ export const Gallery = () => {
           <Tile key={photo.id} photo={photo} priority={i < 2} onOpen={() => setOpen(i)} />
         ))}
       </ul>
-      {open !== null && photos[open] && <Lightbox photos={photos} index={open} onClose={() => setOpen(null)} onIndex={setOpen} />}
+      <AnimatePresence>{open !== null && photos[open] && <Lightbox photos={photos} index={open} onClose={() => setOpen(null)} onIndex={setOpen} />}</AnimatePresence>
     </section>
   );
 };

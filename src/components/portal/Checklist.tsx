@@ -88,9 +88,9 @@ const Row = ({ projectId, item, admin, disabled }: RowProps) => {
         ) : item.status === "needed" ? (
           <>
             <input ref={fileInput} id={inputId} type="file" accept={UPLOAD_ACCEPT} className="sr-only" disabled={disabled || busy} onChange={(e) => void upload(e.target.files?.[0])} />
-            <label htmlFor={inputId} className="btn btn-primary btn-sm" aria-disabled={disabled || busy || undefined}>
+            <button type="button" className="btn btn-primary btn-sm" disabled={disabled || busy} onClick={() => fileInput.current?.click()}>
               {pct !== null ? `${pct}%` : "Upload"}
-            </label>
+            </button>
             <button type="button" className="btn btn-secondary btn-sm" disabled={disabled || busy} onClick={() => set("provided")} title="Use this if you sent it another way, such as in Messages">
               Already sent
             </button>

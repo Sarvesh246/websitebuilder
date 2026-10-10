@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m, useMotionValue, useReducedMotion, useSpring } from "motion/react";
+import { spring } from "@/lib/motion";
+import { useLockBodyScroll } from "@/hooks/useLockBodyScroll";
 
 export type Project = {
   n: string;
@@ -18,52 +21,30 @@ export type Project = {
 /** Numbered work list. On hover-capable pointers a photo follows the cursor (transform only). */
 export const ProjectList = ({ projects }: { projects: Project[] }) => {
   const [active, setActive] = useState<number | null>(null);
-  const preview = useRef<HTMLDivElement>(null);
-  const target = useRef({ x: 0, y: 0 });
-  const current = useRef({ x: 0, y: 0 });
-  const raf = useRef<number | null>(null);
+  const [selected, setSelected] = useState<Project | null>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const springX = useSpring(x, spring);
+  const springY = useSpring(y, spring);
+  const reduce = useReducedMotion();
   const fine = useRef(false);
 
   useEffect(() => {
     fine.current = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
   }, []);
-
-  const tickRef = useRef<() => void>(() => {});
-  const tick = useCallback(() => {
-    const el = preview.current;
-    if (!el) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const k = reduce ? 1 : 0.16;
-    current.current.x += (target.current.x - current.current.x) * k;
-    current.current.y += (target.current.y - current.current.y) * k;
-    el.style.transform = `translate3d(${current.current.x}px, ${current.current.y}px, 0)`;
-    const settled =
-      Math.abs(target.current.x - current.current.x) < 0.3 &&
-      Math.abs(target.current.y - current.current.y) < 0.3;
-    raf.current = settled ? null : requestAnimationFrame(() => tickRef.current());
-  }, []);
-
-  useEffect(() => {
-    tickRef.current = tick;
-  }, [tick]);
 
   const move = (e: React.PointerEvent) => {
     if (!fine.current) return;
-    target.current = { x: e.clientX + 28, y: e.clientY - 120 };
-    if (raf.current === null) raf.current = requestAnimationFrame(tick);
+    x.set(Math.max(8, Math.min(e.clientX + 28, window.innerWidth - 340)));
+    y.set(Math.max(8, Math.min(e.clientY - 120, window.innerHeight - 240)));
   };
 
   const enter = (i: number, e: React.PointerEvent) => {
     if (!fine.current) return;
     if (active === null) {
-      current.current = { x: e.clientX + 28, y: e.clientY - 120 };
-      target.current = { ...current.current };
-      if (preview.current) {
-        preview.current.style.transform = `translate3d(${current.current.x}px, ${current.current.y}px, 0)`;
-      }
+      move(e);
+      springX.jump(x.get());
+      springY.jump(y.get());
     }
     setActive(i);
   };
@@ -73,8 +54,7 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
       <ol className="pf-list">
         {projects.map((p, i) => (
           <li key={p.n} className="pf-row" data-active={active === i || undefined}>
-            <a
-              href="#"
+            <button type="button" aria-haspopup="dialog" onClick={() => { setSelected(p); setActive(null); }}
               className="pf-row__link"
               onPointerEnter={(e) => enter(i, e)}
               onFocus={() => setActive(i)}
@@ -91,11 +71,11 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
               <span className="pf-row__arrow" aria-hidden>
                 &#8599;
               </span>
-            </a>
+            </button>
           </li>
         ))}
       </ol>
-      <div ref={preview} className="pf-preview" aria-hidden data-on={active !== null || undefined}>
+      <m.div className="pf-preview" style={{ x: reduce ? x : springX, y: reduce ? y : springY }} aria-hidden data-on={active !== null || undefined}>
         <div className="pf-preview__frame">
           {projects.map((p, i) => (
             <Image
@@ -109,7 +89,28 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
             />
           ))}
         </div>
-      </div>
+      </m.div>
+      <AnimatePresence>{selected && <ProjectDetails project={selected} onClose={() => setSelected(null)} />}</AnimatePresence>
     </div>
   );
+};
+
+const ProjectDetails = ({ project, onClose }: { project: Project; onClose: () => void }) => {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useLockBodyScroll(true);
+  useEffect(() => {
+    const element = dialog.current;
+    const previous = document.activeElement as HTMLElement | null;
+    element?.showModal();
+    return () => { element?.close(); if (previous?.isConnected) previous.focus(); };
+  }, []);
+  return <m.dialog ref={dialog} className="pf-project-dialog" aria-label={project.title}
+    initial={{ y: 12, scale: .98, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} exit={{ y: 6, scale: .99, opacity: 0 }}
+    transition={{ ...spring, opacity: { duration: .15 } }} onCancel={event => { event.preventDefault(); onClose(); }}>
+    <button type="button" className="pf-btn pf-btn--ghost" onClick={onClose}>Close project</button>
+    <h2 className="pf-h2">{project.title}</h2>
+    <p>{project.kind} · {project.year}</p>
+    <Image src={project.img} alt={project.alt} width={project.w} height={project.h} sizes="(max-width: 760px) 90vw, 720px" />
+    <p>{project.blurb}</p>
+  </m.dialog>;
 };

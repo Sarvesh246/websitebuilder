@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { Container } from "@/components/layout/Container";
 import { Grid } from "@/components/layout/Grid";
@@ -42,6 +43,7 @@ const typeScale = [
 ] as const;
 
 export default function DesignSystemPage() {
+  if (process.env.NODE_ENV === "production") notFound();
   return (
     <>
       <Section spacing="tight" className="pt-[calc(var(--nav-h)+3rem)]">

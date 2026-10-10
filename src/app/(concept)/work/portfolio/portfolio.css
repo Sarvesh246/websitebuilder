@@ -7,7 +7,7 @@
   --pf-accent: #e2552d;
   --pf-accent-ink: #b3370f;
   --pf-gutter: clamp(1.25rem, 4vw, 4rem);
-  --pf-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --pf-ease: var(--ease-out);
 
   background: var(--pf-paper);
   color: var(--pf-ink);
@@ -19,6 +19,21 @@
   overflow-x: clip;
   color-scheme: light;
 }
+
+.cx-portfolio .pf-row__link { width: 100%; text-align: left; cursor: pointer; }
+.cx-portfolio .pf-project-dialog {
+  margin: auto;
+  width: min(48rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: var(--pf-gutter);
+  background: var(--pf-paper);
+  color: var(--pf-ink);
+  border: 1px solid var(--pf-rule);
+  overflow: auto;
+}
+.cx-portfolio .pf-project-dialog img { width: 100%; height: auto; margin-block: 1rem; }
+.cx-portfolio .pf-project-dialog .pf-h2 { margin-top: 1rem; }
+.cx-portfolio .pf-project-dialog::backdrop { background: rgb(0 0 0 / .6); }
 
 /* paper grain, static */
 .cx-portfolio::before {
@@ -230,11 +245,11 @@
   }
 }
 .cx-portfolio .pf-rise {
-  animation: pf-rise 1s var(--pf-ease) both;
+  animation: pf-rise var(--dur-spring) var(--pf-ease) both;
   animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 .cx-portfolio .pf-fade {
-  animation: pf-fade 0.9s var(--pf-ease) both;
+  animation: pf-fade .2s var(--ease-standard) both;
   animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 

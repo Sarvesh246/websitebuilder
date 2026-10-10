@@ -116,6 +116,7 @@ export const refundDuplicatePayment = async (
       },
       { idempotencyKey: `auto-refund:duplicate:${duplicate.intent.id}` },
     );
+    if (refund.status !== "succeeded") return review("refund_not_confirmed");
     // A parallel delivery of the same event already issued this exact refund: don't report it twice.
     replayed = refund.lastResponse?.headers?.["idempotent-replayed"] === "true";
   } catch (err) {

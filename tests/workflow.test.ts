@@ -93,7 +93,9 @@ describe("waitingOn", () => {
 
 describe("invoices", () => {
   it("numbers invoices from the paid month and payment id", () => {
-    expect(invoiceNumber({ id: "abcdef12-3456-4789-8abc-def012345678", createdAt: "2026-09-01T00:00:00Z", paidAt: "2026-10-02T12:00:00Z" })).toBe("NF-202610-ABCDEF");
+    expect(invoiceNumber({ id: "abcdef12-3456-4789-8abc-def012345678", createdAt: "2026-09-01T00:00:00Z", paidAt: "2026-10-02T12:00:00Z" })).toBe("NF-202610-ABCDEF12-3456-4789-8ABC-DEF012345678");
+    const payment = { createdAt: "2026-09-01T00:00:00Z", paidAt: "2026-10-02T12:00:00Z" };
+    expect(invoiceNumber({ ...payment, id: "abcdef12-3456-4789-8abc-def012345678" })).not.toBe(invoiceNumber({ ...payment, id: "abcdef12-3456-4789-8abc-def012345679" }));
   });
 
   it("only invoices money that arrived", () => {

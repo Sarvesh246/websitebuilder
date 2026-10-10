@@ -71,6 +71,8 @@ export type ClaimedFinal = { id: string; remaining_amount: number; currency: str
 export type Guard = Partial<Record<keyof ProjectPayRow, readonly (string | number | null)[]>>;
 
 export type PaymentsRepo = {
+  /** Atomic cumulative refund, ledger and project update (record_refund_total SQL function). Zero checks readiness. */
+  recordRefundTotal(projectId: string, paymentIntentId: string, total: number, refundId?: string | null): Promise<boolean>;
   getProject(id: string): Promise<ProjectPayRow | null>;
   updateProject(id: string, patch: Partial<ProjectPayRow>): Promise<void>;
   /** Applies the patch only when the guard holds; returns whether it applied. The basis of idempotent state changes. */
@@ -97,8 +99,9 @@ export type PaymentsRepo = {
   addEvent(projectId: string, kind: string, title: string, actorRole: "client" | "admin" | "system"): Promise<void>;
   /** How many events of one kind a project has, and when the latest was. Drives reminder pacing. */
   eventStats(projectId: string, kind: string): Promise<{ count: number; lastAt: string | null }>;
-  /** Projects created since the given time, newest first (bounded): the daily reconciliation's working set. */
+  /** Rotating working set, including older open projects with payment history. */
   listRecentProjects(sinceIso: string, limit: number): Promise<ProjectPayRow[]>;
+  markReconciled(projectId: string, at: string): Promise<void>;
 };
 
 const PROJECT_COLUMNS =
@@ -127,6 +130,13 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
   };
 
   return {
+    recordRefundTotal: async (projectId, paymentIntentId, total, refundId) => {
+      const { data, error } = await db.rpc("record_refund_total", {
+        p_project_id: projectId, p_payment_intent_id: paymentIntentId, p_refunded_total: total, p_refund_id: refundId ?? null,
+      });
+      if (error) return fail(`db_${error.code ?? "error"}`);
+      return data === true;
+    },
     getProject: (id) => one(db.from("project_requests").select(PROJECT_COLUMNS).eq("id", id).maybeSingle<ProjectPayRow>()),
 
     updateProject: (id, patch) => check(db.from("project_requests").update(patch).eq("id", id)),
@@ -172,9 +182,16 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     updateLedger: (id, patch) => check(db.from("payments").update(patch).eq("id", id)),
 
     listLedger: async (projectId) => {
-      const { data, error } = await db.from("payments").select(LEDGER_COLUMNS).eq("project_id", projectId).order("created_at", { ascending: true });
-      if (error) fail(`db_${error.code ?? "error"}`);
-      return (data ?? []) as LedgerRow[];
+      const rows: LedgerRow[] = [];
+      for (let offset = 0; offset < 50000; offset += 500) {
+        const { data, error } = await db.from("payments").select(LEDGER_COLUMNS).eq("project_id", projectId)
+          .order("created_at", { ascending: true }).order("id", { ascending: true }).range(offset, offset + 499);
+        if (error) fail(`db_${error.code ?? "error"}`);
+        const page = (data ?? []) as LedgerRow[];
+        rows.push(...page);
+        if (page.length < 500) return rows;
+      }
+      return fail("db_ledger_limit");
     },
 
     findLedgerByPaymentIntent: (pi) =>
@@ -210,10 +227,11 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     },
 
     listRecentProjects: async (sinceIso, limit) => {
-      const { data, error } = await db.from("project_requests").select(PROJECT_COLUMNS).gte("created_at", sinceIso).order("created_at", { ascending: false }).limit(limit);
+      const { data, error } = await db.rpc("payment_reconciliation_queue", { p_since: sinceIso, p_limit: limit }).select(PROJECT_COLUMNS);
       if (error) fail(`db_${error.code ?? "error"}`);
       return (data ?? []) as ProjectPayRow[];
     },
+    markReconciled: (projectId, at) => check(db.from("payment_reconciliation").upsert({ project_id: projectId, checked_at: at }, { onConflict: "project_id" })),
 
     addEvent: (projectId, kind, title, actorRole) =>
       check(db.from("project_events").insert({ project_id: projectId, kind, title, actor_role: actorRole })),

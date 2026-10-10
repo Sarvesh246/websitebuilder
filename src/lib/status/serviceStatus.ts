@@ -1,4 +1,5 @@
 import "server-only";
+import { boundedText } from "@/lib/http/boundedText";
 
 /**
  * Upstream health for the services the studio depends on, shown to admins only.
@@ -61,8 +62,7 @@ const fetchOne = async (slug: string): Promise<ServiceState> => {
       next: { revalidate: 300 },
     });
     if (!res.ok) return "unknown";
-    const text = await res.text();
-    if (text.length > 20_000) return "unknown";
+    const text = await boundedText(res.body, 20_000);
     return readState(JSON.parse(text));
   } catch {
     return "unknown";

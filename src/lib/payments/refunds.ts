@@ -1,5 +1,5 @@
 import "server-only";
-import { CANCELLATION_WINDOW_DAYS } from "@/config/payments";
+import { inCancellationWindow } from "./cancellation";
 import { applyRefundedTotal, recordedRefunds } from "@/lib/payments/finalize";
 import { defaultDeps, PaymentError, type PaymentsDeps } from "@/lib/payments/stripe";
 import type { Viewer } from "@/lib/portal/types";
@@ -35,16 +35,22 @@ export const refundPayment = async (
   if (!Number.isInteger(amount) || amount <= 0) throw new PaymentError("Enter a valid refund amount.");
   if (amount > available) throw new PaymentError("That is more than the amount still refundable on this payment.");
 
+  // Refuse before asking Stripe to refund if the transactional storage migration is unavailable.
+  await repo.recordRefundTotal(projectId, intentId, 0);
+
   const refund = await stripe.refunds.create(
     { payment_intent: intentId, amount, metadata: { project_id: projectId, payment_id: paymentId } },
     { idempotencyKey: `refund:${paymentId}:${already}:${amount}` },
   );
-  await applyRefundedTotal(deps, { projectId, paymentIntentId: intentId, refundedTotal: already + amount, stripeRefundId: refund.id });
+  if (refund.status !== "succeeded") throw new PaymentError("The refund has not been confirmed yet. Check it in Stripe before trying again.");
+  const intent = await stripe.paymentIntents.retrieve(intentId, { expand: ["latest_charge"] });
+  const charge = typeof intent.latest_charge === "object" ? intent.latest_charge : null;
+  // Read Stripe's cumulative total: another studio refund may have completed concurrently.
+  const refundedTotal = charge && typeof charge.amount_refunded === "number" ? charge.amount_refunded : already + amount;
+  await applyRefundedTotal(deps, { projectId, paymentIntentId: intentId, refundedTotal, stripeRefundId: refund.id });
   return { refunded: amount };
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-const utcDay = (date: Date) => Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / DAY_MS);
 
 /**
  * Client request to cancel within the 3-Day Project Cancellation Policy. Only stamps
@@ -62,8 +68,7 @@ export const requestCancellation = async (
   if (project.status === "cancelled") throw new PaymentError("This project is already cancelled.");
   if (!project.initial_paid_at) throw new PaymentError("Nothing has been paid on this project yet.");
 
-  const elapsedDays = utcDay(now()) - utcDay(new Date(project.initial_paid_at));
-  if (elapsedDays > CANCELLATION_WINDOW_DAYS) {
+  if (!inCancellationWindow(project.initial_paid_at, now())) {
     throw new PaymentError("The 3-day cancellation window has passed. Please message the studio if something has changed.");
   }
 

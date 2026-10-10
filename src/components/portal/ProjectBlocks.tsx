@@ -3,7 +3,7 @@ import {
   Sparkles, TriangleAlert, Undo2, UserRound, type LucideIcon,
 } from "lucide-react";
 import { formatUsd } from "@/lib/money";
-import { clockTime, relativeDay, shortDate } from "@/lib/portal/format";
+import { clockTime, dayKey as calendarDayKey, relativeDay, shortDate } from "@/lib/portal/format";
 import type { ProjectDetail } from "@/lib/portal/types";
 import { CollectFinalButton, RefundForm } from "./ProjectActions";
 import { dueFor, paymentTypeLabel } from "./copy";
@@ -29,12 +29,12 @@ export const MoneySummary = ({ p }: { p: ProjectDetail }) => {
             </div>
           )}
           <div>
-            <dt>Paid so far</dt>
+            <dt>Net paid so far</dt>
             <dd>{formatUsd(m.paid)}</dd>
           </div>
           <div className="pt-money__total">
             <dt className="pt-strong">Remaining</dt>
-            <dd>{formatUsd(Math.max(0, m.remaining ?? 0))}</dd>
+            <dd>{formatUsd(p.initialPayment === "paid" ? Math.max(0, m.remaining ?? 0) : m.total)}</dd>
           </div>
         </dl>
       )}
@@ -151,7 +151,7 @@ const eventIcon: Record<string, LucideIcon> = {
 const actorText = (role: ProjectDetail["events"][number]["actorRole"], admin: boolean) =>
   role === "system" ? "Automatic" : role === "admin" ? (admin ? "You" : "Studio") : role === "client" ? (admin ? "Client" : "You") : null;
 
-const dayKey = (iso: string) => new Date(iso).toDateString();
+const dayKey = (iso: string) => calendarDayKey(new Date(iso));
 const dayLabel = (iso: string) => {
   const rel = relativeDay(iso);
   return rel === "Today" || rel === "Yesterday" ? rel : shortDate(iso);

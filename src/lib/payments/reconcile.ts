@@ -44,10 +44,12 @@ const intentsFor = async (deps: PaymentsDeps, projectId: string): Promise<Stripe
       ...(page ? { page } : {}),
     });
     found.push(...res.data.filter((pi) => pi.metadata?.project_id === projectId)); // defensive: exact match only
-    if (!res.has_more || !res.next_page) break;
+    if (!res.has_more) return found;
+    if (!res.next_page) throw new Error("Incomplete Stripe payment search");
     page = res.next_page;
   }
-  return found;
+  // Never release an uncertain claim based on a silently truncated charge search.
+  throw new Error("Stripe payment search exceeds the supported page limit");
 };
 
 const knownIntents = (project: ProjectPayRow, ledger: LedgerRow[]) =>
@@ -58,10 +60,12 @@ const recordMissed = async (deps: PaymentsDeps, project: ProjectPayRow, ledger: 
   const known = knownIntents(project, ledger);
   let n = 0;
   // Oldest first, so when two exist the one the customer paid first is the one kept.
-  const missed = intents.filter((i) => i.status === "succeeded" && !known.has(i.id) && !chargeOf(i)?.refunded).sort((a, b) => a.created - b.created);
+  const missed = intents.filter((i) => i.status === "succeeded" && !chargeOf(i)?.refunded &&
+    (!known.has(i.id) || !ledger.some((r) => r.type !== "refund" && r.stripe_payment_intent_id === i.id && ["succeeded", "partially_refunded", "refunded"].includes(r.status))))
+    .sort((a, b) => a.created - b.created);
   for (const intent of missed) {
     const stage = intent.metadata?.payment_stage ?? "";
-    const base = { projectId: project.id, paymentIntentId: intent.id, amountReceived: intent.amount_received };
+    const base = { projectId: project.id, paymentIntentId: intent.id, amountReceived: intent.amount_received, currency: intent.currency };
     const result = DEPOSIT_STAGES.includes(stage)
       ? await finalizeDeposit(deps, { ...base, paymentMethodId: asId(intent.payment_method) })
       : stage === "final_balance"
@@ -141,7 +145,7 @@ export const reconcilePayments = async (deps: PaymentsDeps, opts: { budgetMs?: n
   const budget = opts.budgetMs ?? 45_000;
   const since = new Date(deps.now().getTime() - RECONCILE_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
   const projects = await deps.repo.listRecentProjects(since, MAX_PROJECTS);
-  const summary: ReconcileSummary = { checked: 0, recorded: 0, refundsSynced: 0, claimsResolved: 0, reminders: 0, errors: 0, incomplete: false };
+  const summary: ReconcileSummary = { checked: 0, recorded: 0, refundsSynced: 0, claimsResolved: 0, reminders: 0, errors: 0, incomplete: projects.length >= MAX_PROJECTS };
   for (const project of projects) {
     if (Date.now() - started > budget) {
       summary.incomplete = true;
@@ -157,6 +161,8 @@ export const reconcilePayments = async (deps: PaymentsDeps, opts: { budgetMs?: n
       summary.errors += 1;
       serverLog("error", "payments.reconcile_project_failed", { project: project.id });
     }
+    // Rotate failed attempts too; one broken project must not starve the rest of the queue.
+    await deps.repo.markReconciled(project.id, deps.now().toISOString());
     summary.checked += 1;
   }
   return summary;

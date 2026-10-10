@@ -23,14 +23,16 @@ const niceMax = (max: number) => {
 /** Revenue-style area chart. Values are integer cents. Server rendered; the sr-only table is the accessible form. */
 export const AreaChart = ({ data, title }: AreaChartProps) => {
   const max = niceMax(Math.max(0, ...data.map((d) => d.value)));
+  const lowest = Math.min(0, ...data.map((d) => d.value));
+  const min = lowest < 0 ? -niceMax(-lowest) : 0;
   const iw = W - PAD.l - PAD.r;
   const ih = H - PAD.t - PAD.b;
   const x = (i: number) => PAD.l + (data.length <= 1 ? iw / 2 : (i / (data.length - 1)) * iw);
-  const y = (v: number) => PAD.t + ih - (v / max) * ih;
+  const y = (v: number) => PAD.t + ih - ((v - min) / (max - min)) * ih;
   const pts = data.map((d, i) => [x(i), y(d.value)] as const);
   const line = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
-  const area = pts.length ? `${line} L${pts[pts.length - 1][0].toFixed(1)} ${PAD.t + ih} L${pts[0][0].toFixed(1)} ${PAD.t + ih} Z` : "";
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * max);
+  const area = pts.length ? `${line} L${pts[pts.length - 1][0].toFixed(1)} ${y(0)} L${pts[0][0].toFixed(1)} ${y(0)} Z` : "";
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => min + f * (max - min));
 
   return (
     <figure className="pt-chart">

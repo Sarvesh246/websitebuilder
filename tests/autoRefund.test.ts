@@ -63,6 +63,15 @@ describe("duplicateRefusal (every check must pass before money moves)", () => {
 describe("automatic duplicate refunds", () => {
   afterEach(() => vi.unstubAllEnvs());
 
+  it("does not call a pending duplicate refund completed", async () => {
+    const repo = new FakeRepo(makePaidDepositProject({ stripe_deposit_pi: "pi_A" }));
+    const { deps, mocks } = makeDeps(repo);
+    withIntents(mocks, { pi_A: intent("pi_A"), pi_B: intent("pi_B") });
+    mocks.refundsCreate.mockResolvedValueOnce({ id: "re_pending", status: "pending" });
+    expect(await refundDuplicatePayment(deps, DUP)).toBe("review");
+    expect(repo.events.map(event => event.kind)).toEqual(["payment_review"]);
+  });
+
   it("refunds exactly the duplicate's received amount, once, with a stable idempotency key", async () => {
     const repo = new FakeRepo(makePaidDepositProject({ stripe_deposit_pi: "pi_A" }));
     const { deps, mocks } = makeDeps(repo);
@@ -81,6 +90,7 @@ describe("automatic duplicate refunds", () => {
   it("never refunds a replay of the payment it recorded", async () => {
     const repo = new FakeRepo(makePaidDepositProject({ stripe_deposit_pi: "pi_A" }));
     const { deps, mocks } = makeDeps(repo);
+    expect(await finalizeDeposit(deps, { projectId: PROJECT_ID, paymentIntentId: "pi_A", amountReceived: 10000 })).toBe("applied"); // repairs the absent ledger
     expect(await finalizeDeposit(deps, { projectId: PROJECT_ID, paymentIntentId: "pi_A", amountReceived: 10000 })).toBe("noop");
     expect(mocks.refundsCreate).not.toHaveBeenCalled();
   });
@@ -150,7 +160,7 @@ describe("automatic duplicate refunds", () => {
     const repo = new FakeRepo(makePaidDepositProject({ stripe_deposit_pi: "pi_A" }));
     const { deps, mocks } = makeDeps(repo);
     withIntents(mocks, { pi_A: intent("pi_A"), pi_B: intent("pi_B") });
-    mocks.refundsCreate.mockResolvedValueOnce({ id: "re_1", lastResponse: { headers: { "idempotent-replayed": "true" } } } as never);
+    mocks.refundsCreate.mockResolvedValueOnce({ id: "re_1", status: "succeeded", lastResponse: { headers: { "idempotent-replayed": "true" } } } as never);
     expect(await refundDuplicatePayment(deps, DUP)).toBe("already_refunded");
     expect(repo.events).toHaveLength(0);
   });

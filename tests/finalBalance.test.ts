@@ -87,16 +87,17 @@ describe("collectFinalBalance", () => {
     expect(mocks.paymentIntentsCreate).not.toHaveBeenCalled();
   });
 
-  it("releases the claim on an infrastructure error so a retry can reuse the same intent", async () => {
+  it("keeps an uncertain charge processing and blocks both another charge and hosted checkout", async () => {
     const repo = new FakeRepo(makePaidDepositProject());
     const { deps, mocks } = makeDeps(repo);
     mocks.paymentIntentsCreate.mockRejectedValueOnce(new Error("socket hang up"));
-    await expect(collectFinalBalance(PROJECT_ID, ADMIN, deps)).rejects.toThrow("Nothing was recorded as paid");
-    expect(repo.projects.get(PROJECT_ID)!.final_payment_status).toBe("pending");
+    await expect(collectFinalBalance(PROJECT_ID, ADMIN, deps)).rejects.toThrow("do not pay again");
+    expect(repo.projects.get(PROJECT_ID)!.final_payment_status).toBe("processing");
     mocks.paymentIntentsCreate.mockResolvedValue(succeeded);
-    await expect(collectFinalBalance(PROJECT_ID, ADMIN, deps)).resolves.toMatchObject({ outcome: "paid" });
-    const keys = mocks.paymentIntentsCreate.mock.calls.map((c) => (c[1] as { idempotencyKey: string }).idempotencyKey);
-    expect(new Set(keys).size).toBe(1);
+    await expect(collectFinalBalance(PROJECT_ID, ADMIN, deps)).resolves.toMatchObject({ outcome: "processing" });
+    await expect(createFinalCheckout(PROJECT_ID, OWNER, deps)).rejects.toThrow("already being processed");
+    expect(mocks.paymentIntentsCreate).toHaveBeenCalledTimes(1);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("is not eligible before the deposit is paid", async () => {

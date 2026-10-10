@@ -25,6 +25,7 @@ import {
 } from "@/config/inquiry";
 import type { PackageId } from "@/config/pricing";
 import { emptyValues, stepFields, validateInquiry, type FieldErrors, type InquiryValues } from "@/lib/inquiry/schema";
+import { parseInquiryDraft, type InquiryDraft as Draft } from "@/lib/inquiry/draft";
 
 /** The signed-in account, or null. Sending a request needs an account: it is how the project portal is opened. */
 export type InquiryAccount = { email: string } | null;
@@ -32,7 +33,6 @@ export type InquiryAccount = { email: string } | null;
 type Status = "idle" | "sending" | "success" | "error";
 /** startedAt persists the first visit, so a restored draft is not mistaken for a bot's instant submit. */
 /** submissionId is the idempotency key: retries and double clicks of the same request never create a second record. */
-type Draft = { values: InquiryValues; step: number; reached: number; startedAt?: number; submissionId?: string };
 
 /** RFC 4122 v4. randomUUID only exists in secure contexts, so fall back for plain-http LAN testing. */
 const newSubmissionId = () => {
@@ -60,8 +60,7 @@ const noopSubscribe = () => () => {};
 
 const readDraft = (): Draft | null => {
   try {
-    const draft = JSON.parse(sessionStorage.getItem(inquiryDraftKey) ?? "null") as Partial<Draft> | null;
-    if (draft?.values && typeof draft.step === "number") return draft as Draft;
+    return parseInquiryDraft(sessionStorage.getItem(inquiryDraftKey));
   } catch {
     // Storage unavailable or corrupt draft: start fresh.
   }
@@ -129,6 +128,7 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
     return () => {
       window.clearTimeout(timer);
       window.removeEventListener("pagehide", save);
+      save();
     };
   }, [values, step, reached, live, status]);
 
@@ -214,6 +214,7 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
         signal: controller.signal,
       });
       if (res.ok) {
+        draftRef.current = null;
         try {
           sessionStorage.removeItem(inquiryDraftKey);
         } catch {

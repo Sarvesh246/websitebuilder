@@ -34,11 +34,11 @@ export const CheckoutForm = ({ projectId, amountLabel, authorization, policyTitl
       }}
     >
       <label className="pt-check">
-        <input type="checkbox" checked={authorized} onChange={(e) => setAuthorized(e.target.checked)} />
+        <input type="checkbox" checked={authorized} disabled={pending} onChange={(e) => setAuthorized(e.target.checked)} />
         <span>{authorization}</span>
       </label>
       <label className="pt-check">
-        <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
+        <input type="checkbox" checked={terms} disabled={pending} onChange={(e) => setTerms(e.target.checked)} />
         <span>
           I have read the{" "}
           <Link href="/terms" target="_blank" className="pt-link" style={{ minHeight: 0 }}>

@@ -59,4 +59,4 @@ export const siteConfig = {
 export const bingVerification = process.env.BING_SITE_VERIFICATION?.trim() || null;
 
 /** Bump when the privacy policy or terms text changes. */
-export const legalUpdated = "October 4, 2026";
+export const legalUpdated = "October 10, 2026";

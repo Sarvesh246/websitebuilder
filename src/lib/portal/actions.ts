@@ -31,9 +31,11 @@ type Ctx = { viewer: Viewer; perspective: Perspective; db: NonNullable<ReturnTyp
 const begin = async (): Promise<Ctx | Fail> => {
   if (demoMode()) return fail(DEMO);
   const viewer = await requireViewer();
+  const perspective = await getPerspective(viewer);
+  if (viewer.role === "admin" && perspective === "client") return fail(PREVIEW);
   const db = createAdminClient();
   if (!db) return fail("The portal is not available right now.");
-  return { viewer, perspective: await getPerspective(viewer), db };
+  return { viewer, perspective, db };
 };
 
 /** Admin-only actions also refuse while the admin is previewing the client view. */
@@ -173,7 +175,11 @@ export const confirmUpload = async (projectId: string, path: string, name: strin
     })
     .select("id").single<{ id: string }>();
   if (error || !data) {
-    await ctx.db.storage.from(BUCKET).remove([path]);
+    // A concurrent confirmation may already own this object. Never delete its file on a lost race.
+    if (error?.code === "23505") {
+      const { data: saved } = await ctx.db.from("project_files").select("id").eq("path", path).maybeSingle<{ id: string }>();
+      if (saved) return { ok: true, id: saved.id };
+    }
     return fail("The file could not be saved. Please try again.");
   }
   await logEvent(ctx.db, projectId, "file", `File added: ${names.display}`, ctx.perspective);
@@ -208,7 +214,8 @@ export const deleteFile = async (fileId: string): Promise<Result> => {
   if (isFail(file)) return file;
   const isAdmin = ctx.viewer.role === "admin" && ctx.perspective === "admin";
   if (!isAdmin && file.uploader_id !== ctx.viewer.userId) return fail("Only the uploader can delete this file.");
-  await ctx.db.storage.from(BUCKET).remove([file.path]);
+  const { error: storageError } = await ctx.db.storage.from(BUCKET).remove([file.path]);
+  if (storageError) return fail("The file could not be removed. Please try again.");
   const { error } = await ctx.db.from("project_files").delete().eq("id", file.id);
   if (error) return fail(GENERIC);
   await logEvent(ctx.db, file.project_id, "file", `File removed: ${file.name}`, ctx.perspective);
@@ -301,6 +308,7 @@ export const setStage = async (projectId: string, stage: ProjectStage): Promise<
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   if (stage === "ready_for_launch" || stage === "completed") {
+    if (project.initial_payment_status !== "paid") return fail("The initial payment must be confirmed before launch or completion.");
     const paidUp = project.remaining_amount === 0 || (project.remaining_amount == null && project.final_payment_status === "not_required");
     if (!paidUp) return fail("The remaining balance must be paid before this stage. Collect the final payment first.");
   }
@@ -394,10 +402,18 @@ export const approveFinalVersion = async (projectId: string): Promise<Result<{ n
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   if (project.approved_at) return { ok: true };
-  const { data: approved, error } = await ctx.db.from("project_requests").update({ approved_at: new Date().toISOString() })
-    .eq("id", projectId).is("approved_at", null).select("id");
+  if (!feedbackOpen(project) || project.initial_payment_status !== "paid") return fail("Approval is available once a paid project has a preview ready for review.");
+  const { data: unfinished, error: roundError } = await ctx.db.from("feedback_rounds")
+    .select("id").eq("project_id", projectId).eq("status", "submitted").limit(1);
+  if (roundError) return fail(GENERIC);
+  if (unfinished?.length) return fail("Wait for the studio to finish your feedback round before approving.");
+  const { data: approved, error } = await ctx.db.rpc("approve_project_review", { p_project_id: projectId });
   if (error) return fail(GENERIC);
-  if (!approved?.length) return { ok: true }; // a parallel click approved it first; that call handles the charge
+  if (!approved) {
+    const current = await access(ctx, projectId);
+    if (!isFail(current) && current.approved_at) return { ok: true }; // parallel approval handles the charge
+    return fail("The review changed. Refresh the project before approving.");
+  }
   await logEvent(ctx.db, projectId, "approval", "Final version approved", "client");
 
   let notice: string | undefined;
@@ -407,7 +423,7 @@ export const approveFinalVersion = async (projectId: string): Promise<Result<{ n
       const charge = await collectFinalBalance(projectId, "client_approval");
       notice = approvalCharge[charge.outcome];
     } catch {
-      // Stripe unreachable or not configured: nothing was charged (the claim is released). The studio can collect later.
+      // An uncertain response can leave a processing claim; reconciliation confirms its outcome.
       serverLog("error", "payments.approval_charge_failed", { project: projectId });
     }
   }
@@ -658,10 +674,10 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
   if (isFail(ctx)) return ctx;
   if (ctx.viewer.role === "admin") return fail("Studio admin accounts can't be deleted from the portal.");
   if (typeof confirmText !== "string" || confirmText.trim() !== "DELETE") return fail("Type DELETE to confirm.");
-  const { data: projects, error: listErr } = await ctx.db.from("project_requests")
-    .select("id, status, initial_payment_status").eq("user_id", ctx.viewer.userId)
+  const { data: projects, error: listErr, count: projectCount } = await ctx.db.from("project_requests")
+    .select("id, status, initial_payment_status", { count: "exact" }).eq("user_id", ctx.viewer.userId)
     .returns<{ id: string; status: string; initial_payment_status: string }[]>();
-  if (listErr) return fail(GENERIC);
+  if (listErr || projectCount === null || projectCount !== (projects?.length ?? 0)) return fail(GENERIC);
   const owned = projects ?? [];
   const paid = (p: { initial_payment_status: string }) => p.initial_payment_status === "paid" || p.initial_payment_status === "processing";
   if (owned.some((p) => paid(p) && isOpenStage(normalizeStage(p.status)))) {
@@ -669,19 +685,33 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
   }
   const ids = owned.map((p) => p.id);
   // Close open checkout links first so no payment can land on a project that is about to disappear.
-  await Promise.all(ids.map((id) => expireProjectSessions(id)));
+  try {
+    await Promise.all(ids.map((id) => expireProjectSessions(id, undefined, true)));
+  } catch {
+    return fail("Open payment links could not be safely closed. Check Payments or message the studio before deleting your account.");
+  }
   if (ids.length > 0) {
-    const { data: files } = await ctx.db.from("project_files").select("path").in("project_id", ids).returns<{ path: string }[]>();
+    const { data: files, error: filesError, count: fileCount } = await ctx.db.from("project_files").select("path", { count: "exact" }).in("project_id", ids).returns<{ path: string }[]>();
+    if (filesError || fileCount === null || fileCount !== (files?.length ?? 0)) return fail(GENERIC);
     const paths = (files ?? []).map((f) => f.path);
-    for (let i = 0; i < paths.length; i += 100) await ctx.db.storage.from(BUCKET).remove(paths.slice(i, i + 100));
-    await ctx.db.from("project_files").delete().in("project_id", ids);
-    await ctx.db.from("messages").delete().in("project_id", ids);
+    for (let i = 0; i < paths.length; i += 100) {
+      const { error } = await ctx.db.storage.from(BUCKET).remove(paths.slice(i, i + 100));
+      if (error) return fail(GENERIC);
+    }
+    const { error: deleteFilesError } = await ctx.db.from("project_files").delete().in("project_id", ids);
+    if (deleteFilesError) return fail(GENERIC);
+    const { error: deleteMessagesError } = await ctx.db.from("messages").delete().in("project_id", ids);
+    if (deleteMessagesError) return fail(GENERIC);
     const unpaid = owned.filter((p) => !paid(p)).map((p) => p.id);
     if (unpaid.length > 0) {
-      const { data: ledger } = await ctx.db.from("payments").select("project_id").in("project_id", unpaid).returns<{ project_id: string }[]>();
+      const { data: ledger, error: ledgerError, count: ledgerCount } = await ctx.db.from("payments").select("project_id", { count: "exact" }).in("project_id", unpaid).returns<{ project_id: string }[]>();
+      if (ledgerError || ledgerCount === null || ledgerCount !== (ledger?.length ?? 0)) return fail(GENERIC);
       const withLedger = new Set((ledger ?? []).map((l) => l.project_id));
       const removable = unpaid.filter((id) => !withLedger.has(id));
-      if (removable.length > 0) await ctx.db.from("project_requests").delete().in("id", removable);
+      if (removable.length > 0) {
+        const { error } = await ctx.db.from("project_requests").delete().in("id", removable);
+        if (error) return fail(GENERIC);
+      }
     }
   }
   const { error } = await ctx.db.auth.admin.deleteUser(ctx.viewer.userId);

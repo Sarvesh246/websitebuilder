@@ -9,6 +9,15 @@ import { listProjects } from "@/lib/portal/data";
 import { timeAgo } from "@/lib/portal/format";
 import type { ListOpts } from "@/lib/portal/mappers";
 import { projectStages, stageLabel } from "@/lib/portal/types";
+import { dueFor } from "@/components/portal/copy";
+
+const balanceLabel = (p: Parameters<typeof dueFor>[0]) => {
+  if (p.stage === "cancelled") return "Cancelled";
+  const due = dueFor(p);
+  if (due.label === "Awaiting quote") return "Quote pending";
+  if (due.label === "Paid in full" || due.label === "Payment processing") return due.label;
+  return `${formatUsd(due.dueNow + due.dueLater)} unpaid`;
+};
 
 export const metadata = portalMeta("Projects");
 
@@ -24,12 +33,13 @@ const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 export default async function ProjectsPage({ searchParams }: PageProps<"/portal/projects">) {
   const { viewer, perspective } = await getContext("/portal/projects");
   const sp = await searchParams;
-  const stage = one(sp.stage) ?? "all";
+  const stageRaw = one(sp.stage);
+  const stage = stageRaw && ["all", "open", ...projectStages, "cancelled"].includes(stageRaw) ? stageRaw : "all";
   const q = (one(sp.q) ?? "").slice(0, 80);
   const sortRaw = one(sp.sort);
   const sort = sorts.find((s) => s.value === sortRaw)?.value ?? "recent";
   const isAdmin = perspective === "admin";
-  const list = await listProjects(viewer, perspective, isAdmin ? { stage, q, sort } : undefined).catch(() => []);
+  const list = await listProjects(viewer, perspective, isAdmin ? { stage, q, sort } : undefined);
   const filtered = stage !== "all" || q !== "";
 
   return (
@@ -153,7 +163,7 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
                     <td>
                       <DeadlineChip deadline={p.deadline} stage={p.stage} />
                     </td>
-                    <td className="pt-right pt-num">{p.money.total == null ? "Quote" : (p.money.remaining ?? 0) > 0 ? formatUsd(p.money.remaining) : "Paid"}</td>
+                    <td className="pt-right pt-num">{balanceLabel(p)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -179,7 +189,7 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
                 </div>
                 <div className="pt-tags">
                   <DeadlineChip deadline={p.deadline} stage={p.stage} />
-                  <span className="pt-chip pt-chip--outline">{p.money.total == null ? "Quote pending" : (p.money.remaining ?? 0) > 0 ? `${formatUsd(p.money.remaining)} due` : "Paid"}</span>
+                  <span className="pt-chip pt-chip--outline">{balanceLabel(p)}</span>
                 </div>
               </article>
             ))}

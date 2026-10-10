@@ -6,6 +6,7 @@ import { refundPayment as refundPaymentLib, requestCancellation as requestCancel
 import { PaymentError } from "@/lib/payments/stripe";
 import { demoMode, getPerspective, getViewer } from "@/lib/auth/session";
 import type { Viewer } from "@/lib/portal/types";
+import { serverLog } from "@/lib/observability/serverLog";
 
 /**
  * Server actions for the payment UI. The browser only ever sends ids (and the consent tick): every
@@ -23,16 +24,14 @@ const actor = async (role?: "admin"): Promise<Viewer> => {
   if (!viewer) throw new PaymentError("Please sign in to continue.");
   if (role === "admin" && viewer.role !== "admin") throw new PaymentError("Not allowed.");
   // Like every other studio action, money actions are refused while the admin previews the client view.
-  if (role === "admin" && (await getPerspective(viewer)) !== "admin") throw new PaymentError("Preview mode: switch back to your admin view to do this.");
+  if (viewer.role === "admin" && (await getPerspective(viewer)) !== "admin") throw new PaymentError("Preview mode: switch back to your admin view to do this.");
   return viewer;
 };
 
 const toFailure = (err: unknown): Failure => {
   if (err instanceof PaymentError) return { ok: false, error: err.message };
-  // Class, Stripe code and message only (Stripe/PostgREST messages carry no secrets or customer content).
-  const e = err as { type?: string; code?: string; message?: string };
-  console.error("[payments] action_failed", e?.type ?? (err as Error)?.name, e?.code ?? "", e?.message ?? "");
-  return { ok: false, error: "Something went wrong with the payment. Nothing was charged. Please try again." };
+  serverLog("error", "payments.action_failed", {}, err instanceof Error ? err.name : "unknown");
+  return { ok: false, error: "The payment result could not be confirmed. Check the Payments tab before trying again, or message the studio." };
 };
 
 export async function startCheckout(projectId: string, consent: boolean): Promise<{ ok: true; url: string } | Failure> {

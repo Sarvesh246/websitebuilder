@@ -13,6 +13,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // This standalone app must not inherit unrelated lockfiles from parent directories.
+  turbopack: { root: __dirname },
+  outputFileTracingRoot: __dirname,
   // staleTimes: a portal tab visited in the last 30s reopens from the client cache (server actions still refresh it).
   // (experimental.inlineCss was tried for the render-blocking CSS: it has no effect on prerendered pages, only dynamic ones.)
   // Server actions keep the default 1MB body limit: uploads go straight to storage with signed URLs,

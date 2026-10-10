@@ -118,7 +118,7 @@
   /* ---------- Entrance (CSS only) ---------- */
   @media (prefers-reduced-motion: no-preference) {
     .hero-enter {
-      animation: hero-in 800ms var(--ease-out) both;
+      animation: hero-in var(--dur-spring) var(--ease-out) both;
       animation-delay: calc(60ms + var(--i, 0) * 90ms);
     }
   }

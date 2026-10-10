@@ -628,6 +628,7 @@
     color: var(--text-muted);
   }
   .pt-invoice__meta dd {
+    overflow-wrap: anywhere;
     margin-top: 0.2rem;
     font-weight: 600;
     color: var(--text-strong);

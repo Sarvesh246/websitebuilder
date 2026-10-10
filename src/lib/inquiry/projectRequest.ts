@@ -109,6 +109,7 @@ export const saveProjectRequest = async (data: InquiryValues, submissionKey: str
       .from("project_requests")
       .select("id")
       .eq("submission_key", submissionKey)
+      .eq("user_id", userId)
       .maybeSingle<{ id: string }>();
     if (existing) return { id: existing.id, duplicate: true };
   }

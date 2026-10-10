@@ -33,10 +33,11 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       // Async payment methods complete the session unpaid; their success arrives as payment_intent.succeeded.
       if (!projectId || !paymentIntentId || session.payment_status !== "paid") return;
       const amountReceived = session.amount_total ?? 0;
+      if (!["deposit", "full", "final_balance"].includes(session.metadata?.payment_stage ?? "")) return;
       if (session.metadata?.payment_stage === "final_balance") {
-        await finalizeFinal(deps, { projectId, paymentIntentId, amountReceived, sessionId: session.id });
+        await finalizeFinal(deps, { projectId, paymentIntentId, amountReceived, currency: session.currency ?? undefined, sessionId: session.id });
       } else {
-        await finalizeDeposit(deps, { projectId, paymentIntentId, amountReceived, sessionId: session.id });
+        await finalizeDeposit(deps, { projectId, paymentIntentId, amountReceived, currency: session.currency ?? undefined, sessionId: session.id });
       }
       return;
     }
@@ -44,13 +45,15 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       const intent = event.data.object;
       const projectId = intent.metadata?.project_id;
       if (!projectId) return;
+      if (!["deposit", "full", "final_balance"].includes(intent.metadata?.payment_stage ?? "")) return;
       if (intent.metadata?.payment_stage === "final_balance") {
-        await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received });
+        await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received, currency: intent.currency });
       } else {
         await finalizeDeposit(deps, {
           projectId,
           paymentIntentId: intent.id,
           amountReceived: intent.amount_received,
+          currency: intent.currency,
           paymentMethodId: asId(intent.payment_method),
         });
       }
@@ -61,6 +64,7 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       const projectId = intent.metadata?.project_id;
       if (!projectId) return;
       const code = intent.last_payment_error?.code ?? intent.last_payment_error?.decline_code ?? null;
+      if (!["deposit", "full", "final_balance"].includes(intent.metadata?.payment_stage ?? "")) return;
       if (intent.metadata?.payment_stage === "final_balance") {
         // Hosted-Checkout retries are the customer's to repeat; only our own off-session attempt records a failure.
         if (intent.metadata?.collect !== "off_session") return;

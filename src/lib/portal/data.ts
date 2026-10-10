@@ -30,6 +30,18 @@ const rowsOf = async <T>(query: PromiseLike<{ data: unknown; error: unknown }>):
   return (data ?? []) as T[];
 };
 
+/** Page below PostgREST's default 1,000-row ceiling; fail explicitly rather than show incomplete totals. */
+const allRows = async <T>(query: (from: number, to: number) => PromiseLike<{ data: unknown; error: unknown }>): Promise<T[]> => {
+  const result: T[] = [];
+  const pageSize = 500;
+  for (let from = 0; from < 50000; from += pageSize) {
+    const page = await rowsOf<T>(query(from, from + pageSize - 1));
+    result.push(...page);
+    if (page.length < pageSize) return result;
+  }
+  throw new Error("Portal data exceeds the supported page limit");
+};
+
 const authorize = (viewer: Viewer, perspective: Perspective) => {
   if (perspective === "admin" && viewer.role !== "admin") throw new Error("Not authorized");
 };
@@ -52,13 +64,19 @@ const fetchBatches = cache(async (viewer: Viewer, perspective: Perspective): Pro
   const projectIds = perspective === "admin" ? [] : (await fetchProjectRows(viewer, perspective)).map((r) => r.id);
   if (perspective === "client" && projectIds.length === 0) return { payments: [], milestones: [], unread: new Map() };
   const client = db();
-  const scope = <Q extends { in: (col: string, vals: string[]) => Q }>(q: Q) => (perspective === "admin" ? q : q.in("project_id", projectIds));
   const [payments, milestones, unreadRows] = await Promise.all([
-    rowsOf<PaymentDb>(scope(client.from("payments").select(PAYMENT_COLUMNS).limit(5000))),
-    rowsOf<Pick<MilestoneDb, "project_id" | "status">>(scope(client.from("milestones").select("project_id, status").limit(5000))),
-    rowsOf<{ project_id: string }>(
-      scope(client.from("messages").select("project_id").is("read_at", null).eq("sender_role", otherSide(perspective)).limit(5000)),
-    ),
+    allRows<PaymentDb>((from, to) => {
+      const query = client.from("payments").select(PAYMENT_COLUMNS).order("id").range(from, to);
+      return perspective === "admin" ? query : query.in("project_id", projectIds);
+    }),
+    allRows<Pick<MilestoneDb, "project_id" | "status">>((from, to) => {
+      const query = client.from("milestones").select("project_id, status").order("id").range(from, to);
+      return perspective === "admin" ? query : query.in("project_id", projectIds);
+    }),
+    allRows<{ project_id: string }>((from, to) => {
+      const query = client.from("messages").select("project_id").is("read_at", null).eq("sender_role", otherSide(perspective)).order("id").range(from, to);
+      return perspective === "admin" ? query : query.in("project_id", projectIds);
+    }),
   ]);
   const unread = new Map<string, number>();
   for (const m of unreadRows) unread.set(m.project_id, (unread.get(m.project_id) ?? 0) + 1);
@@ -73,9 +91,11 @@ const group = <T extends { project_id: string }>(items: T[]) => {
 
 /** Memoized per request (React cache), so one navigation never asks for the same rows twice. */
 const fetchProjectRows = cache(async (viewer: Viewer, perspective: Perspective): Promise<ProjectRow[]> => {
-  let query = db().from("project_requests").select(PROJECT_COLUMNS).order("created_at", { ascending: false }).limit(500);
-  if (perspective === "client") query = query.eq("user_id", viewer.userId);
-  const found = await rowsOf<ProjectRow>(query);
+  const found = await allRows<ProjectRow>((from, to) => {
+    let query = db().from("project_requests").select(PROJECT_COLUMNS).order("created_at", { ascending: false }).order("id");
+    if (perspective === "client") query = query.eq("user_id", viewer.userId);
+    return query.range(from, to);
+  });
   // Belt and braces: enforce ownership in code as well as in the query.
   return perspective === "client" ? found.filter((r) => r.user_id === viewer.userId) : found;
 });
@@ -121,10 +141,10 @@ export const getProject = async (viewer: Viewer, perspective: Perspective, id: s
   const [row] = await rowsOf<ProjectRow>(client.from("project_requests").select(PROJECT_COLUMNS).eq("id", id).limit(1));
   if (!row || (perspective === "client" && row.user_id !== viewer.userId)) return null;
   const [payments, milestones, events, unread] = await Promise.all([
-    rowsOf<PaymentDb>(client.from("payments").select(PAYMENT_COLUMNS).eq("project_id", id).order("created_at", { ascending: false })),
-    rowsOf<MilestoneDb>(client.from("milestones").select("id, project_id, title, detail, position, status, due_date, completed_at").eq("project_id", id).order("position")),
+    allRows<PaymentDb>((from, to) => client.from("payments").select(PAYMENT_COLUMNS).eq("project_id", id).order("created_at", { ascending: false }).order("id").range(from, to)),
+    allRows<MilestoneDb>((from, to) => client.from("milestones").select("id, project_id, title, detail, position, status, due_date, completed_at").eq("project_id", id).order("position").order("id").range(from, to)),
     rowsOf<EventDb>(client.from("project_events").select("id, project_id, kind, title, actor_role, created_at").eq("project_id", id).order("created_at", { ascending: false }).limit(50)),
-    rowsOf<{ id: string }>(client.from("messages").select("id").eq("project_id", id).is("read_at", null).eq("sender_role", otherSide(perspective))),
+    allRows<{ id: string }>((from, to) => client.from("messages").select("id").eq("project_id", id).is("read_at", null).eq("sender_role", otherSide(perspective)).order("id").range(from, to)),
   ]);
   return toDetail(row, { payments, milestones, events, unread: unread.length });
 };
@@ -156,9 +176,9 @@ export const listMessages = async (viewer: Viewer, perspective: Perspective, pro
   if (demoMode()) return (await loadDemo()).demoMessages(perspective, projectId);
   if (!(await assertProjectAccess(viewer, perspective, projectId))) return [];
   const found = await rowsOf<MessageDb>(
-    db().from("messages").select("id, project_id, sender_role, body, created_at, read_at").eq("project_id", projectId).order("created_at", { ascending: true }).limit(1000),
+    db().from("messages").select("id, project_id, sender_role, body, created_at, read_at").eq("project_id", projectId).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1000),
   );
-  return found.map((m) => toMessage(m, perspective));
+  return found.reverse().map((m) => toMessage(m, perspective));
 };
 
 export const listInbox = async (viewer: Viewer, perspective: Perspective): Promise<{ project: ProjectSummary; last: Message | null }[]> => {
@@ -166,9 +186,11 @@ export const listInbox = async (viewer: Viewer, perspective: Perspective): Promi
   if (demoMode()) return (await loadDemo()).demoInbox(perspective);
   const rows = await fetchProjectRows(viewer, perspective);
   if (rows.length === 0) return [];
-  let query = db().from("messages").select("id, project_id, sender_role, body, created_at, read_at").order("created_at", { ascending: false }).limit(2000);
-  if (perspective === "client") query = query.in("project_id", rows.map((r) => r.id));
-  const [projects, messages] = await Promise.all([summarize(viewer, perspective), rowsOf<MessageDb>(query)]);
+  const [projects, messages] = await Promise.all([summarize(viewer, perspective), allRows<MessageDb>((from, to) => {
+    let query = db().from("messages").select("id, project_id, sender_role, body, created_at, read_at").order("created_at", { ascending: false }).order("id");
+    if (perspective === "client") query = query.in("project_id", rows.map((r) => r.id));
+    return query.range(from, to);
+  })]);
   const latest = new Map<string, MessageDb>();
   for (const m of messages) if (!latest.has(m.project_id)) latest.set(m.project_id, m);
   return projects
@@ -185,8 +207,8 @@ export const listFiles = async (viewer: Viewer, perspective: Perspective, projec
   if (demoMode()) return (await loadDemo()).demoFiles(perspective, projectId);
   if (!(await assertProjectAccess(viewer, perspective, projectId))) return [];
   const client = db();
-  const found = await rowsOf<FileDb>(
-    client.from("project_files").select("id, project_id, path, name, size_bytes, mime_type, uploader_role, created_at").eq("project_id", projectId).order("created_at", { ascending: false }),
+  const found = await allRows<FileDb>((from, to) =>
+    client.from("project_files").select("id, project_id, path, name, size_bytes, mime_type, uploader_role, created_at").eq("project_id", projectId).order("created_at", { ascending: false }).order("id").range(from, to),
   );
   // One batch call signs every image for thumbnails. A failure only costs the thumbnails, never the list.
   const images = found.filter((f) => f.mime_type?.startsWith("image/") && f.path);
@@ -212,10 +234,10 @@ const readWorkflow = cache(async (viewer: Viewer, perspective: Perspective, proj
     if (!(await assertProjectAccess(viewer, perspective, project.id))) return { rounds: [], checklist: [] };
     const client = db();
     const [rounds, items, checklist, files] = await Promise.all([
-      rowsOf<FeedbackRoundDb>(client.from("feedback_rounds").select("id, project_id, number, status, extra, submitted_at, resolved_at, created_at").eq("project_id", project.id)),
-      rowsOf<FeedbackItemDb>(client.from("feedback_items").select("id, round_id, page, body, file_id, status, created_at").eq("project_id", project.id)),
-      rowsOf<ChecklistRow>(client.from("checklist_items").select("key, label, status, answer, file_id, updated_at").eq("project_id", project.id)),
-      rowsOf<{ id: string; name: string }>(client.from("project_files").select("id, name").eq("project_id", project.id)),
+      allRows<FeedbackRoundDb>((from, to) => client.from("feedback_rounds").select("id, project_id, number, status, extra, submitted_at, resolved_at, created_at").eq("project_id", project.id).order("id").range(from, to)),
+      allRows<FeedbackItemDb>((from, to) => client.from("feedback_items").select("id, round_id, page, body, file_id, status, created_at").eq("project_id", project.id).order("id").range(from, to)),
+      allRows<ChecklistRow>((from, to) => client.from("checklist_items").select("key, label, status, answer, file_id, updated_at").eq("project_id", project.id).order("key").range(from, to)),
+      allRows<{ id: string; name: string }>((from, to) => client.from("project_files").select("id, name").eq("project_id", project.id).order("id").range(from, to)),
     ]);
     const names = new Map(files.map((f) => [f.id, f.name]));
     // A draft is the client's unsent working copy: the studio only sees rounds once they are sent.
@@ -230,8 +252,8 @@ export const listNotes = async (viewer: Viewer, projectId: string): Promise<Proj
   requireAdminViewer(viewer);
   if (!isUuid(projectId)) return [];
   if (demoMode()) return (await loadDemo()).demoNotes(projectId);
-  const found = await rowsOf<{ id: string; body: string; created_at: string }>(
-    db().from("project_notes").select("id, body, created_at").eq("project_id", projectId).order("created_at", { ascending: false }),
+  const found = await allRows<{ id: string; body: string; created_at: string }>((from, to) =>
+    db().from("project_notes").select("id, body, created_at").eq("project_id", projectId).order("created_at", { ascending: false }).order("id").range(from, to),
   );
   return found.map((n) => ({ id: n.id, body: n.body, createdAt: n.created_at }));
 };
@@ -244,10 +266,12 @@ export const listPayments = async (
   if (demoMode()) return (await loadDemo()).demoPayments(perspective);
   const rows = await fetchProjectRows(viewer, perspective);
   if (rows.length === 0) return [];
-  let query = db().from("payments").select(PAYMENT_COLUMNS).order("created_at", { ascending: false }).limit(2000);
-  if (perspective === "client") query = query.in("project_id", rows.map((r) => r.id));
   const byId = new Map(rows.map((r) => [r.id, r]));
-  return (await rowsOf<PaymentDb>(query))
+  return (await allRows<PaymentDb>((from, to) => {
+    let query = db().from("payments").select(PAYMENT_COLUMNS).order("created_at", { ascending: false }).order("id");
+    if (perspective === "client") query = query.in("project_id", rows.map((r) => r.id));
+    return query.range(from, to);
+  }))
     .filter((p) => byId.has(p.project_id))
     .map((p) => {
       const r = byId.get(p.project_id) as ProjectRow;
