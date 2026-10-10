@@ -3,9 +3,9 @@ import { CalculatorView } from "@/components/guides/Guides";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Website cost calculator",
+  title: "Website Cost Calculator: Custom Web Design Pricing",
   description:
-    "Free website cost calculator: pick your pages and features to see which package fits, the one-time price, and how payment is split.",
+    "Estimate your custom website cost with Northframe’s free calculator. Choose pages and features to see web design pricing, inclusions, and payment breakdowns.",
   path: "/tools/website-cost-calculator",
 });
 
