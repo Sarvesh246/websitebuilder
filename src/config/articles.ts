@@ -168,11 +168,11 @@ export const articles: readonly Article[] = [
   },
   {
     slug: "portfolio-website-vs-linkedin",
-    title: "Portfolio website vs LinkedIn",
+    title: "Portfolio Website vs LinkedIn: Do You Need Both?",
     description:
-      "Do you need a portfolio website if you have LinkedIn? What each one is good at, where they overlap, and how students and creators can use both.",
+      "Compare a portfolio website vs LinkedIn for students and creators: project presentation, recruiter discovery, ownership, and how to use both together.",
     h1: "Portfolio website vs LinkedIn: do you need both?",
-    lead: "LinkedIn is a profile inside someone else's platform. A portfolio website is a page you control, built around your work. Most students and creators benefit from both: LinkedIn for being found and connecting, the website for showing the work in depth.",
+    lead: "Use LinkedIn to be found. Use a portfolio website to show the work in depth. For students and creators, the two work best together: a professional profile that points to projects on your own domain.",
     published: "2026-10-05",
     updated: "2026-10-09",
     sections: [
@@ -189,7 +189,7 @@ export const articles: readonly Article[] = [
         points: [
           "Showing work properly: images, case studies, demos, and writing, laid out the way you want.",
           "One link that is yours, on your own domain, that does not change when a platform does.",
-          "Room to explain your role and decisions on each project, which a profile field cannot hold.",
+          "Room for detailed project stories, with your role, decisions, and results presented in your own layout.",
           "Being found on search engines under your own name.",
         ],
       },
@@ -200,6 +200,11 @@ export const articles: readonly Article[] = [
           "If you only have time for one right now, choose based on your field. Where the work itself is the proof (design, photography, engineering projects, writing), the website usually earns its keep sooner. The [student portfolio website checklist](/guides/student-portfolio-website-checklist) covers what to put on it, and [portfolio websites for creators](/portfolio-websites-for-creators) explains how Northframe builds one.",
         ],
       },
+    ],
+    faq: [
+      { q: "Do I need a portfolio website if I have LinkedIn?", a: "A portfolio is useful when projects, case studies, images, or live demos help prove your skills. LinkedIn gives readers a familiar summary; your website lets them explore the evidence in your own layout." },
+      { q: "Can LinkedIn be used as a portfolio?", a: "LinkedIn can showcase samples and project links in its Featured section. A personal portfolio website adds your own domain, design, and space for detailed case studies. Use both when you need networking and a deeper presentation of your work." },
+      { q: "How much does a custom portfolio website cost?", a: `${priceLine("launch")} for a one-page portfolio. ${priceLine("presence")} for up to three pages. Domain registration and paid services are separate. Use the [website cost calculator](/tools/website-cost-calculator) to match your pages and features to a package.` },
     ],
     hub: "portfolio-websites-for-creators",
     related: ["student-portfolio-website-checklist", "how-much-does-a-student-website-cost"],
@@ -475,36 +480,21 @@ export const articles: readonly Article[] = [
   },
   {
     slug: "custom-website-vs-website-builder",
-    title: "Custom website vs Wix or Squarespace",
+    title: "Custom Website vs Wix vs Squarespace: Which Fits?",
     description:
-      "An honest comparison of a custom website and builders like Wix and Squarespace: cost over time, ownership, editing, and when a builder is the better pick.",
+      "Compare custom web design vs Wix and Squarespace: one-time build costs, ongoing plans, design control, editing, and ownership. Find the right fit for your site.",
     h1: "Custom website or a builder like Wix or Squarespace?",
-    lead: "A website builder suits you if you want to edit pages yourself every week and are happy to keep paying a plan. A custom site suits you if you want a design built around your content, a one-time price, and code you own and can move. Both are reasonable; the right one depends on how you will use the site.",
+    lead: "Choose a custom website for tailored design, a one-time build fee, and code you own. Choose Wix or Squarespace for a visual editor you manage yourself. Compare the costs, work, and control before you decide.",
     published: "2026-10-09",
     updated: "2026-10-09",
     sections: [
       {
-        heading: "Side by side",
-        table: {
-          caption: "A website builder compared with a custom site from Northframe",
-          columns: ["Question", "Website builder (Wix, Squarespace)", "Custom site from Northframe"],
-          rows: [
-            ["How you pay", "A monthly or yearly plan for as long as the site is online", "A one-time package price, plus the domain and any paid services you choose"],
-            ["Editing", "A drag-and-drop editor: change anything yourself, any time", "Content lives in code, so changes need someone who can edit it"],
-            ["Design", "Start from a template and adjust it within the editor's limits", "Designed around your content from a blank page"],
-            ["Ownership", "The site lives on the platform, and its code generally cannot be exported", "Domain, hosting, and code are in your name"],
-            ["Moving later", "Usually means rebuilding the site somewhere else", "Any developer can host or change the code"],
-            ["Stores and bookings", "Built in on many plans", `Simple integrations in Business; payments and accounts are ${customTier.name}`],
-          ],
-        },
-      },
-      {
         heading: "When a website builder is the better choice",
-        body: ["A builder is the right call more often than a studio would like to admit. Pick one if any of these describe you."],
+        body: ["A website builder can be a good fit when frequent editing and ready-made platform tools matter most. Consider one if these describe you."],
         points: [
           "You want to change text, photos, or pages yourself, often, without asking anyone.",
-          "You need a full online store with inventory and checkout, working this week.",
-          "Your budget is close to zero right now, and platform branding on a free plan is fine.",
+          "You need store or booking tools available within the platform and your chosen plan.",
+          "You want to try building before committing. Check each platform’s current trial or free-plan terms.",
           "You enjoy designing and want to do it yourself.",
         ],
       },
@@ -534,7 +524,7 @@ export const articles: readonly Article[] = [
     faq: [
       {
         q: "Can I move a Wix or Squarespace site to my own hosting?",
-        a: "Not as a working site. Builders generally do not let you export the site's code, so moving means rebuilding the design elsewhere and copying the content across. Text and images can be moved; the site itself has to be rebuilt.",
+        a: "A Wix site relies on Wix hosting and cannot be exported as a working site to another host. Squarespace can export some content, but not the complete site design. Moving either site to another platform usually involves rebuilding the design and migrating the content.",
       },
       {
         q: "Is a custom website harder to update?",

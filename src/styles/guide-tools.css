@@ -1,0 +1,90 @@
+@layer components {
+  .purpose-guide .legal__head { border: 0; padding-bottom: 1rem; }
+  .purpose-guide .legal__head h1 { max-width: 22ch; font-size: clamp(2.4rem, 4.6vw, 4.4rem); }
+  .purpose-guide.doc--wide > .legal__body { display: flex; gap: 3.5rem; }
+  .purpose-guide .legal__head .t-lead { max-width: 65ch; }
+  .calc { width: 100%; gap: 1.5rem; align-items: start; }
+  .calc__mobile-summary { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem; border-radius: var(--radius-sm); background: var(--accent-soft); font-size: 0.875rem; font-weight: 600; }
+  .calc__mobile-summary a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+  .calc__form { padding: clamp(1.25rem, 3vw, 2.5rem); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--bg-raised); gap: 2rem; }
+  .calc__intro p, .comparison-matrix__intro p { color: var(--text-muted); margin-top: 0.5rem; }
+  .calc .field__label { font-size: 1.05rem; font-weight: 600; }
+  .calc .choices--card { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calc .choice__body { border-radius: var(--radius-md); padding: 1rem; }
+  .calc .choice__desc { font-size: 0.82rem; }
+  .calc .choice__meta { color: var(--text-muted); font-size: 0.75rem; }
+  .calc__reset { align-self: flex-start; display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); cursor: pointer; min-height: 44px; font-size: 0.875rem; }
+  .calc__reset:hover { color: var(--accent-ink); }
+  .calc__result { overflow: hidden; display: flex; flex-direction: column; gap: 1.2rem; padding: clamp(1.25rem, 2.5vw, 2rem); border: 1px solid var(--border-strong); border-radius: var(--radius-card); background: radial-gradient(ellipse at 100% 0%, var(--accent-soft), transparent 65%), var(--bg-raised); box-shadow: var(--shadow-lg); }
+  .calc__receipt-head { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.8rem; color: var(--text-muted); padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .calc__summary h2 { font-size: 1.15rem; font-weight: 600; color: var(--accent-ink); }
+  .calc__price { font-size: clamp(4rem, 7vw, 6rem); line-height: 1.15; font-weight: 600; letter-spacing: -0.065em; font-variant-numeric: tabular-nums; color: var(--text-strong); animation: estimate-in 240ms var(--ease-out) both; }
+  .calc__price--custom { font-size: clamp(2.4rem, 4vw, 3.5rem); letter-spacing: -0.04em; margin-block: 0.65rem; }
+  .calc__summary > p { color: var(--text-muted); font-size: 0.875rem; }
+  .calc__summary .calc__discount { margin-top: 0.5rem; color: var(--accent-ink); font-size: 0.78rem; }
+  .calc__payments { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding: 1rem 0; border-block: 1px dashed var(--border-strong); }
+  .calc__payments dt { font-size: 0.78rem; color: var(--text-muted); }
+  .calc__payments dd { font-size: 1.4rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 0.2rem; }
+  .calc__result h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.65rem; }
+  .calc__result .calc__included ul { padding: 0; list-style: none; gap: 0.5rem; }
+  .calc__included li { display: flex; align-items: start; gap: 0.6rem; font-size: 0.875rem; color: var(--text); }
+  .calc__included svg { flex: none; color: var(--accent-ink); margin-top: 0.25rem; }
+  .calc__why { padding: 1rem; background: var(--accent-soft); border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--text); }
+  .calc__fine { font-size: 0.75rem; color: var(--text-muted); }
+  .calc__custom { font-size: 0.9rem; color: var(--text); display: grid; gap: 0.75rem; }
+  .calc__all { color: var(--accent-ink); font-size: 0.875rem; text-underline-offset: 4px; text-decoration: underline; align-self: center; }
+  .comparison-guide { display: grid; gap: clamp(2.5rem, 5vw, 4rem); }
+  .decision-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .decision-pair__option { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; padding: clamp(1.5rem, 3vw, 2.5rem); border-radius: var(--radius-card); background: var(--bg-deep); }
+  .decision-pair__option--featured { background: var(--accent-soft); }
+  .decision-pair__option > svg { color: var(--accent-ink); margin-bottom: 0.5rem; }
+  .decision-pair__label { font-size: 0.85rem; font-weight: 600; color: var(--accent-ink); }
+  .decision-pair__option h2 { font-size: clamp(1.7rem, 2.8vw, 2.6rem); line-height: 1.12; letter-spacing: -0.03em; max-width: 20ch; text-wrap: balance; }
+  .decision-pair__option > p:not(.decision-pair__label) { max-width: 48ch; color: var(--text); font-size: 0.95rem; }
+  .decision-pair__option > a, .decision-pair__takeaway { margin-top: auto; padding-top: 0.75rem; }
+  .decision-pair__option > a { display: inline-flex; align-items: center; gap: 0.75rem; color: var(--accent-ink); text-decoration: underline; text-underline-offset: 4px; min-height: 44px; font-size: 0.875rem; }
+  .comparison-matrix { min-width: 0; }
+  .comparison-matrix__intro { margin-bottom: 1.5rem; }
+  .comparison-matrix table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; line-height: 1.55; font-size: 0.9rem; }
+  .comparison-matrix thead th { font-weight: 600; font-size: 1rem; padding: 1.5rem 1.25rem; text-align: left; background: var(--bg-deep); }
+  .comparison-matrix thead th:first-child { border-radius: var(--radius-md) 0 0 0; width: 19%; }
+  .comparison-matrix thead th:last-child { border-radius: 0 var(--radius-md) 0 0; }
+  .comparison-matrix th[data-featured], .comparison-matrix td[data-featured] { background: var(--accent-soft); }
+  .comparison-matrix thead th[data-featured] { color: var(--accent-ink); }
+  .comparison-matrix tbody th, .comparison-matrix td { vertical-align: top; padding: 1.25rem; text-align: left; border-bottom: 1px solid var(--border); }
+  .comparison-matrix tbody th { font-weight: 500; color: var(--text-strong); }
+  .comparison-matrix td { color: var(--text); }
+  .comparison-matrix tbody tr:hover td { box-shadow: inset 0 0 0 999px var(--glass-bg-subtle); }
+  .comparison-difference { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem 3rem; padding: clamp(1.5rem, 3vw, 3rem); border: 1px solid var(--border-strong); border-radius: var(--radius-card); background: var(--bg-raised); }
+  .comparison-difference h2 { margin-block: 0.75rem 1rem; }
+  .comparison-difference p:not(.decision-pair__label) { color: var(--text); max-width: 45ch; }
+  .comparison-difference ul { display: grid; gap: 1.25rem; }
+  .comparison-difference li { display: flex; align-items: start; gap: 0.75rem; font-size: 0.95rem; color: var(--text); }
+  .comparison-difference li svg { flex: none; margin-top: 0.2rem; color: var(--accent-ink); }
+  .comparison-difference .guide__actions { grid-column: 1 / -1; }
+  .comparison-sources { display: grid; gap: 0.75rem; font-size: 0.875rem; color: var(--text-muted); max-width: 78ch; }
+  .comparison-sources a { color: var(--accent-ink); text-decoration: underline; text-underline-offset: 3px; }
+  .comparison-reading { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 3rem; padding-top: 2rem; border-top: 1px solid var(--border-strong); }
+  .purpose-guide--comparison #article-next .guide__card { max-width: 52rem; }
+  @media (min-width: 1024px) {
+    .calc__mobile-summary { display: none; }
+    .calc { grid-template-columns: minmax(0, 1.3fr) minmax(20rem, 1fr); gap: 1.5rem; }
+    .calc__result { position: sticky; top: calc(var(--nav-h) + 1rem); }
+  }
+  @media (max-width: 767px) {
+    .decision-pair, .comparison-difference, .comparison-reading { grid-template-columns: minmax(0, 1fr); }
+    .comparison-matrix table, .comparison-matrix tbody { display: block; }
+    .comparison-matrix thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .comparison-matrix tbody tr { display: grid; gap: 0; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .comparison-matrix tbody th { display: block; padding: 0.85rem 1rem; background: var(--bg-deep); border: 0; }
+    .comparison-matrix td { display: grid; grid-template-columns: minmax(7rem, 0.75fr) minmax(0, 1.25fr); gap: 0.75rem; padding: 1rem; }
+    .comparison-matrix td::before { content: attr(data-label); font-weight: 600; color: var(--text-strong); }
+    .comparison-matrix tr td:last-child { border: 0; }
+  }
+  @media (max-width: 559px) {
+    .calc .choices--chip { grid-template-columns: minmax(0, 1fr); }
+    .calc .choices--card .choice__body { padding: 0.8rem; gap: 0.5rem; }
+  }
+  @keyframes estimate-in { from { opacity: 0.4; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .calc__price { animation: none; } }
+}

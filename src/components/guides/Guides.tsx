@@ -4,6 +4,7 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { DocAside, slugify, tocFrom, type TocItem } from "@/components/legal/DocAside";
 import { CostCalculator } from "@/components/tools/CostCalculator";
+import { ComparisonGuide, isComparisonGuide } from "@/components/guides/ComparisonGuide";
 import { Button } from "@/components/ui/Button";
 import { Ambient } from "@/components/visual/Ambient";
 import { articleBySlug, articles, formatDate, type Article } from "@/config/articles";
@@ -49,6 +50,7 @@ const GuideShell = ({
   jsonLd,
   toc = [],
   wide = false,
+  purpose,
   children,
 }: {
   trail: readonly Crumb[];
@@ -58,6 +60,7 @@ const GuideShell = ({
   jsonLd?: object;
   toc?: readonly TocItem[];
   wide?: boolean;
+  purpose?: "calculator" | "comparison";
   children: ReactNode;
 }) => (
   <Section className="legal guide" spacing="none" aria-labelledby="guide-title">
@@ -65,7 +68,7 @@ const GuideShell = ({
     {jsonLd && jsonLdScript(jsonLd)}
     <Ambient preset="quiet" />
     <Container>
-      <article className={`legal__wrap doc${wide ? " doc--wide" : ""}`}>
+      <article className={`legal__wrap doc${wide ? " doc--wide" : ""}${purpose ? ` purpose-guide purpose-guide--${purpose}` : ""}`}>
         <header className="legal__head">
           <nav aria-label="Breadcrumb" className="guide__crumbs t-small">
             <Link href="/">{siteConfig.entityName}</Link>
@@ -353,13 +356,16 @@ export const ArticleView = ({ slug }: { slug: string }) => {
       lead={article.lead}
       byline={{ updated: article.updated, published: article.published }}
       jsonLd={articleJsonLd(article)}
+      wide={isComparisonGuide(slug)}
+      purpose={isComparisonGuide(slug) ? "comparison" : undefined}
       toc={[
         ...tocFrom(article.sections.map((s) => s.heading)),
         ...(article.faq ? [{ id: "article-faq", label: "Common questions" }] : []),
         { id: "article-next", label: hub.label },
       ]}
     >
-      <Sections sections={article.sections} />
+      {isComparisonGuide(slug) && <ComparisonGuide slug={slug} />}
+      {isComparisonGuide(slug) ? <div className="comparison-reading"><Sections sections={article.sections} /></div> : <Sections sections={article.sections} />}
 
       {article.faq && (
         <section id="article-faq" className="legal__section" aria-labelledby="article-faq-title">
@@ -447,7 +453,7 @@ export const GuidesIndex = () => (
       <ul className="guide__list">
         <li>
           <Link href="/tools/website-cost-calculator">Website cost calculator</Link>
-          <span className="t-small">Answer four questions and see which package fits and what it costs.</span>
+          <span className="t-small">Choose your pages and features to see which package fits and what it costs.</span>
         </li>
         <li>
           <Link href="/faq">FAQ</Link>
@@ -508,13 +514,15 @@ export const CalculatorView = () => (
   <GuideShell
     trail={[{ name: "Website cost calculator", path: calcPath }]}
     wide
-    h1="Website cost calculator."
-    lead="Choose how many pages you need and the features you want. The calculator shows which Northframe package fits, the one-time price, and how payment is split. It runs in your browser and sends nothing anywhere."
-    byline={{ updated: guidesUpdated }}
+    purpose="calculator"
+    h1="Website cost calculator. Know your starting price."
+    lead="Estimate your custom website cost from the pages and features you need. See your Northframe package, one-time build price, and payment breakdown instantly."
+    byline={{ updated: "2026-10-09" }}
     jsonLd={{
       "@context": "https://schema.org",
       "@type": "WebApplication",
       name: "Website cost calculator",
+      description: "Estimate custom website design and build pricing from page count and features, with package inclusions and a payment breakdown.",
       url: `${siteConfig.url}${calcPath}`,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Any",
@@ -526,7 +534,7 @@ export const CalculatorView = () => (
     <CostCalculator />
 
     <section className="legal__section">
-      <h2 className="t-h4">How the estimate works</h2>
+      <h2 className="t-h4">How your website cost is calculated</h2>
       <p>The number of pages sets the smallest package that fits. Features can only move the estimate up, never down.</p>
       <ul>
         {packageTiers.map((t) => (
@@ -557,6 +565,7 @@ export const CalculatorView = () => (
         <li>
           <Link href="/faq">FAQ</Link>
         </li>
+        <li><Link href="/guides/custom-website-vs-website-builder">Custom website vs Wix or Squarespace</Link></li>
       </ul>
     </nav>
   </GuideShell>
