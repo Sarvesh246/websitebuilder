@@ -14,7 +14,8 @@ export function GET() {
   const u = siteConfig.url;
   const pkg = packageTiers.map((t) => {
     const label = discountLabel(t);
-    const price = label && t.regularPrice !== undefined ? `$${t.price} (${label}, regularly $${t.regularPrice})` : `$${t.price}`;
+    const price =
+      label && t.regularPrice !== undefined ? `$${t.price} (${label}, regularly $${t.regularPrice})` : `$${t.price}`;
     return `- ${t.name}: ${price}, one-time. Up to ${t.pages} ${t.pages === 1 ? "page" : "pages"}, ${t.revisions} revision ${t.revisions === 1 ? "round" : "rounds"}. ${t.audience}`;
   });
   const body = [

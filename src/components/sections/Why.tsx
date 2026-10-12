@@ -46,10 +46,47 @@ export const Why = () => (
           className="why-stage"
           label={why.visualLabel}
           layers={[
-            { id: "top", className: "why-pane--top", depth: 8, node: <GlassPane><ScreenPhoto title="Cleaner websites. Bigger ideas." photo="lake" /></GlassPane> },
-            { id: "left", className: "why-pane--left", depth: 10, node: <GlassPane><ScreenTall title="Ideas deserve better websites." photo="hall" /></GlassPane> },
-            { id: "right", className: "why-pane--right", depth: 12, node: <GlassPane><ScreenTall photo="vista" /></GlassPane> },
-            { id: "main", className: "why-pane--main", depth: 20, float: true, node: <GlassPane><ScreenPage /></GlassPane> },
+            {
+              id: "top",
+              className: "why-pane--top",
+              depth: 8,
+              node: (
+                <GlassPane>
+                  <ScreenPhoto title="Cleaner websites. Bigger ideas." photo="lake" />
+                </GlassPane>
+              ),
+            },
+            {
+              id: "left",
+              className: "why-pane--left",
+              depth: 10,
+              node: (
+                <GlassPane>
+                  <ScreenTall title="Ideas deserve better websites." photo="hall" />
+                </GlassPane>
+              ),
+            },
+            {
+              id: "right",
+              className: "why-pane--right",
+              depth: 12,
+              node: (
+                <GlassPane>
+                  <ScreenTall photo="vista" />
+                </GlassPane>
+              ),
+            },
+            {
+              id: "main",
+              className: "why-pane--main",
+              depth: 20,
+              float: true,
+              node: (
+                <GlassPane>
+                  <ScreenPage />
+                </GlassPane>
+              ),
+            },
           ]}
         />
       </div>

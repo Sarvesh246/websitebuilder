@@ -2,7 +2,17 @@
 
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { addMilestone, addNote, deleteMilestone, linkProjectToUser, setDeadline, setMilestoneStatus, setPreviewUrl, setRevisions, setStage } from "@/lib/portal/actions";
+import {
+  addMilestone,
+  addNote,
+  deleteMilestone,
+  linkProjectToUser,
+  setDeadline,
+  setMilestoneStatus,
+  setPreviewUrl,
+  setRevisions,
+  setStage,
+} from "@/lib/portal/actions";
 import { type Milestone, type MilestoneStatus, type ProjectStage, projectStages, stageLabel } from "@/lib/portal/types";
 import { useAction } from "./useAction";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -33,7 +43,12 @@ export const StageControl = ({ projectId, stage }: { projectId: string; stage: P
     >
       <div className="pt-field">
         <label htmlFor="pt-stage">Stage</label>
-        <select id="pt-stage" className="pt-select" value={value} onChange={(e) => setValue(e.target.value as ProjectStage)}>
+        <select
+          id="pt-stage"
+          className="pt-select"
+          value={value}
+          onChange={(e) => setValue(e.target.value as ProjectStage)}
+        >
           {stageOptions.map((s) => (
             <option key={s} value={s}>
               {stageLabel[s]}
@@ -82,7 +97,13 @@ export const ScheduleControls = ({
       >
         <div className="pt-field">
           <label htmlFor="pt-deadline">Deadline</label>
-          <input id="pt-deadline" type="date" className="pt-input" value={date} onChange={(e) => setDate(e.target.value)} />
+          <input
+            id="pt-deadline"
+            type="date"
+            className="pt-input"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
         </div>
         <button type="submit" className="btn btn-secondary btn-sm" disabled={a.pending}>
           Save
@@ -98,7 +119,15 @@ export const ScheduleControls = ({
       >
         <div className="pt-field">
           <label htmlFor="pt-preview">Preview URL</label>
-          <input id="pt-preview" type="url" inputMode="url" className="pt-input" placeholder="https://" value={url} onChange={(e) => setUrl(e.target.value)} />
+          <input
+            id="pt-preview"
+            type="url"
+            inputMode="url"
+            className="pt-input"
+            placeholder="https://"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
         </div>
         <button type="submit" className="btn btn-secondary btn-sm" disabled={b.pending}>
           Save
@@ -109,16 +138,36 @@ export const ScheduleControls = ({
         className="pt-form-row"
         onSubmit={(e) => {
           e.preventDefault();
-          c.run(() => setRevisions(projectId, { included: num(included), used: num(used) }), { success: "Revisions saved." });
+          c.run(() => setRevisions(projectId, { included: num(included), used: num(used) }), {
+            success: "Revisions saved.",
+          });
         }}
       >
         <div className="pt-field">
           <label htmlFor="pt-rev-used">Revisions used</label>
-          <input id="pt-rev-used" type="number" min={0} max={20} inputMode="numeric" className="pt-input" value={used} onChange={(e) => setUsed(e.target.value)} />
+          <input
+            id="pt-rev-used"
+            type="number"
+            min={0}
+            max={20}
+            inputMode="numeric"
+            className="pt-input"
+            value={used}
+            onChange={(e) => setUsed(e.target.value)}
+          />
         </div>
         <div className="pt-field">
           <label htmlFor="pt-rev-inc">Revisions included</label>
-          <input id="pt-rev-inc" type="number" min={0} max={20} inputMode="numeric" className="pt-input" value={included} onChange={(e) => setIncluded(e.target.value)} />
+          <input
+            id="pt-rev-inc"
+            type="number"
+            min={0}
+            max={20}
+            inputMode="numeric"
+            className="pt-input"
+            value={included}
+            onChange={(e) => setIncluded(e.target.value)}
+          />
         </div>
         <button type="submit" className="btn btn-secondary btn-sm" disabled={c.pending}>
           Save
@@ -168,10 +217,20 @@ const MilestoneRow = ({ m }: { m: Milestone }) => {
           <Trash2 aria-hidden size={18} strokeWidth={1.75} />
         </button>
       </div>
-      <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete milestone?" confirmLabel="Delete milestone" busy={pending}
-        onConfirm={() => run(() => deleteMilestone(m.id), { onOk: () => setConfirmDelete(false) })}>
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete milestone?"
+        confirmLabel="Delete milestone"
+        busy={pending}
+        onConfirm={() => run(() => deleteMilestone(m.id), { onOk: () => setConfirmDelete(false) })}
+      >
         <p>{m.title} will be removed from the project timeline.</p>
-        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+        {error && (
+          <p className="pt-msg pt-msg--error" role="alert">
+            {error}
+          </p>
+        )}
       </ConfirmDialog>
     </li>
   );
@@ -196,28 +255,55 @@ export const MilestoneEditor = ({ projectId, milestones }: { projectId: string; 
         onSubmit={(e) => {
           e.preventDefault();
           if (!title.trim()) return;
-          run(() => addMilestone(projectId, { title: title.trim(), detail: detail.trim() || undefined, dueDate: due || undefined }), {
-            onOk: () => {
-              setTitle("");
-              setDetail("");
-              setDue("");
+          run(
+            () =>
+              addMilestone(projectId, {
+                title: title.trim(),
+                detail: detail.trim() || undefined,
+                dueDate: due || undefined,
+              }),
+            {
+              onOk: () => {
+                setTitle("");
+                setDetail("");
+                setDue("");
+              },
             },
-          });
+          );
         }}
       >
         <div className="pt-form-row">
           <div className="pt-field" style={{ flex: "2 1 14rem" }}>
             <label htmlFor="pt-ms-title">New milestone</label>
-            <input id="pt-ms-title" className="pt-input" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} placeholder="Design review" />
+            <input
+              id="pt-ms-title"
+              className="pt-input"
+              value={title}
+              maxLength={120}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Design review"
+            />
           </div>
           <div className="pt-field">
             <label htmlFor="pt-ms-due">Due</label>
-            <input id="pt-ms-due" type="date" className="pt-input" value={due} onChange={(e) => setDue(e.target.value)} />
+            <input
+              id="pt-ms-due"
+              type="date"
+              className="pt-input"
+              value={due}
+              onChange={(e) => setDue(e.target.value)}
+            />
           </div>
         </div>
         <div className="pt-field">
           <label htmlFor="pt-ms-detail">Detail (optional)</label>
-          <input id="pt-ms-detail" className="pt-input" value={detail} maxLength={240} onChange={(e) => setDetail(e.target.value)} />
+          <input
+            id="pt-ms-detail"
+            className="pt-input"
+            value={detail}
+            maxLength={240}
+            onChange={(e) => setDetail(e.target.value)}
+          />
         </div>
         <div className="pt-form-row">
           <button type="submit" className="btn btn-secondary btn-sm" disabled={pending || !title.trim()}>
@@ -244,7 +330,14 @@ export const LinkUserForm = ({ projectId, email }: { projectId: string; email: s
     >
       <div className="pt-field">
         <label htmlFor="pt-link-email">Link to account by email</label>
-        <input id="pt-link-email" type="email" className="pt-input" value={value} onChange={(e) => setValue(e.target.value)} autoComplete="off" />
+        <input
+          id="pt-link-email"
+          type="email"
+          className="pt-input"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          autoComplete="off"
+        />
       </div>
       <button type="submit" className="btn btn-secondary btn-sm" disabled={pending || !value.trim()}>
         Link
@@ -254,7 +347,7 @@ export const LinkUserForm = ({ projectId, email }: { projectId: string; email: s
   );
 };
 
-export const NoteForm =({ projectId }: { projectId: string }) => {
+export const NoteForm = ({ projectId }: { projectId: string }) => {
   const [body, setBody] = useState("");
   const { pending, error, run } = useAction();
   return (
@@ -268,7 +361,13 @@ export const NoteForm =({ projectId }: { projectId: string }) => {
     >
       <div className="pt-field">
         <label htmlFor="pt-note">Internal note (never shown to the client)</label>
-        <textarea id="pt-note" className="pt-textarea" value={body} maxLength={4000} onChange={(e) => setBody(e.target.value)} />
+        <textarea
+          id="pt-note"
+          className="pt-textarea"
+          value={body}
+          maxLength={4000}
+          onChange={(e) => setBody(e.target.value)}
+        />
       </div>
       <div className="pt-form-row">
         <button type="submit" className="btn btn-secondary btn-sm" disabled={pending || !body.trim()}>

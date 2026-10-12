@@ -56,7 +56,8 @@ export const ConceptFrame = ({ slug, className = "", children }: Props) => {
           <span>Back to Concepts</span>
         </Link>
         <p className="cx-bar__note">
-          Concept by Northframe <span aria-hidden>·</span> <span className="cx-bar__fiction">{concept.brand} is not a real business</span>
+          Concept by Northframe <span aria-hidden>·</span>{" "}
+          <span className="cx-bar__fiction">{concept.brand} is not a real business</span>
         </p>
         <Link href={startHref(concept.pkg)} className="cx-bar__cta">
           <span>Want one like this?</span>

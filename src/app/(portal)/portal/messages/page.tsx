@@ -15,7 +15,15 @@ export default async function InboxPage() {
 
   return (
     <>
-      <PageHeader eyebrow={isAdmin ? "Studio" : "Your portal"} title="Messages" sub={isAdmin ? "One conversation per project. Unread conversations have a dot and are counted in the navigation badge." : "Your conversations with the studio, one per project."} />
+      <PageHeader
+        eyebrow={isAdmin ? "Studio" : "Your portal"}
+        title="Messages"
+        sub={
+          isAdmin
+            ? "One conversation per project. Unread conversations have a dot and are counted in the navigation badge."
+            : "Your conversations with the studio, one per project."
+        }
+      />
       {inbox.length === 0 ? (
         <Card>
           <EmptyState
@@ -39,17 +47,25 @@ export default async function InboxPage() {
           <ul className="pt-list" style={{ padding: "0 1.25rem" }}>
             {inbox.map(({ project: p, last }) => (
               <li key={p.id}>
-                <Link href={`/portal/projects/${p.id}/messages`} className="pt-row" style={{ textDecoration: "none", color: "inherit" }}>
+                <Link
+                  href={`/portal/projects/${p.id}/messages`}
+                  className="pt-row"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
                   <div className="pt-row__main">
                     <span className="pt-row__title">
                       {p.unreadMessages > 0 && (
                         <>
-                          <span className="pt-dot" aria-hidden /> <span className="sr-only">{p.unreadMessages} unread. </span>
+                          <span className="pt-dot" aria-hidden />{" "}
+                          <span className="sr-only">{p.unreadMessages} unread. </span>
                         </>
                       )}
                       {isAdmin ? p.clientName : projectTitle(p)}
                     </span>
-                    <p className="pt-small" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <p
+                      className="pt-small"
+                      style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    >
                       {last ? `${last.mine ? "You: " : ""}${last.body}` : "No messages yet"}
                     </p>
                   </div>

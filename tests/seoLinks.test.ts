@@ -39,9 +39,7 @@ const routes = new Set([
   ...articles.map((a) => `/guides/${a.slug}`),
 ]);
 
-const links = sources.flatMap((s) =>
-  s.texts.flatMap((t) => richHrefs(t).map((href) => ({ from: s.page, href }))),
-);
+const links = sources.flatMap((s) => s.texts.flatMap((t) => richHrefs(t).map((href) => ({ from: s.page, href }))));
 
 describe("rich text", () => {
   it("splits copy into text and links", () => {
@@ -69,28 +67,18 @@ describe("in-body internal links", () => {
   });
 
   it("give every guide and audience page at least three contextual links from other pages", () => {
-    const targets = [
-      ...articles.map((a) => `/guides/${a.slug}`),
-      ...audienceGuides.map((g) => `/${g.slug}`),
-    ];
+    const targets = [...articles.map((a) => `/guides/${a.slug}`), ...audienceGuides.map((g) => `/${g.slug}`)];
     const weak = targets
       .map((page) => ({
         page,
-        inbound: new Set(
-          links.filter((l) => l.href === page).map((l) => l.from),
-        ).size,
+        inbound: new Set(links.filter((l) => l.href === page).map((l) => l.from)).size,
       }))
       .filter((t) => t.inbound < 3);
     expect(weak).toEqual([]);
   });
 
   it("leave no unparsed link syntax in titles, descriptions or leads", () => {
-    const meta = [...articles, ...audienceGuides].flatMap((p) => [
-      p.title,
-      p.description,
-      p.h1,
-      p.lead,
-    ]);
+    const meta = [...articles, ...audienceGuides].flatMap((p) => [p.title, p.description, p.h1, p.lead]);
     expect(meta.filter((t) => /\]\(/.test(t))).toEqual([]);
   });
 });
@@ -105,9 +93,7 @@ describe("guide graph", () => {
   });
 
   it("keeps meta descriptions short enough for search snippets", () => {
-    const long = [...articles, ...audienceGuides]
-      .filter((p) => p.description.length > 160)
-      .map((p) => p.title);
+    const long = [...articles, ...audienceGuides].filter((p) => p.description.length > 160).map((p) => p.title);
     expect(long).toEqual([]);
   });
 });

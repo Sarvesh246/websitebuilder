@@ -57,8 +57,8 @@ export default async function SettingsPage() {
           <Card title="Preview as client" note="Studio admins only">
             <div className="pt-stack">
               <p className="pt-small">
-                See the portal exactly as a client sees it: their overview, tabs and payment screens. Studio controls are hidden and changes are disabled while previewing. This does not change
-                any data or sign you out.
+                See the portal exactly as a client sees it: their overview, tabs and payment screens. Studio controls
+                are hidden and changes are disabled while previewing. This does not change any data or sign you out.
               </p>
               <ViewAsToggle active={perspective === "client"} />
             </div>

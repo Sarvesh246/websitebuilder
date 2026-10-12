@@ -42,7 +42,15 @@ export type ProjectPayRow = {
 };
 
 export type LedgerType = "full" | "deposit" | "final_balance" | "refund";
-export type LedgerStatus = "pending" | "processing" | "succeeded" | "failed" | "requires_action" | "cancelled" | "refunded" | "partially_refunded";
+export type LedgerStatus =
+  | "pending"
+  | "processing"
+  | "succeeded"
+  | "failed"
+  | "requires_action"
+  | "cancelled"
+  | "refunded"
+  | "partially_refunded";
 
 export type LedgerRow = {
   id: string;
@@ -62,17 +70,42 @@ export type LedgerRow = {
   receipt_url?: string | null;
 };
 
-export type LedgerInsert = Omit<LedgerRow, "id" | "created_at" | "paid_at" | "stripe_session_id" | "stripe_payment_intent_id" | "stripe_refund_id" | "failure_reason"> &
-  Partial<Pick<LedgerRow, "stripe_session_id" | "stripe_payment_intent_id" | "stripe_refund_id" | "failure_reason" | "paid_at">>;
+export type LedgerInsert = Omit<
+  LedgerRow,
+  | "id"
+  | "created_at"
+  | "paid_at"
+  | "stripe_session_id"
+  | "stripe_payment_intent_id"
+  | "stripe_refund_id"
+  | "failure_reason"
+> &
+  Partial<
+    Pick<
+      LedgerRow,
+      "stripe_session_id" | "stripe_payment_intent_id" | "stripe_refund_id" | "failure_reason" | "paid_at"
+    >
+  >;
 
-export type ClaimedFinal = { id: string; remaining_amount: number; currency: string; stripe_customer_id: string | null; stripe_payment_method_id: string | null };
+export type ClaimedFinal = {
+  id: string;
+  remaining_amount: number;
+  currency: string;
+  stripe_customer_id: string | null;
+  stripe_payment_method_id: string | null;
+};
 
 /** Allowed current values per column: a patch applies only if every listed column matches (compare-and-set). */
 export type Guard = Partial<Record<keyof ProjectPayRow, readonly (string | number | null)[]>>;
 
 export type PaymentsRepo = {
   /** Atomic cumulative refund, ledger and project update (record_refund_total SQL function). Zero checks readiness. */
-  recordRefundTotal(projectId: string, paymentIntentId: string, total: number, refundId?: string | null): Promise<boolean>;
+  recordRefundTotal(
+    projectId: string,
+    paymentIntentId: string,
+    total: number,
+    refundId?: string | null,
+  ): Promise<boolean>;
   getProject(id: string): Promise<ProjectPayRow | null>;
   updateProject(id: string, patch: Partial<ProjectPayRow>): Promise<void>;
   /** Applies the patch only when the guard holds; returns whether it applied. The basis of idempotent state changes. */
@@ -132,12 +165,16 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
   return {
     recordRefundTotal: async (projectId, paymentIntentId, total, refundId) => {
       const { data, error } = await db.rpc("record_refund_total", {
-        p_project_id: projectId, p_payment_intent_id: paymentIntentId, p_refunded_total: total, p_refund_id: refundId ?? null,
+        p_project_id: projectId,
+        p_payment_intent_id: paymentIntentId,
+        p_refunded_total: total,
+        p_refund_id: refundId ?? null,
       });
       if (error) return fail(`db_${error.code ?? "error"}`);
       return data === true;
     },
-    getProject: (id) => one(db.from("project_requests").select(PROJECT_COLUMNS).eq("id", id).maybeSingle<ProjectPayRow>()),
+    getProject: (id) =>
+      one(db.from("project_requests").select(PROJECT_COLUMNS).eq("id", id).maybeSingle<ProjectPayRow>()),
 
     updateProject: (id, patch) => check(db.from("project_requests").update(patch).eq("id", id)),
 
@@ -146,7 +183,9 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
       for (const [column, allowed] of Object.entries(guard)) {
         if (!allowed) continue;
         const values = allowed.filter((v): v is string | number => v !== null);
-        query = allowed.includes(null) ? query.or(`${column}.is.null,${column}.in.(${values.join(",")})`) : query.in(column, values);
+        query = allowed.includes(null)
+          ? query.or(`${column}.is.null,${column}.in.(${values.join(",")})`)
+          : query.in(column, values);
       }
       const { data, error } = await query.select("id");
       if (error) fail(`db_${error.code ?? "error"}`);
@@ -161,19 +200,33 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     },
 
     getProfileCustomerId: async (userId) => {
-      const row = await one(db.from("profiles").select("stripe_customer_id").eq("id", userId).maybeSingle<{ stripe_customer_id: string | null }>());
+      const row = await one(
+        db
+          .from("profiles")
+          .select("stripe_customer_id")
+          .eq("id", userId)
+          .maybeSingle<{ stripe_customer_id: string | null }>(),
+      );
       return row?.stripe_customer_id ?? null;
     },
-    setProfileCustomerId: (userId, customerId) => check(db.from("profiles").update({ stripe_customer_id: customerId }).eq("id", userId)),
+    setProfileCustomerId: (userId, customerId) =>
+      check(db.from("profiles").update({ stripe_customer_id: customerId }).eq("id", userId)),
 
-    getLedgerByKey: (key) => one(db.from("payments").select(LEDGER_COLUMNS).eq("idempotency_key", key).maybeSingle<LedgerRow>()),
+    getLedgerByKey: (key) =>
+      one(db.from("payments").select(LEDGER_COLUMNS).eq("idempotency_key", key).maybeSingle<LedgerRow>()),
     getLedgerById: (id) => one(db.from("payments").select(LEDGER_COLUMNS).eq("id", id).maybeSingle<LedgerRow>()),
 
     upsertLedger: async (row) => {
       const { data, error } = await db.from("payments").insert(row).select(LEDGER_COLUMNS).single<LedgerRow>();
       if (data) return data;
       if (error?.code === "23505") {
-        const existing = await one(db.from("payments").select(LEDGER_COLUMNS).eq("idempotency_key", row.idempotency_key).maybeSingle<LedgerRow>());
+        const existing = await one(
+          db
+            .from("payments")
+            .select(LEDGER_COLUMNS)
+            .eq("idempotency_key", row.idempotency_key)
+            .maybeSingle<LedgerRow>(),
+        );
         if (existing) return existing;
       }
       return fail(`db_${error?.code ?? "error"}`);
@@ -184,8 +237,13 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     listLedger: async (projectId) => {
       const rows: LedgerRow[] = [];
       for (let offset = 0; offset < 50000; offset += 500) {
-        const { data, error } = await db.from("payments").select(LEDGER_COLUMNS).eq("project_id", projectId)
-          .order("created_at", { ascending: true }).order("id", { ascending: true }).range(offset, offset + 499);
+        const { data, error } = await db
+          .from("payments")
+          .select(LEDGER_COLUMNS)
+          .eq("project_id", projectId)
+          .order("created_at", { ascending: true })
+          .order("id", { ascending: true })
+          .range(offset, offset + 499);
         if (error) fail(`db_${error.code ?? "error"}`);
         const page = (data ?? []) as LedgerRow[];
         rows.push(...page);
@@ -195,7 +253,15 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     },
 
     findLedgerByPaymentIntent: (pi) =>
-      one(db.from("payments").select(LEDGER_COLUMNS).eq("stripe_payment_intent_id", pi).neq("type", "refund").limit(1).maybeSingle<LedgerRow>()),
+      one(
+        db
+          .from("payments")
+          .select(LEDGER_COLUMNS)
+          .eq("stripe_payment_intent_id", pi)
+          .neq("type", "refund")
+          .limit(1)
+          .maybeSingle<LedgerRow>(),
+      ),
 
     countFinalAttempts: async (projectId) => {
       const { count, error } = await db
@@ -227,11 +293,18 @@ export const supabasePaymentsRepo = (): PaymentsRepo => {
     },
 
     listRecentProjects: async (sinceIso, limit) => {
-      const { data, error } = await db.rpc("payment_reconciliation_queue", { p_since: sinceIso, p_limit: limit }).select(PROJECT_COLUMNS);
+      const { data, error } = await db
+        .rpc("payment_reconciliation_queue", { p_since: sinceIso, p_limit: limit })
+        .select(PROJECT_COLUMNS);
       if (error) fail(`db_${error.code ?? "error"}`);
       return (data ?? []) as ProjectPayRow[];
     },
-    markReconciled: (projectId, at) => check(db.from("payment_reconciliation").upsert({ project_id: projectId, checked_at: at }, { onConflict: "project_id" })),
+    markReconciled: (projectId, at) =>
+      check(
+        db
+          .from("payment_reconciliation")
+          .upsert({ project_id: projectId, checked_at: at }, { onConflict: "project_id" }),
+      ),
 
     addEvent: (projectId, kind, title, actorRole) =>
       check(db.from("project_events").insert({ project_id: projectId, kind, title, actor_role: actorRole })),

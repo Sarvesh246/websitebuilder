@@ -23,7 +23,9 @@ export const PaidPoller = ({ active }: { active: boolean }) => {
   if (!active) return null;
   return (
     <p className="pt-small" role="status">
-      {ticks >= MAX_TICKS ? "Still confirming. You can close this page; the project updates as soon as the payment clears." : "Confirming the payment with Stripe"}
+      {ticks >= MAX_TICKS
+        ? "Still confirming. You can close this page; the project updates as soon as the payment clears."
+        : "Confirming the payment with Stripe"}
     </p>
   );
 };

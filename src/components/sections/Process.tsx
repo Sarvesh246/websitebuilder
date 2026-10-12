@@ -9,7 +9,12 @@ import { ScreenCode, ScreenIdeas, ScreenPhoto, ScreenWire } from "@/components/v
 import { processSteps } from "@/config/about";
 
 /** The same site as a wireframe, a design, code, and a live page: the work in order. */
-const screens: readonly ReactNode[] = [<ScreenWire key="w" />, <ScreenIdeas key="d" photo="vista" />, <ScreenCode key="c" />, <ScreenPhoto key="l" title="Cleaner websites. Bigger ideas." photo="lake" />];
+const screens: readonly ReactNode[] = [
+  <ScreenWire key="w" />,
+  <ScreenIdeas key="d" photo="vista" />,
+  <ScreenCode key="c" />,
+  <ScreenPhoto key="l" title="Cleaner websites. Bigger ideas." photo="lake" />,
+];
 
 /**
  * Process (reference 5): centred header, four numbered steps, each over a framed glass pane; the
@@ -20,7 +25,13 @@ export const Process = () => (
     <Plate name="process" />
     <Container className="flex flex-col gap-[var(--section-header-gap)]">
       <Reveal>
-        <SectionHeader align="center" titleId="process-title" eyebrow={processSteps.eyebrow} title={processSteps.title} lead={processSteps.lead} />
+        <SectionHeader
+          align="center"
+          titleId="process-title"
+          eyebrow={processSteps.eyebrow}
+          title={processSteps.title}
+          lead={processSteps.lead}
+        />
       </Reveal>
       <div className="process__flow">
         <span aria-hidden className="process__line" />

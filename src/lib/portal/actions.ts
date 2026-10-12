@@ -5,7 +5,14 @@ import { revalidatePath } from "next/cache";
 import { VIEW_AS_COOKIE, demoMode, getPerspective, requireViewer } from "@/lib/auth/session";
 import { assertProjectAccess, type ProjectAccess } from "./data";
 import { isOpenStage, isUuid, otherSide, type Perspective } from "./mappers";
-import { normalizeStage, projectStages, type ChecklistStatus, type MilestoneStatus, type ProjectStage, type Viewer } from "./types";
+import {
+  normalizeStage,
+  projectStages,
+  type ChecklistStatus,
+  type MilestoneStatus,
+  type ProjectStage,
+  type Viewer,
+} from "./types";
 import { canGiveFeedback } from "./workflow";
 import { CUSTOM_INTAKE_PREFIX, intakeTemplates } from "@/config/intake";
 import { parsePackageId } from "@/config/inquiry";
@@ -51,7 +58,10 @@ const revalidate = () => revalidatePath("/portal", "layout");
 
 const cleanText = (v: unknown, min: number, max: number): string | null => {
   if (typeof v !== "string") return null;
-  const t =v.replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim();
+  const t = v
+    .replace(/\r\n?/g, "\n")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "")
+    .trim();
   return t.length >= min && t.length <= max ? t : null;
 };
 
@@ -61,8 +71,16 @@ const validDate = (v: unknown): string | null => {
   return Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== v ? null : v;
 };
 
-const logEvent = async (db: Ctx["db"], projectId: string, kind: string, title: string, actor: "client" | "admin" | "system") => {
-  await db.from("project_events").insert({ project_id: projectId, kind, title: title.slice(0, 200), actor_role: actor });
+const logEvent = async (
+  db: Ctx["db"],
+  projectId: string,
+  kind: string,
+  title: string,
+  actor: "client" | "admin" | "system",
+) => {
+  await db
+    .from("project_events")
+    .insert({ project_id: projectId, kind, title: title.slice(0, 200), actor_role: actor });
 };
 
 /** Access check that also returns a clean failure for missing or forbidden projects. */
@@ -81,9 +99,11 @@ export const sendMessage = async (projectId: string, body: string): Promise<Resu
   if (!text) return fail("Write a message between 1 and 4000 characters.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const { data, error } = await ctx.db.from("messages")
+  const { data, error } = await ctx.db
+    .from("messages")
     .insert({ project_id: projectId, sender_id: ctx.viewer.userId, sender_role: ctx.perspective, body: text })
-    .select("id").single<{ id: string }>();
+    .select("id")
+    .single<{ id: string }>();
   if (error || !data) return fail("Your message could not be sent. Please try again.");
   await ctx.db.from("project_requests").update({ updated_at: new Date().toISOString() }).eq("id", projectId);
   revalidate();
@@ -96,9 +116,12 @@ export const markMessagesRead = async (projectId: string): Promise<Result> => {
   if (ctx.viewer.role === "admin" && ctx.perspective === "client") return { ok: true }; // preview never marks anything read
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const { error } = await ctx.db.from("messages")
+  const { error } = await ctx.db
+    .from("messages")
     .update({ read_at: new Date().toISOString() })
-    .eq("project_id", projectId).eq("sender_role", otherSide(ctx.perspective)).is("read_at", null);
+    .eq("project_id", projectId)
+    .eq("sender_role", otherSide(ctx.perspective))
+    .is("read_at", null);
   if (error) return fail(GENERIC);
   revalidate();
   return { ok: true };
@@ -107,15 +130,25 @@ export const markMessagesRead = async (projectId: string): Promise<Result> => {
 // ---------------------------------------------------------------- files
 const FILE_TYPES = UPLOAD_TYPES;
 const BUCKET = UPLOAD_BUCKET;
-const ACCEPTED_MIME = new Set([...Object.values(FILE_TYPES), "application/x-zip-compressed", "application/octet-stream", ""]);
+const ACCEPTED_MIME = new Set([
+  ...Object.values(FILE_TYPES),
+  "application/x-zip-compressed",
+  "application/octet-stream",
+  "",
+]);
 
 const safeFileName = (raw: string): { safe: string; display: string; ext: string } | null => {
-  const base =(raw.split(/[\\/]/).pop() ?? "").replace(/[\u0000-\u001F\u007F]/g, "").trim();
+  const base = (raw.split(/[\\/]/).pop() ?? "").replace(/[\u0000-\u001F\u007F]/g, "").trim();
   const dot = base.lastIndexOf(".");
   if (dot <= 0 || dot === base.length - 1) return null;
   const ext = base.slice(dot + 1).toLowerCase();
   if (!(ext in FILE_TYPES)) return null;
-  const stem = base.slice(0, dot).replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^[._-]+/, "").slice(0, 80) || "file";
+  const stem =
+    base
+      .slice(0, dot)
+      .replace(/[^A-Za-z0-9._-]+/g, "_")
+      .replace(/^[._-]+/, "")
+      .slice(0, 80) || "file";
   return { safe: `${stem}.${ext}`, display: base.slice(0, 200), ext };
 };
 
@@ -151,7 +184,13 @@ export const confirmUpload = async (projectId: string, path: string, name: strin
   if (isFail(ctx)) return ctx;
   if (ctx.viewer.role === "admin" && ctx.perspective === "client") return fail(PREVIEW);
   const names = safeFileName(String(name ?? ""));
-  if (typeof path !== "string" || !UPLOAD_PATH_RE.test(path) || !path.startsWith(`${projectId}/`) || !names || !path.endsWith(`-${names.safe}`)) {
+  if (
+    typeof path !== "string" ||
+    !UPLOAD_PATH_RE.test(path) ||
+    !path.startsWith(`${projectId}/`) ||
+    !names ||
+    !path.endsWith(`-${names.safe}`)
+  ) {
     return fail("That upload could not be found.");
   }
   const project = await access(ctx, projectId);
@@ -168,16 +207,27 @@ export const confirmUpload = async (projectId: string, path: string, name: strin
     await ctx.db.storage.from(BUCKET).remove([path]);
     return fail(uploadErrors.size);
   }
-  const { data, error } = await ctx.db.from("project_files")
+  const { data, error } = await ctx.db
+    .from("project_files")
     .insert({
-      project_id: projectId, uploader_id: ctx.viewer.userId, uploader_role: ctx.perspective, path,
-      name: names.display, size_bytes: size, mime_type: FILE_TYPES[names.ext],
+      project_id: projectId,
+      uploader_id: ctx.viewer.userId,
+      uploader_role: ctx.perspective,
+      path,
+      name: names.display,
+      size_bytes: size,
+      mime_type: FILE_TYPES[names.ext],
     })
-    .select("id").single<{ id: string }>();
+    .select("id")
+    .single<{ id: string }>();
   if (error || !data) {
     // A concurrent confirmation may already own this object. Never delete its file on a lost race.
     if (error?.code === "23505") {
-      const { data: saved } = await ctx.db.from("project_files").select("id").eq("path", path).maybeSingle<{ id: string }>();
+      const { data: saved } = await ctx.db
+        .from("project_files")
+        .select("id")
+        .eq("path", path)
+        .maybeSingle<{ id: string }>();
       if (saved) return { ok: true, id: saved.id };
     }
     return fail("The file could not be saved. Please try again.");
@@ -190,7 +240,11 @@ export const confirmUpload = async (projectId: string, path: string, name: strin
 type FileRow = { id: string; project_id: string; path: string; name: string; uploader_id: string | null };
 const loadFile = async (ctx: Ctx, fileId: string): Promise<FileRow | Fail> => {
   if (!isUuid(fileId)) return fail("That file could not be found.");
-  const { data } = await ctx.db.from("project_files").select("id, project_id, path, name, uploader_id").eq("id", fileId).maybeSingle<FileRow>();
+  const { data } = await ctx.db
+    .from("project_files")
+    .select("id, project_id, path, name, uploader_id")
+    .eq("id", fileId)
+    .maybeSingle<FileRow>();
   if (!data) return fail("That file could not be found.");
   const project = await access(ctx, data.project_id);
   return isFail(project) ? fail("That file could not be found.") : data;
@@ -231,7 +285,11 @@ export const addNote = async (projectId: string, body: string): Promise<Result<{
   if (!text) return fail("Write a note between 1 and 4000 characters.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const { data, error } = await ctx.db.from("project_notes").insert({ project_id: projectId, body: text }).select("id").single<{ id: string }>();
+  const { data, error } = await ctx.db
+    .from("project_notes")
+    .insert({ project_id: projectId, body: text })
+    .select("id")
+    .single<{ id: string }>();
   if (error || !data) return fail(GENERIC);
   revalidate();
   return { ok: true, id: data.id };
@@ -251,10 +309,18 @@ export const addMilestone = async (
   if (input.dueDate && !dueDate) return fail("Use a valid due date.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const { data: last } = await ctx.db.from("milestones").select("position").eq("project_id", projectId).order("position", { ascending: false }).limit(1).maybeSingle<{ position: number }>();
-  const { data, error } = await ctx.db.from("milestones")
+  const { data: last } = await ctx.db
+    .from("milestones")
+    .select("position")
+    .eq("project_id", projectId)
+    .order("position", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ position: number }>();
+  const { data, error } = await ctx.db
+    .from("milestones")
     .insert({ project_id: projectId, title, detail, due_date: dueDate, position: (last?.position ?? -1) + 1 })
-    .select("id").single<{ id: string }>();
+    .select("id")
+    .single<{ id: string }>();
   if (error || !data) return fail(GENERIC);
   await logEvent(ctx.db, projectId, "milestone", `Milestone added: ${title}`, "admin");
   revalidate();
@@ -263,7 +329,11 @@ export const addMilestone = async (
 
 const loadMilestone = async (ctx: Ctx, milestoneId: string) => {
   if (!isUuid(milestoneId)) return null;
-  const { data } = await ctx.db.from("milestones").select("id, project_id, title").eq("id", milestoneId).maybeSingle<{ id: string; project_id: string; title: string }>();
+  const { data } = await ctx.db
+    .from("milestones")
+    .select("id, project_id, title")
+    .eq("id", milestoneId)
+    .maybeSingle<{ id: string; project_id: string; title: string }>();
   return data;
 };
 
@@ -273,8 +343,10 @@ export const setMilestoneStatus = async (milestoneId: string, status: MilestoneS
   if (!["pending", "active", "done"].includes(status)) return fail("Unknown milestone status.");
   const m = await loadMilestone(ctx, milestoneId);
   if (!m) return fail("That milestone could not be found.");
-  const { error } = await ctx.db.from("milestones")
-    .update({ status, completed_at: status === "done" ? new Date().toISOString() : null }).eq("id", m.id);
+  const { error } = await ctx.db
+    .from("milestones")
+    .update({ status, completed_at: status === "done" ? new Date().toISOString() : null })
+    .eq("id", m.id);
   if (error) return fail(GENERIC);
   if (status === "done") await logEvent(ctx.db, m.project_id, "milestone", `Milestone done: ${m.title}`, "admin");
   revalidate();
@@ -295,9 +367,15 @@ export const deleteMilestone = async (milestoneId: string): Promise<Result> => {
 // ---------------------------------------------------------------- admin: project controls
 const ALL_STAGES: readonly string[] = [...projectStages, "cancelled"];
 const stageEventTitle: Record<string, string> = {
-  requested: "Moved to Requested", accepted: "Project accepted", building: "Build started", client_review: "Ready for your review",
-  revisions: "Revisions in progress", awaiting_final_payment: "Awaiting final payment", ready_for_launch: "Ready to launch",
-  completed: "Project completed", cancelled: "Project cancelled",
+  requested: "Moved to Requested",
+  accepted: "Project accepted",
+  building: "Build started",
+  client_review: "Ready for your review",
+  revisions: "Revisions in progress",
+  awaiting_final_payment: "Awaiting final payment",
+  ready_for_launch: "Ready to launch",
+  completed: "Project completed",
+  cancelled: "Project cancelled",
 };
 
 /** Changes the stage label only. This action never charges or refunds anything. */
@@ -308,8 +386,11 @@ export const setStage = async (projectId: string, stage: ProjectStage): Promise<
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   if (stage === "ready_for_launch" || stage === "completed") {
-    if (project.initial_payment_status !== "paid") return fail("The initial payment must be confirmed before launch or completion.");
-    const paidUp = project.remaining_amount === 0 || (project.remaining_amount == null && project.final_payment_status === "not_required");
+    if (project.initial_payment_status !== "paid")
+      return fail("The initial payment must be confirmed before launch or completion.");
+    const paidUp =
+      project.remaining_amount === 0 ||
+      (project.remaining_amount == null && project.final_payment_status === "not_required");
     if (!paidUp) return fail("The remaining balance must be paid before this stage. Collect the final payment first.");
   }
   const patch: Record<string, unknown> = { status: stage };
@@ -349,7 +430,8 @@ export const setPreviewUrl = async (projectId: string, url: string | null): Prom
     } catch {
       return fail("Enter a full link that starts with https://");
     }
-    if (parsed.protocol !== "https:" || raw.length > 500) return fail("The preview link must start with https:// and be under 500 characters.");
+    if (parsed.protocol !== "https:" || raw.length > 500)
+      return fail("The preview link must start with https:// and be under 500 characters.");
     value = parsed.toString();
   }
   const project = await access(ctx, projectId);
@@ -365,7 +447,10 @@ export const setRevisions = async (projectId: string, input: { included?: number
   const ctx = await beginAdmin();
   if (isFail(ctx)) return ctx;
   const patch: Record<string, number> = {};
-  for (const [key, col] of [["included", "revisions_included"], ["used", "revisions_used"]] as const) {
+  for (const [key, col] of [
+    ["included", "revisions_included"],
+    ["used", "revisions_used"],
+  ] as const) {
     const v = input?.[key];
     if (v === undefined) continue;
     if (!Number.isInteger(v) || v < 0 || v > 99) return fail("Revisions must be a whole number from 0 to 99.");
@@ -398,13 +483,19 @@ const approvalCharge: Partial<Record<CollectOutcome, string>> = {
 export const approveFinalVersion = async (projectId: string): Promise<Result<{ notice?: string }>> => {
   const ctx = await begin();
   if (isFail(ctx)) return ctx;
-  if (ctx.perspective !== "client" || ctx.viewer.role === "admin") return fail("Only the project owner can approve the final version.");
+  if (ctx.perspective !== "client" || ctx.viewer.role === "admin")
+    return fail("Only the project owner can approve the final version.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   if (project.approved_at) return { ok: true };
-  if (!feedbackOpen(project) || project.initial_payment_status !== "paid") return fail("Approval is available once a paid project has a preview ready for review.");
-  const { data: unfinished, error: roundError } = await ctx.db.from("feedback_rounds")
-    .select("id").eq("project_id", projectId).eq("status", "submitted").limit(1);
+  if (!feedbackOpen(project) || project.initial_payment_status !== "paid")
+    return fail("Approval is available once a paid project has a preview ready for review.");
+  const { data: unfinished, error: roundError } = await ctx.db
+    .from("feedback_rounds")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("status", "submitted")
+    .limit(1);
   if (roundError) return fail(GENERIC);
   if (unfinished?.length) return fail("Wait for the studio to finish your feedback round before approving.");
   const { data: approved, error } = await ctx.db.rpc("approve_project_review", { p_project_id: projectId });
@@ -417,7 +508,10 @@ export const approveFinalVersion = async (projectId: string): Promise<Result<{ n
   await logEvent(ctx.db, projectId, "approval", "Final version approved", "client");
 
   let notice: string | undefined;
-  const balanceDue = project.initial_payment_status === "paid" && (project.remaining_amount ?? 0) > 0 && project.final_payment_status !== "paid";
+  const balanceDue =
+    project.initial_payment_status === "paid" &&
+    (project.remaining_amount ?? 0) > 0 &&
+    project.final_payment_status !== "paid";
   if (balanceDue) {
     try {
       const charge = await collectFinalBalance(projectId, "client_approval");
@@ -437,7 +531,13 @@ export const setViewAs = async (on: boolean): Promise<Result> => {
   const viewer = await requireViewer();
   if (viewer.role !== "admin") return fail("You do not have permission to do that.");
   const jar = await cookies();
-  if (on === true) jar.set(VIEW_AS_COOKIE, "client", { httpOnly: true, sameSite: "lax", path: "/", secure: process.env.NODE_ENV === "production" });
+  if (on === true)
+    jar.set(VIEW_AS_COOKIE, "client", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+    });
   else jar.delete(VIEW_AS_COOKIE);
   revalidate();
   return { ok: true };
@@ -461,7 +561,12 @@ export const linkProjectToUser = async (projectId: string, email: string): Promi
   if (!normalized || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return fail("Enter a valid email address.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
-  const { data: profile } = await ctx.db.from("profiles").select("id").eq("email", normalized).limit(1).maybeSingle<{ id: string }>();
+  const { data: profile } = await ctx.db
+    .from("profiles")
+    .select("id")
+    .eq("email", normalized)
+    .limit(1)
+    .maybeSingle<{ id: string }>();
   if (!profile) return fail("No account exists with that email yet. Ask them to sign up first.");
   const { error } = await ctx.db.from("project_requests").update({ user_id: profile.id }).eq("id", projectId);
   if (error) return fail(GENERIC);
@@ -489,23 +594,47 @@ const feedbackOpen = (p: ProjectAccess) =>
 const fileInProject = async (ctx: Ctx, projectId: string, fileId: unknown): Promise<string | null | Fail> => {
   if (fileId == null || fileId === "") return null;
   if (!isUuid(fileId)) return fail("That file could not be found.");
-  const { data } = await ctx.db.from("project_files").select("id").eq("id", fileId).eq("project_id", projectId).maybeSingle<{ id: string }>();
+  const { data } = await ctx.db
+    .from("project_files")
+    .select("id")
+    .eq("id", fileId)
+    .eq("project_id", projectId)
+    .maybeSingle<{ id: string }>();
   return data ? data.id : fail("That file could not be found.");
 };
 
 /** The project's draft round, created on first use. A unique index keeps it to one draft per project. */
 const draftRoundId = async (ctx: Ctx, projectId: string): Promise<string | null> => {
-  const find = () => ctx.db.from("feedback_rounds").select("id").eq("project_id", projectId).eq("status", "draft").maybeSingle<{ id: string }>();
+  const find = () =>
+    ctx.db
+      .from("feedback_rounds")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("status", "draft")
+      .maybeSingle<{ id: string }>();
   const { data: found } = await find();
   if (found) return found.id;
-  const { data: last } = await ctx.db.from("feedback_rounds").select("number").eq("project_id", projectId).order("number", { ascending: false }).limit(1).maybeSingle<{ number: number }>();
-  const { data, error } = await ctx.db.from("feedback_rounds").insert({ project_id: projectId, number: (last?.number ?? 0) + 1 }).select("id").single<{ id: string }>();
+  const { data: last } = await ctx.db
+    .from("feedback_rounds")
+    .select("number")
+    .eq("project_id", projectId)
+    .order("number", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ number: number }>();
+  const { data, error } = await ctx.db
+    .from("feedback_rounds")
+    .insert({ project_id: projectId, number: (last?.number ?? 0) + 1 })
+    .select("id")
+    .single<{ id: string }>();
   if (data) return data.id;
   if (error?.code === "23505") return (await find()).data?.id ?? null; // a parallel call created it first
   return null;
 };
 
-export const addFeedback = async (projectId: string, input: { page?: string; body: string; fileId?: string | null }): Promise<Result<{ id: string }>> => {
+export const addFeedback = async (
+  projectId: string,
+  input: { page?: string; body: string; fileId?: string | null },
+): Promise<Result<{ id: string }>> => {
   const ctx = await beginClient();
   if (isFail(ctx)) return ctx;
   const body = cleanText(input?.body, 1, 2000);
@@ -516,16 +645,24 @@ export const addFeedback = async (projectId: string, input: { page?: string; bod
   if (isFail(project)) return project;
   if (!feedbackOpen(project)) return fail(FEEDBACK_CLOSED);
   const [{ data: busy }, fileId] = await Promise.all([
-    ctx.db.from("feedback_rounds").select("id").eq("project_id", projectId).eq("status", "submitted").limit(1).maybeSingle(),
+    ctx.db
+      .from("feedback_rounds")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("status", "submitted")
+      .limit(1)
+      .maybeSingle(),
     fileInProject(ctx, projectId, input.fileId),
   ]);
   if (busy) return fail("The studio is still working on your last round. You can add comments once it is done.");
   if (isFail(fileId)) return fileId;
   const roundId = await draftRoundId(ctx, projectId);
   if (!roundId) return fail(GENERIC);
-  const { data, error } = await ctx.db.from("feedback_items")
+  const { data, error } = await ctx.db
+    .from("feedback_items")
     .insert({ project_id: projectId, round_id: roundId, page, body, file_id: fileId })
-    .select("id").single<{ id: string }>();
+    .select("id")
+    .single<{ id: string }>();
   if (error || !data) return fail("Your comment could not be saved. Please try again.");
   revalidate();
   return { ok: true, id: data.id };
@@ -535,13 +672,16 @@ export const deleteFeedback = async (itemId: string): Promise<Result> => {
   const ctx = await beginClient();
   if (isFail(ctx)) return ctx;
   if (!isUuid(itemId)) return fail("That comment could not be found.");
-  const { data: item } = await ctx.db.from("feedback_items")
-    .select("id, project_id, feedback_rounds!inner(status)").eq("id", itemId)
+  const { data: item } = await ctx.db
+    .from("feedback_items")
+    .select("id, project_id, feedback_rounds!inner(status)")
+    .eq("id", itemId)
     .maybeSingle<{ id: string; project_id: string; feedback_rounds: { status: string } }>();
   if (!item) return fail("That comment could not be found.");
   const project = await access(ctx, item.project_id);
   if (isFail(project)) return project;
-  if (item.feedback_rounds.status !== "draft") return fail("Sent comments can't be removed. Message the studio instead.");
+  if (item.feedback_rounds.status !== "draft")
+    return fail("Sent comments can't be removed. Message the studio instead.");
   const { error } = await ctx.db.from("feedback_items").delete().eq("id", item.id);
   if (error) return fail(GENERIC);
   revalidate();
@@ -559,7 +699,13 @@ export const submitFeedback = async (projectId: string): Promise<Result<{ number
   if (error) return fail(GENERIC);
   const sent = ((data ?? []) as { round_number: number; is_extra: boolean }[])[0];
   if (!sent) return fail("Add at least one comment before sending.");
-  await logEvent(ctx.db, projectId, "feedback", `Feedback round ${sent.round_number} sent${sent.is_extra ? " (beyond included revisions)" : ""}`, "client");
+  await logEvent(
+    ctx.db,
+    projectId,
+    "feedback",
+    `Feedback round ${sent.round_number} sent${sent.is_extra ? " (beyond included revisions)" : ""}`,
+    "client",
+  );
   revalidate();
   return { ok: true, number: sent.round_number, extra: sent.is_extra };
 };
@@ -568,7 +714,11 @@ export const setFeedbackItemStatus = async (itemId: string, status: "open" | "do
   const ctx = await beginAdmin();
   if (isFail(ctx)) return ctx;
   if (!isUuid(itemId) || (status !== "open" && status !== "done")) return fail("That comment could not be found.");
-  const { data: item } = await ctx.db.from("feedback_items").select("id, project_id").eq("id", itemId).maybeSingle<{ id: string; project_id: string }>();
+  const { data: item } = await ctx.db
+    .from("feedback_items")
+    .select("id, project_id")
+    .eq("id", itemId)
+    .maybeSingle<{ id: string; project_id: string }>();
   if (!item) return fail("That comment could not be found.");
   const { error } = await ctx.db.from("feedback_items").update({ status }).eq("id", item.id);
   if (error) return fail(GENERIC);
@@ -581,7 +731,10 @@ export const resolveFeedbackRound = async (roundId: string): Promise<Result> => 
   const ctx = await beginAdmin();
   if (isFail(ctx)) return ctx;
   if (!isUuid(roundId)) return fail("That round could not be found.");
-  const { data: round } = await ctx.db.from("feedback_rounds").select("id, project_id, number, status").eq("id", roundId)
+  const { data: round } = await ctx.db
+    .from("feedback_rounds")
+    .select("id, project_id, number, status")
+    .eq("id", roundId)
     .maybeSingle<{ id: string; project_id: string; number: number; status: string }>();
   if (!round || round.status !== "submitted") return fail("Only a sent round can be marked addressed.");
   const project = await access(ctx, round.project_id);
@@ -605,14 +758,20 @@ export const updateChecklistItem = async (
   const ctx = await begin();
   if (isFail(ctx)) return ctx;
   if (ctx.viewer.role === "admin" && ctx.perspective === "client") return fail(PREVIEW);
-  if (typeof key !== "string" || key.length > 60 || !CHECKLIST_STATUSES.includes(input?.status)) return fail("That item could not be found.");
+  if (typeof key !== "string" || key.length > 60 || !CHECKLIST_STATUSES.includes(input?.status))
+    return fail("That item could not be found.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   const template = intakeTemplates[parsePackageId(project.package) ?? "custom"].find((t) => t.key === key);
   let label = template?.label;
   if (!template) {
     if (!key.startsWith(CUSTOM_INTAKE_PREFIX)) return fail("That item could not be found.");
-    const { data: row } = await ctx.db.from("checklist_items").select("label").eq("project_id", projectId).eq("key", key).maybeSingle<{ label: string | null }>();
+    const { data: row } = await ctx.db
+      .from("checklist_items")
+      .select("label")
+      .eq("project_id", projectId)
+      .eq("key", key)
+      .maybeSingle<{ label: string | null }>();
     if (!row) return fail("That item could not be found.");
     label = row.label ?? "Requested item";
   }
@@ -626,7 +785,12 @@ export const updateChecklistItem = async (
   }
   const fileId = await fileInProject(ctx, projectId, input.fileId);
   if (isFail(fileId)) return fileId;
-  const patch: Record<string, unknown> = { project_id: projectId, key, status: input.status, updated_at: new Date().toISOString() };
+  const patch: Record<string, unknown> = {
+    project_id: projectId,
+    key,
+    status: input.status,
+    updated_at: new Date().toISOString(),
+  };
   if (input.answer !== undefined) patch.answer = answer;
   if (input.fileId !== undefined) patch.file_id = fileId;
   const { error } = await ctx.db.from("checklist_items").upsert(patch, { onConflict: "project_id,key" });
@@ -654,7 +818,8 @@ export const addChecklistItem = async (projectId: string, label: string): Promis
 export const removeChecklistItem = async (projectId: string, key: string): Promise<Result> => {
   const ctx = await beginAdmin();
   if (isFail(ctx)) return ctx;
-  if (typeof key !== "string" || !key.startsWith(CUSTOM_INTAKE_PREFIX)) return fail("Only items the studio added can be removed.");
+  if (typeof key !== "string" || !key.startsWith(CUSTOM_INTAKE_PREFIX))
+    return fail("Only items the studio added can be removed.");
   const project = await access(ctx, projectId);
   if (isFail(project)) return project;
   const { error } = await ctx.db.from("checklist_items").delete().eq("project_id", projectId).eq("key", key);
@@ -674,12 +839,19 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
   if (isFail(ctx)) return ctx;
   if (ctx.viewer.role === "admin") return fail("Studio admin accounts can't be deleted from the portal.");
   if (typeof confirmText !== "string" || confirmText.trim() !== "DELETE") return fail("Type DELETE to confirm.");
-  const { data: projects, error: listErr, count: projectCount } = await ctx.db.from("project_requests")
-    .select("id, status, initial_payment_status", { count: "exact" }).eq("user_id", ctx.viewer.userId)
+  const {
+    data: projects,
+    error: listErr,
+    count: projectCount,
+  } = await ctx.db
+    .from("project_requests")
+    .select("id, status, initial_payment_status", { count: "exact" })
+    .eq("user_id", ctx.viewer.userId)
     .returns<{ id: string; status: string; initial_payment_status: string }[]>();
   if (listErr || projectCount === null || projectCount !== (projects?.length ?? 0)) return fail(GENERIC);
   const owned = projects ?? [];
-  const paid = (p: { initial_payment_status: string }) => p.initial_payment_status === "paid" || p.initial_payment_status === "processing";
+  const paid = (p: { initial_payment_status: string }) =>
+    p.initial_payment_status === "paid" || p.initial_payment_status === "processing";
   if (owned.some((p) => paid(p) && isOpenStage(normalizeStage(p.status)))) {
     return fail("You have a project in progress. Message the studio to wrap it up before deleting your account.");
   }
@@ -688,10 +860,20 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
   try {
     await Promise.all(ids.map((id) => expireProjectSessions(id, undefined, true)));
   } catch {
-    return fail("Open payment links could not be safely closed. Check Payments or message the studio before deleting your account.");
+    return fail(
+      "Open payment links could not be safely closed. Check Payments or message the studio before deleting your account.",
+    );
   }
   if (ids.length > 0) {
-    const { data: files, error: filesError, count: fileCount } = await ctx.db.from("project_files").select("path", { count: "exact" }).in("project_id", ids).returns<{ path: string }[]>();
+    const {
+      data: files,
+      error: filesError,
+      count: fileCount,
+    } = await ctx.db
+      .from("project_files")
+      .select("path", { count: "exact" })
+      .in("project_id", ids)
+      .returns<{ path: string }[]>();
     if (filesError || fileCount === null || fileCount !== (files?.length ?? 0)) return fail(GENERIC);
     const paths = (files ?? []).map((f) => f.path);
     for (let i = 0; i < paths.length; i += 100) {
@@ -704,7 +886,15 @@ export const deleteAccount = async (confirmText: string): Promise<Result> => {
     if (deleteMessagesError) return fail(GENERIC);
     const unpaid = owned.filter((p) => !paid(p)).map((p) => p.id);
     if (unpaid.length > 0) {
-      const { data: ledger, error: ledgerError, count: ledgerCount } = await ctx.db.from("payments").select("project_id", { count: "exact" }).in("project_id", unpaid).returns<{ project_id: string }[]>();
+      const {
+        data: ledger,
+        error: ledgerError,
+        count: ledgerCount,
+      } = await ctx.db
+        .from("payments")
+        .select("project_id", { count: "exact" })
+        .in("project_id", unpaid)
+        .returns<{ project_id: string }[]>();
       if (ledgerError || ledgerCount === null || ledgerCount !== (ledger?.length ?? 0)) return fail(GENERIC);
       const withLedger = new Set((ledger ?? []).map((l) => l.project_id));
       const removable = unpaid.filter((id) => !withLedger.has(id));

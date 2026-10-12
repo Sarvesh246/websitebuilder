@@ -23,7 +23,8 @@ export default async function InvoicePage({ params }: PageProps<"/portal/project
   const number = invoiceNumber(pay);
   const issued = pay.paidAt ?? pay.createdAt;
   const host = new URL(siteConfig.url).host;
-  const refunded = pay.status === "refunded" ? "Refunded in full" : pay.status === "partially_refunded" ? "Partly refunded" : null;
+  const refunded =
+    pay.status === "refunded" ? "Refunded in full" : pay.status === "partially_refunded" ? "Partly refunded" : null;
 
   return (
     <>
@@ -109,10 +110,13 @@ export default async function InvoicePage({ params }: PageProps<"/portal/project
 
         {p.money.total != null && (
           <p className="pt-invoice__summary">
-            Project total {formatUsd(p.money.total)} · Paid to date {formatUsd(p.money.paid)} · Remaining {formatUsd(Math.max(0, p.money.remaining ?? 0))}
+            Project total {formatUsd(p.money.total)} · Paid to date {formatUsd(p.money.paid)} · Remaining{" "}
+            {formatUsd(Math.max(0, p.money.remaining ?? 0))}
           </p>
         )}
-        {refunded && <p className="pt-invoice__summary">{refunded}. Refunds go back to the original card through Stripe.</p>}
+        {refunded && (
+          <p className="pt-invoice__summary">{refunded}. Refunds go back to the original card through Stripe.</p>
+        )}
         <p className="pt-invoice__foot">Thank you for working with {siteConfig.name}. Amounts are in US dollars.</p>
       </article>
     </>

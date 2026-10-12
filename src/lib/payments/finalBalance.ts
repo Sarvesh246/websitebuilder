@@ -8,7 +8,13 @@ import type { Viewer } from "@/lib/portal/types";
 export type CollectOutcome = "paid" | "processing" | "failed" | "requires_action" | "already_paid" | "not_eligible";
 export type CollectResult = { outcome: CollectOutcome; message: string };
 
-type StripeFailure = { type?: string; code?: string; decline_code?: string; payment_intent?: { id?: string }; raw?: { payment_intent?: { id?: string } } };
+type StripeFailure = {
+  type?: string;
+  code?: string;
+  decline_code?: string;
+  payment_intent?: { id?: string };
+  raw?: { payment_intent?: { id?: string } };
+};
 
 const isCardError = (err: unknown): err is StripeFailure => (err as StripeFailure | null)?.type === "StripeCardError";
 
@@ -29,22 +35,29 @@ export const collectFinalBalance = async (
   actor: CollectActor,
   deps: PaymentsDeps = defaultDeps(),
 ): Promise<CollectResult> => {
-  if (actor !== "client_approval" && actor.role !== "admin") throw new PaymentError("Only the studio can collect the final payment.");
+  if (actor !== "client_approval" && actor.role !== "admin")
+    throw new PaymentError("Only the studio can collect the final payment.");
   const { repo, stripe } = deps;
 
   const before = await repo.getProject(projectId);
   if (!before) return { outcome: "not_eligible", message: "Project not found." };
-  if (before.final_payment_status === "paid") return { outcome: "already_paid", message: "The final payment has already been received." };
+  if (before.final_payment_status === "paid")
+    return { outcome: "already_paid", message: "The final payment has already been received." };
   // The saved card may only be charged with the client's stored authorization from checkout.
   if (before.future_charge_authorized !== true) {
-    return { outcome: "not_eligible", message: "The client has not authorized a saved-card charge. Send them a payment link instead." };
+    return {
+      outcome: "not_eligible",
+      message: "The client has not authorized a saved-card charge. Send them a payment link instead.",
+    };
   }
 
   const claim = await repo.claimFinalPayment(projectId);
   if (!claim) {
     const current = await repo.getProject(projectId);
-    if (current?.final_payment_status === "processing") return { outcome: "processing", message: "A final payment attempt is already in progress." };
-    if (current?.final_payment_status === "paid") return { outcome: "already_paid", message: "The final payment has already been received." };
+    if (current?.final_payment_status === "processing")
+      return { outcome: "processing", message: "A final payment attempt is already in progress." };
+    if (current?.final_payment_status === "paid")
+      return { outcome: "already_paid", message: "The final payment has already been received." };
     return { outcome: "not_eligible", message: "There is no final balance to collect on this project right now." };
   }
 
@@ -57,13 +70,22 @@ export const collectFinalBalance = async (
     currency: claim.currency,
     idempotency_key: finalKey(projectId),
   });
-  if (obligation.status !== "processing") await repo.updateLedger(obligation.id, { status: "processing", failure_reason: null });
+  if (obligation.status !== "processing")
+    await repo.updateLedger(obligation.id, { status: "processing", failure_reason: null });
   // A hosted "pay remaining balance" link may still be open: close it so the client can't pay it too.
   await expireStaleSession(stripe, obligation.stripe_session_id, "");
 
   if (!claim.stripe_customer_id || !claim.stripe_payment_method_id) {
-    await recordFinalFailure(deps, { projectId, paymentIntentId: null, reason: "no_saved_payment_method", requiresAction: true });
-    return { outcome: "requires_action", message: "No saved card is on file. Send the client a payment link for the remaining balance." };
+    await recordFinalFailure(deps, {
+      projectId,
+      paymentIntentId: null,
+      reason: "no_saved_payment_method",
+      requiresAction: true,
+    });
+    return {
+      outcome: "requires_action",
+      message: "No saved card is on file. Send the client a payment link for the remaining balance.",
+    };
   }
 
   const failures = await repo.countFinalAttempts(projectId);
@@ -79,18 +101,35 @@ export const collectFinalBalance = async (
         confirm: true,
         description: "Northframe website: remaining balance",
         ...(before.email ? { receipt_email: before.email } : {}),
-        metadata: { project_id: projectId, package_id: before.package, payment_stage: "final_balance", collect: "off_session", user_id: before.user_id ?? "" },
+        metadata: {
+          project_id: projectId,
+          package_id: before.package,
+          payment_stage: "final_balance",
+          collect: "off_session",
+          user_id: before.user_id ?? "",
+        },
       },
       { idempotencyKey: `project:${projectId}:final:${failures}` },
     );
 
     if (intent.status === "succeeded") {
-      const settled = await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received });
+      const settled = await finalizeFinal(deps, {
+        projectId,
+        paymentIntentId: intent.id,
+        amountReceived: intent.amount_received,
+      });
       if (settled === "duplicate") {
         // The client paid the balance another way at the same moment; this charge is refunded (or flagged) automatically.
-        return { outcome: "already_paid", message: "The balance was already paid another way. This extra charge is being refunded automatically." };
+        return {
+          outcome: "already_paid",
+          message: "The balance was already paid another way. This extra charge is being refunded automatically.",
+        };
       }
-      if (settled === "mismatch") return { outcome: "processing", message: "Stripe reported an unexpected amount. Check the payment in Stripe before doing anything else." };
+      if (settled === "mismatch")
+        return {
+          outcome: "processing",
+          message: "Stripe reported an unexpected amount. Check the payment in Stripe before doing anything else.",
+        };
       return { outcome: "paid", message: "The final payment was collected. The project is ready for launch." };
     }
     if (intent.status === "processing") {
@@ -98,22 +137,40 @@ export const collectFinalBalance = async (
       return { outcome: "processing", message: "The payment is processing. The project updates when it clears." };
     }
     const needsAction = intent.status === "requires_action" || intent.status === "requires_confirmation";
-    await recordFinalFailure(deps, { projectId, paymentIntentId: intent.id, reason: intent.status, requiresAction: needsAction });
+    await recordFinalFailure(deps, {
+      projectId,
+      paymentIntentId: intent.id,
+      reason: intent.status,
+      requiresAction: needsAction,
+    });
     return needsAction
-      ? { outcome: "requires_action", message: "The bank needs the client to confirm the payment. Send them a payment link." }
+      ? {
+          outcome: "requires_action",
+          message: "The bank needs the client to confirm the payment. Send them a payment link.",
+        }
       : { outcome: "failed", message: "The saved card could not be charged. Send the client a payment link." };
   } catch (err) {
     if (isCardError(err)) {
       const needsAction = err.code === "authentication_required";
       const intentId = err.payment_intent?.id ?? err.raw?.payment_intent?.id ?? null;
-      await recordFinalFailure(deps, { projectId, paymentIntentId: intentId, reason: err.decline_code ?? err.code ?? "card_error", requiresAction: needsAction });
+      await recordFinalFailure(deps, {
+        projectId,
+        paymentIntentId: intentId,
+        reason: err.decline_code ?? err.code ?? "card_error",
+        requiresAction: needsAction,
+      });
       return needsAction
-        ? { outcome: "requires_action", message: "The bank needs the client to confirm the payment. Send them a payment link." }
+        ? {
+            outcome: "requires_action",
+            message: "The bank needs the client to confirm the payment. Send them a payment link.",
+          }
         : { outcome: "failed", message: "The saved card was declined. Send the client a payment link." };
     }
     // A lost response can still mean Stripe received the charge. Keep the claim until the webhook
     // or reconciliation confirms its outcome, preventing a competing hosted checkout in the meantime.
     serverLog("error", "payments.final_charge_error", { project: projectId });
-    throw new PaymentError("Stripe's response could not be confirmed. The payment is being checked; do not pay again yet. Check the Payments tab or message the studio.");
+    throw new PaymentError(
+      "Stripe's response could not be confirmed. The payment is being checked; do not pay again yet. Check the Payments tab or message the studio.",
+    );
   }
 };

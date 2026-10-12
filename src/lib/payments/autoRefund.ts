@@ -18,7 +18,10 @@ import type { PaymentsDeps } from "@/lib/payments/stripe";
 export type DuplicateStage = "deposit" | "final_balance";
 export type DuplicateOutcome = "refunded" | "already_refunded" | "review" | "retry";
 
-const STAGES: Record<DuplicateStage, readonly string[]> = { deposit: ["deposit", "full"], final_balance: ["final_balance"] };
+const STAGES: Record<DuplicateStage, readonly string[]> = {
+  deposit: ["deposit", "full"],
+  final_balance: ["final_balance"],
+};
 
 export const autoRefundEnabled = () => process.env.STRIPE_AUTO_REFUND_DUPLICATES?.trim().toLowerCase() !== "off";
 
@@ -54,7 +57,8 @@ export const duplicateRefusal = (
   const kept = recorded.intent;
   if (kept.status !== "succeeded" || kept.metadata?.project_id !== input.projectId) return "recorded_payment_not_valid";
   if (!STAGES[input.stage].includes(kept.metadata?.payment_stage ?? "")) return "recorded_other_stage";
-  if (!recorded.charge || recorded.charge.disputed || recorded.charge.amount_refunded > 0) return "recorded_payment_refunded_or_disputed";
+  if (!recorded.charge || recorded.charge.disputed || recorded.charge.amount_refunded > 0)
+    return "recorded_payment_refunded_or_disputed";
   if (kept.currency !== intent.currency) return "currency_mismatch";
   return null;
 };
@@ -112,7 +116,11 @@ export const refundDuplicatePayment = async (
         payment_intent: duplicate.intent.id,
         amount,
         reason: "duplicate",
-        metadata: { project_id: input.projectId, auto_refund: "duplicate", kept_payment_intent: input.recordedId ?? "" },
+        metadata: {
+          project_id: input.projectId,
+          auto_refund: "duplicate",
+          kept_payment_intent: input.recordedId ?? "",
+        },
       },
       { idempotencyKey: `auto-refund:duplicate:${duplicate.intent.id}` },
     );
@@ -128,6 +136,11 @@ export const refundDuplicatePayment = async (
   if (replayed || !(await firstTime(deps, `refunded:${duplicate.intent.id}`))) return "already_refunded";
   serverLog("info", "payments.duplicate_refunded", { project: input.projectId });
   await repo.addEvent(input.projectId, "refund", "A duplicate payment was refunded automatically", "system");
-  await alertStudio(input.projectId, "duplicate payment refunded", `A duplicate payment of ${(amount / 100).toFixed(2)} ${duplicate.intent.currency.toUpperCase()} was refunded in full automatically. The original payment (${input.recordedId}) is kept. No action needed.`, input.duplicateId);
+  await alertStudio(
+    input.projectId,
+    "duplicate payment refunded",
+    `A duplicate payment of ${(amount / 100).toFixed(2)} ${duplicate.intent.currency.toUpperCase()} was refunded in full automatically. The original payment (${input.recordedId}) is kept. No action needed.`,
+    input.duplicateId,
+  );
   return "refunded";
 };

@@ -62,7 +62,13 @@ export const ScreenPhoto = ({ title, photo = "peak", burger }: { title: string; 
   </div>
 );
 
-export const ScreenTall = ({ title = "Built for what's next.", photo = "range" }: { title?: string; photo?: Photo }) => (
+export const ScreenTall = ({
+  title = "Built for what's next.",
+  photo = "range",
+}: {
+  title?: string;
+  photo?: Photo;
+}) => (
   <div className="scr scr--tall">
     <Nav burger />
     <div className="scr__copy">
@@ -143,7 +149,10 @@ export const ScreenCode = () => (
         <span {...t("() {\n  ")} />
         <span className="k" {...t("return")} />
         <span {...t(" (\n    ")} />
-        <span className="t" {...t("<main>\n      <Hero />\n      <Features />\n      <Process />\n      <Footer />\n    </main>")} />
+        <span
+          className="t"
+          {...t("<main>\n      <Hero />\n      <Features />\n      <Process />\n      <Footer />\n    </main>")}
+        />
         <span {...t("\n  );\n}")} />
       </div>
     </div>

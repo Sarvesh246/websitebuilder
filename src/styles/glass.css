@@ -34,8 +34,7 @@
     border: 1px solid var(--glass-border);
     background:
       radial-gradient(120% 90% at var(--light-x) var(--light-y), var(--glass-specular), transparent 46%),
-      linear-gradient(140deg, var(--glass-sheen), transparent 55%),
-      var(--_bg);
+      linear-gradient(140deg, var(--glass-sheen), transparent 55%), var(--_bg);
     -webkit-backdrop-filter: blur(var(--_blur)) saturate(var(--glass-saturate));
     backdrop-filter: blur(var(--_blur)) saturate(var(--glass-saturate));
     /* Thickness: lit edge top-left, shaded edge bottom-right, a faint cool refraction lip inside the far edge. */
@@ -57,13 +56,7 @@
     z-index: -1;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(
-      150deg,
-      var(--glass-rim) 0%,
-      transparent 32%,
-      transparent 68%,
-      var(--glass-rim) 100%
-    );
+    background: linear-gradient(150deg, var(--glass-rim) 0%, transparent 32%, transparent 68%, var(--glass-rim) 100%);
     opacity: 0.7;
     pointer-events: none;
     -webkit-mask:
@@ -94,8 +87,7 @@
     --_shadow: var(--shadow-glass), var(--shadow-glow);
     background:
       radial-gradient(120% 90% at var(--light-x) var(--light-y), var(--glass-specular), transparent 46%),
-      linear-gradient(180deg, var(--glass-tint-feature), transparent 70%),
-      var(--_bg);
+      linear-gradient(180deg, var(--glass-tint-feature), transparent 70%), var(--_bg);
     border-color: color-mix(in oklab, var(--accent) 28%, var(--glass-border));
   }
   .glass-feature::before {

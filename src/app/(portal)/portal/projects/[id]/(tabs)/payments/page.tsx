@@ -16,8 +16,14 @@ import { ReceiptLinks } from "@/components/portal/ReceiptLinks";
 
 export const metadata = portalMeta("Payments");
 
-
-type Obligation = { key: string; title: string; amount: number; state: string; tone: "done" | "accent" | "warn" | "outline"; when: string };
+type Obligation = {
+  key: string;
+  title: string;
+  amount: number;
+  state: string;
+  tone: "done" | "accent" | "warn" | "outline";
+  when: string;
+};
 
 const obligations = (p: ProjectDetail): Obligation[] => {
   const out: Obligation[] = [];
@@ -28,22 +34,45 @@ const obligations = (p: ProjectDetail): Obligation[] => {
       key: "initial",
       title: split ? "Deposit" : "Full payment",
       amount: p.money.deposit,
-      state: paid ? "Paid" : p.initialPayment === "processing" ? "Processing" : p.initialPayment === "failed" ? "Failed" : "Due today",
+      state: paid
+        ? "Paid"
+        : p.initialPayment === "processing"
+          ? "Processing"
+          : p.initialPayment === "failed"
+            ? "Failed"
+            : "Due today",
       tone: paid ? "done" : p.initialPayment === "failed" ? "warn" : "accent",
       when: paid && p.initialPaidAt ? `Paid ${shortDate(p.initialPaidAt)}` : "Due when you start the project",
     });
   }
   if (split && p.money.total != null) {
-    const amount = p.finalPayment === "paid" ? Math.max(0, p.money.total - (p.money.deposit ?? 0)) : (p.money.remaining ?? 0);
+    const amount =
+      p.finalPayment === "paid" ? Math.max(0, p.money.total - (p.money.deposit ?? 0)) : (p.money.remaining ?? 0);
     const state =
-      p.finalPayment === "paid" ? "Paid" : p.finalPayment === "processing" ? "Processing" : p.finalPayment === "failed" ? "Failed" : p.finalPayment === "requires_action" ? "Action needed" : "Due after revisions";
+      p.finalPayment === "paid"
+        ? "Paid"
+        : p.finalPayment === "processing"
+          ? "Processing"
+          : p.finalPayment === "failed"
+            ? "Failed"
+            : p.finalPayment === "requires_action"
+              ? "Action needed"
+              : "Due after revisions";
     out.push({
       key: "final",
       title: "Final balance",
       amount,
       state,
-      tone: p.finalPayment === "paid" ? "done" : p.finalPayment === "failed" || p.finalPayment === "requires_action" ? "warn" : "outline",
-      when: p.finalPayment === "paid" && p.finalPaidAt ? `Paid ${shortDate(p.finalPaidAt)}` : "Charged after the included revisions are finished",
+      tone:
+        p.finalPayment === "paid"
+          ? "done"
+          : p.finalPayment === "failed" || p.finalPayment === "requires_action"
+            ? "warn"
+            : "outline",
+      when:
+        p.finalPayment === "paid" && p.finalPaidAt
+          ? `Paid ${shortDate(p.finalPaidAt)}`
+          : "Charged after the included revisions are finished",
     });
   }
   return out;
@@ -68,7 +97,8 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
         <Card title="Payment schedule" note={due.label}>
           {rows.length === 0 ? (
             <EmptyState icon={Receipt} title="Awaiting a quote">
-              The studio is pricing this custom project. Once the quote is set, the payment schedule appears here and you can pay from this tab.
+              The studio is pricing this custom project. Once the quote is set, the payment schedule appears here and
+              you can pay from this tab.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -88,11 +118,20 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
               ))}
             </ul>
           )}
-          {p.initialPayment !== "paid" && p.initialPayment !== "processing" && p.initialPayment !== "cancelled" && p.money.deposit != null && !isAdmin && p.stage !== "cancelled" && (
-            <Link href={`/portal/projects/${p.id}/checkout`} className="btn btn-primary" style={{ marginTop: "1rem" }}>
-              Pay {formatUsd(p.money.deposit)}
-            </Link>
-          )}
+          {p.initialPayment !== "paid" &&
+            p.initialPayment !== "processing" &&
+            p.initialPayment !== "cancelled" &&
+            p.money.deposit != null &&
+            !isAdmin &&
+            p.stage !== "cancelled" && (
+              <Link
+                href={`/portal/projects/${p.id}/checkout`}
+                className="btn btn-primary"
+                style={{ marginTop: "1rem" }}
+              >
+                Pay {formatUsd(p.money.deposit)}
+              </Link>
+            )}
           {needsBalance && (
             <div style={{ marginTop: "1rem" }}>
               <PayBalanceButton projectId={p.id} amountLabel={formatUsd(p.money.remaining)} />
@@ -106,7 +145,8 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
         <Card title="Receipts and history" note="Every payment on this project">
           {p.payments.length === 0 ? (
             <EmptyState icon={Receipt} title="No payments yet">
-              Each payment shows up here once Stripe confirms it, with an invoice you can download and Stripe&rsquo;s receipt.
+              Each payment shows up here once Stripe confirms it, with an invoice you can download and Stripe&rsquo;s
+              receipt.
             </EmptyState>
           ) : (
             <ul className="pt-list">
@@ -124,7 +164,11 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
                       {x.type === "refund" ? "-" : ""}
                       {formatUsd(x.amount)}
                     </span>
-                    <span className={`pt-chip ${x.status === "succeeded" ? "pt-chip--done" : x.status === "failed" ? "pt-chip--warn" : "pt-chip--outline"}`}>{paymentStatusLabel[x.status]}</span>
+                    <span
+                      className={`pt-chip ${x.status === "succeeded" ? "pt-chip--done" : x.status === "failed" ? "pt-chip--warn" : "pt-chip--outline"}`}
+                    >
+                      {paymentStatusLabel[x.status]}
+                    </span>
                   </div>
                 </li>
               ))}
@@ -156,7 +200,11 @@ export default async function ProjectPaymentsPage({ params }: PageProps<"/portal
               ) : canCancel ? (
                 <RequestCancellationButton projectId={p.id} />
               ) : (
-                <p className="pt-small">{p.initialPaidAt ? "The cancellation window for this project has passed." : "Available for three days after the initial payment."}</p>
+                <p className="pt-small">
+                  {p.initialPaidAt
+                    ? "The cancellation window for this project has passed."
+                    : "Available for three days after the initial payment."}
+                </p>
               )}
             </div>
           </Card>

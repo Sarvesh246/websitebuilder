@@ -56,9 +56,24 @@ const brand: IntakeTemplate = {
 
 export const intakeTemplates: Record<PackageId, readonly IntakeTemplate[]> = {
   launch: [
-    { key: "resume", label: "Resume or CV", hint: "PDF or DOCX. It shapes the resume section and the download link.", kind: "upload" },
-    { key: "headshot", label: "Headshot", hint: "A clear photo of you. Optional, but it makes a portfolio feel personal.", kind: "upload", optional: true },
-    { ...photos, label: "Project images", hint: "Screenshots or photos of the work you want to show. Put many in one ZIP." },
+    {
+      key: "resume",
+      label: "Resume or CV",
+      hint: "PDF or DOCX. It shapes the resume section and the download link.",
+      kind: "upload",
+    },
+    {
+      key: "headshot",
+      label: "Headshot",
+      hint: "A clear photo of you. Optional, but it makes a portfolio feel personal.",
+      kind: "upload",
+      optional: true,
+    },
+    {
+      ...photos,
+      label: "Project images",
+      hint: "Screenshots or photos of the work you want to show. Put many in one ZIP.",
+    },
     domain,
   ],
   presence: [logo, copy, photos, brand, domain],
@@ -66,7 +81,13 @@ export const intakeTemplates: Record<PackageId, readonly IntakeTemplate[]> = {
     logo,
     copy,
     photos,
-    { key: "team", label: "Team bios and photos", hint: "Names, roles, a line or two each, and a photo per person.", kind: "upload", optional: true },
+    {
+      key: "team",
+      label: "Team bios and photos",
+      hint: "Names, roles, a line or two each, and a photo per person.",
+      kind: "upload",
+      optional: true,
+    },
     brand,
     domain,
   ],

@@ -20,7 +20,11 @@
   color-scheme: light;
 }
 
-.cx-portfolio .pf-row__link { width: 100%; text-align: left; cursor: pointer; }
+.cx-portfolio .pf-row__link {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
 .cx-portfolio .pf-project-dialog {
   margin: auto;
   width: min(48rem, calc(100vw - 2rem));
@@ -31,9 +35,17 @@
   border: 1px solid var(--pf-rule);
   overflow: auto;
 }
-.cx-portfolio .pf-project-dialog img { width: 100%; height: auto; margin-block: 1rem; }
-.cx-portfolio .pf-project-dialog .pf-h2 { margin-top: 1rem; }
-.cx-portfolio .pf-project-dialog::backdrop { background: rgb(0 0 0 / .6); }
+.cx-portfolio .pf-project-dialog img {
+  width: 100%;
+  height: auto;
+  margin-block: 1rem;
+}
+.cx-portfolio .pf-project-dialog .pf-h2 {
+  margin-top: 1rem;
+}
+.cx-portfolio .pf-project-dialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
 
 /* paper grain, static */
 .cx-portfolio::before {
@@ -249,7 +261,7 @@
   animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 .cx-portfolio .pf-fade {
-  animation: pf-fade .2s var(--ease-standard) both;
+  animation: pf-fade 0.2s var(--ease-standard) both;
   animation-delay: calc(var(--i, 0) * 110ms + 100ms);
 }
 
@@ -417,7 +429,9 @@
     font-size: 1.5rem;
     opacity: 0;
     transform: translate(-0.5rem, 0.5rem);
-    transition: opacity 0.3s, transform 0.4s var(--pf-ease);
+    transition:
+      opacity 0.3s,
+      transform 0.4s var(--pf-ease);
     color: var(--pf-accent-ink);
   }
   .cx-portfolio .pf-list:hover .pf-row:not([data-active]) {
@@ -461,7 +475,9 @@
   box-shadow: 0 1.5rem 3rem -1rem rgba(22, 19, 15, 0.45);
   opacity: 0;
   transform: scale(0.92) rotate(-2deg);
-  transition: opacity 0.25s, transform 0.5s var(--pf-ease);
+  transition:
+    opacity 0.25s,
+    transform 0.5s var(--pf-ease);
   overflow: hidden;
 }
 .cx-portfolio .pf-preview[data-on] .pf-preview__frame {
@@ -604,7 +620,9 @@
   font-weight: 500;
   font-size: 1rem;
   line-height: 1.2;
-  transition: transform 0.35s var(--pf-ease), background-color 0.2s;
+  transition:
+    transform 0.35s var(--pf-ease),
+    background-color 0.2s;
 }
 .cx-portfolio .pf-btn:hover {
   transform: translateY(-3px);

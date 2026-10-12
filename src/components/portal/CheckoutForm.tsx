@@ -34,7 +34,12 @@ export const CheckoutForm = ({ projectId, amountLabel, authorization, policyTitl
       }}
     >
       <label className="pt-check">
-        <input type="checkbox" checked={authorized} disabled={pending} onChange={(e) => setAuthorized(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={authorized}
+          disabled={pending}
+          onChange={(e) => setAuthorized(e.target.checked)}
+        />
         <span>{authorization}</span>
       </label>
       <label className="pt-check">
@@ -52,7 +57,12 @@ export const CheckoutForm = ({ projectId, amountLabel, authorization, policyTitl
           {error}
         </p>
       )}
-      <button type="submit" className="btn btn-primary btn-lg btn-block" disabled={!ready || pending} aria-busy={pending}>
+      <button
+        type="submit"
+        className="btn btn-primary btn-lg btn-block"
+        disabled={!ready || pending}
+        aria-busy={pending}
+      >
         <Lock aria-hidden size={17} strokeWidth={1.9} />
         {pending ? "Opening secure checkout" : `Pay ${amountLabel}`}
       </button>

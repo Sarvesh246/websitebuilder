@@ -9,7 +9,15 @@ import { createAdminClient } from "@/utils/supabase/server";
  * workflow, payment and note columns are set by the database defaults or, later, by staff/Stripe.
  */
 export const requestStatuses = [
-  "new", "contacted", "awaiting_payment", "paid", "in_progress", "awaiting_client", "review", "completed", "cancelled",
+  "new",
+  "contacted",
+  "awaiting_payment",
+  "paid",
+  "in_progress",
+  "awaiting_client",
+  "review",
+  "completed",
+  "cancelled",
 ] as const;
 export const paymentStatuses = ["unpaid", "pending", "paid", "partially_paid", "refunded", "failed"] as const;
 
@@ -60,30 +68,34 @@ export type ProjectRequestRecord = ProjectRequestInput & {
 
 const orNull = (value: string) => value || null;
 
-export const toProjectRequest = (data: InquiryValues, submissionKey: string, userId: string | null = null): ProjectRequestInput => {
+export const toProjectRequest = (
+  data: InquiryValues,
+  submissionKey: string,
+  userId: string | null = null,
+): ProjectRequestInput => {
   const packageId = data.package as ProjectRequestInput["package"];
   const snapshot = pricingSnapshot(packageId);
   return {
-  submission_key: submissionKey,
-  client_name: data.name,
-  email: data.email,
-  phone: orNull(data.phone),
-  organization: orNull(data.organization),
-  package: packageId,
-  website_type: data.projectTypeOther || data.projectType,
-  project_description: data.description,
-  features_needed: data.features,
-  inspiration_links: data.links,
-  has_existing_website: data.hasSite === "yes",
-  existing_website: orNull(data.siteUrl),
-  timeline: orNull(data.timelineOther || data.timeline),
-  budget: orNull(data.budget),
-  user_id: userId,
-  currency: snapshot.currency,
-  total_amount: snapshot.total,
-  deposit_amount: snapshot.deposit,
-  remaining_amount: snapshot.remaining,
-  final_payment_status: snapshot.finalRequired ? "pending" : "not_required",
+    submission_key: submissionKey,
+    client_name: data.name,
+    email: data.email,
+    phone: orNull(data.phone),
+    organization: orNull(data.organization),
+    package: packageId,
+    website_type: data.projectTypeOther || data.projectType,
+    project_description: data.description,
+    features_needed: data.features,
+    inspiration_links: data.links,
+    has_existing_website: data.hasSite === "yes",
+    existing_website: orNull(data.siteUrl),
+    timeline: orNull(data.timelineOther || data.timeline),
+    budget: orNull(data.budget),
+    user_id: userId,
+    currency: snapshot.currency,
+    total_amount: snapshot.total,
+    deposit_amount: snapshot.deposit,
+    remaining_amount: snapshot.remaining,
+    final_payment_status: snapshot.finalRequired ? "pending" : "not_required",
   };
 };
 
@@ -96,12 +108,19 @@ export class StorageError extends Error {}
  * lost response) returns the existing row's id instead of creating a duplicate.
  * Throws StorageError with a short code only; database details are never surfaced.
  */
-export const saveProjectRequest = async (data: InquiryValues, submissionKey: string, userId: string | null): Promise<{ id: string; duplicate: boolean }> => {
+export const saveProjectRequest = async (
+  data: InquiryValues,
+  submissionKey: string,
+  userId: string | null,
+): Promise<{ id: string; duplicate: boolean }> => {
   const db = createAdminClient();
   if (!db) throw new StorageError("not_configured");
   const table = db.from("project_requests");
 
-  const { data: row, error } = await table.insert(toProjectRequest(data, submissionKey, userId)).select("id").single<{ id: string }>();
+  const { data: row, error } = await table
+    .insert(toProjectRequest(data, submissionKey, userId))
+    .select("id")
+    .single<{ id: string }>();
   if (row) return { id: row.id, duplicate: false };
 
   if (error?.code === "23505") {

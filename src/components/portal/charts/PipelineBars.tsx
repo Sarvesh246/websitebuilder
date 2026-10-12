@@ -19,7 +19,11 @@ export const PipelineBars = ({ rows, title, format = String, className }: Pipeli
         <li key={r.label} className="pt-bars__row">
           <span className="pt-bars__label">{r.label}</span>
           <span className="pt-bars__track" aria-hidden>
-            <span className="pt-bars__fill" style={{ width: `${(r.value / max) * 100}%` }} data-empty={r.value === 0 || undefined} />
+            <span
+              className="pt-bars__fill"
+              style={{ width: `${(r.value / max) * 100}%` }}
+              data-empty={r.value === 0 || undefined}
+            />
           </span>
           <span className="pt-bars__num">{format(r.value)}</span>
         </li>

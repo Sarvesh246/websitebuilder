@@ -29,18 +29,30 @@ export default async function ProjectMessagesPage({ params }: PageProps<"/portal
               : "Ask a question or share an update below. Replies appear here as soon as they are sent, no refresh needed."}
           </EmptyState>
         ) : (
-          <><p className="pt-small">{messages.length >= 1000 ? "Showing the latest 1,000 messages." : perspective === "admin" ? "Project conversation with the client." : "Your conversation with the studio."}</p><Thread count={messages.length}>
-            {messages.map((m) => (
-              <div key={m.id} className="pt-bubble" data-mine={m.mine || undefined}>
-                <span className="pt-bubble__meta">
-                  {m.mine ? "You" : m.senderRole === "admin" ? "The studio" : p.clientName} · {timeAgo(m.createdAt)}
-                </span>
-                {m.body}
-              </div>
-            ))}
-          </Thread></>
+          <>
+            <p className="pt-small">
+              {messages.length >= 1000
+                ? "Showing the latest 1,000 messages."
+                : perspective === "admin"
+                  ? "Project conversation with the client."
+                  : "Your conversation with the studio."}
+            </p>
+            <Thread count={messages.length}>
+              {messages.map((m) => (
+                <div key={m.id} className="pt-bubble" data-mine={m.mine || undefined}>
+                  <span className="pt-bubble__meta">
+                    {m.mine ? "You" : m.senderRole === "admin" ? "The studio" : p.clientName} · {timeAgo(m.createdAt)}
+                  </span>
+                  {m.body}
+                </div>
+              ))}
+            </Thread>
+          </>
         )}
-        <MessageComposer projectId={id} disabledReason={previewing ? "Preview mode: sending is disabled." : undefined} />
+        <MessageComposer
+          projectId={id}
+          disabledReason={previewing ? "Preview mode: sending is disabled." : undefined}
+        />
       </Card>
     </div>
   );

@@ -60,7 +60,14 @@ const Row = ({ projectId, item, admin, disabled }: RowProps) => {
           item.hint && <p className="pt-small">{item.hint}</p>
         )}
         {pct !== null && (
-          <span className="pt-upload__bar" role="progressbar" aria-label={`Uploading for ${item.label}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+          <span
+            className="pt-upload__bar"
+            role="progressbar"
+            aria-label={`Uploading for ${item.label}`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={pct}
+          >
             <span style={{ width: `${pct}%` }} />
           </span>
         )}
@@ -78,7 +85,9 @@ const Row = ({ projectId, item, admin, disabled }: RowProps) => {
             aria-label={item.label}
             disabled={disabled || busy}
             value={item.answer ?? ""}
-            onChange={(e) => (e.target.value ? set("provided", { answer: e.target.value }) : set("needed", { answer: null }))}
+            onChange={(e) =>
+              e.target.value ? set("provided", { answer: e.target.value }) : set("needed", { answer: null })
+            }
           >
             <option value="">Choose an answer</option>
             {item.options.map((o) => (
@@ -87,26 +96,61 @@ const Row = ({ projectId, item, admin, disabled }: RowProps) => {
           </select>
         ) : item.status === "needed" ? (
           <>
-            <input ref={fileInput} id={inputId} type="file" accept={UPLOAD_ACCEPT} className="sr-only" disabled={disabled || busy} onChange={(e) => void upload(e.target.files?.[0])} />
-            <button type="button" className="btn btn-primary btn-sm" disabled={disabled || busy} onClick={() => fileInput.current?.click()}>
+            <input
+              ref={fileInput}
+              id={inputId}
+              type="file"
+              accept={UPLOAD_ACCEPT}
+              className="sr-only"
+              disabled={disabled || busy}
+              onChange={(e) => void upload(e.target.files?.[0])}
+            />
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              disabled={disabled || busy}
+              onClick={() => fileInput.current?.click()}
+            >
               {pct !== null ? `${pct}%` : "Upload"}
             </button>
-            <button type="button" className="btn btn-secondary btn-sm" disabled={disabled || busy} onClick={() => set("provided")} title="Use this if you sent it another way, such as in Messages">
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              disabled={disabled || busy}
+              onClick={() => set("provided")}
+              title="Use this if you sent it another way, such as in Messages"
+            >
               Already sent
             </button>
           </>
         ) : (
-          <button type="button" className="btn-link pt-small" disabled={disabled || busy} onClick={() => set("needed", { fileId: null })}>
+          <button
+            type="button"
+            className="btn-link pt-small"
+            disabled={disabled || busy}
+            onClick={() => set("needed", { fileId: null })}
+          >
             Undo
           </button>
         )}
         {item.status === "needed" && (item.optional || admin) && item.kind === "upload" && (
-          <button type="button" className="btn-link pt-small" disabled={disabled || busy} onClick={() => set("skipped")}>
+          <button
+            type="button"
+            className="btn-link pt-small"
+            disabled={disabled || busy}
+            onClick={() => set("skipped")}
+          >
             {admin ? "Not needed" : "Skip"}
           </button>
         )}
         {admin && item.custom && (
-          <button type="button" className="icon-btn" aria-label={`Remove ${item.label}`} disabled={busy} onClick={() => run(() => removeChecklistItem(projectId, item.key))}>
+          <button
+            type="button"
+            className="icon-btn"
+            aria-label={`Remove ${item.label}`}
+            disabled={busy}
+            onClick={() => run(() => removeChecklistItem(projectId, item.key))}
+          >
             <Trash2 aria-hidden size={16} strokeWidth={1.8} />
           </button>
         )}
@@ -129,7 +173,14 @@ const AddItem = ({ projectId }: { projectId: string }) => {
       <label className="sr-only" htmlFor="pt-check-new">
         Ask the client for something else
       </label>
-      <input id="pt-check-new" className="pt-input" placeholder="Ask for something else, e.g. menu PDF" value={label} maxLength={120} onChange={(e) => setLabel(e.target.value)} />
+      <input
+        id="pt-check-new"
+        className="pt-input"
+        placeholder="Ask for something else, e.g. menu PDF"
+        value={label}
+        maxLength={120}
+        onChange={(e) => setLabel(e.target.value)}
+      />
       <button type="submit" className="btn btn-secondary btn-sm" disabled={pending || !label.trim()}>
         <Plus aria-hidden size={15} />
         Add
@@ -143,7 +194,17 @@ const AddItem = ({ projectId }: { projectId: string }) => {
   );
 };
 
-export const ChecklistCard = ({ projectId, items, admin, disabledReason }: { projectId: string; items: ChecklistItem[]; admin: boolean; disabledReason?: string }) => {
+export const ChecklistCard = ({
+  projectId,
+  items,
+  admin,
+  disabledReason,
+}: {
+  projectId: string;
+  items: ChecklistItem[];
+  admin: boolean;
+  disabledReason?: string;
+}) => {
   const required = items.filter((i) => !i.optional);
   const done = required.filter((i) => i.status !== "needed").length;
   const pct = required.length ? Math.round((done / required.length) * 100) : 100;
@@ -155,11 +216,19 @@ export const ChecklistCard = ({ projectId, items, admin, disabledReason }: { pro
             {admin ? "Content checklist" : "What the studio needs from you"}
           </h2>
           <p className="pt-card__note">
-            {done === required.length ? "Everything required is in. Thank you." : `${done} of ${required.length} required items sent`}
+            {done === required.length
+              ? "Everything required is in. Thank you."
+              : `${done} of ${required.length} required items sent`}
           </p>
         </div>
       </div>
-      <ProgressBar value={pct} label="Checklist progress" size="sm" tone={pct === 100 ? "muted" : "accent"} className="pt-check-progress" />
+      <ProgressBar
+        value={pct}
+        label="Checklist progress"
+        size="sm"
+        tone={pct === 100 ? "muted" : "accent"}
+        className="pt-check-progress"
+      />
       <ul className="pt-check-list">
         {items.map((item) => (
           <Row key={item.key} projectId={projectId} item={item} admin={admin} disabled={Boolean(disabledReason)} />

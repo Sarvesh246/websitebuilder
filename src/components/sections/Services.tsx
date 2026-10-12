@@ -21,7 +21,12 @@ export const Services = () => (
     <Plate name="services" />
     <Container className="flex flex-col gap-[var(--section-header-gap)]">
       <Reveal>
-        <SectionHeader titleId="services-title" eyebrow={services.eyebrow} title={services.title} lead={services.lead} />
+        <SectionHeader
+          titleId="services-title"
+          eyebrow={services.eyebrow}
+          title={services.title}
+          lead={services.lead}
+        />
       </Reveal>
       <RevealGroup className="services__row" stagger={0.1}>
         {services.items.map((item, i) => {

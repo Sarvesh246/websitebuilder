@@ -2,7 +2,8 @@ import { budgets, features, projectTypes, steps, timelines } from "@/config/inqu
 import { customTier, discountLabel, packageTiers } from "@/config/pricing";
 import { choiceLabel, type InquiryValues } from "@/lib/inquiry/schema";
 
-const label = (list: readonly { id: string; label: string }[], id: string) => list.find((i) => i.id === id)?.label ?? "";
+const label = (list: readonly { id: string; label: string }[], id: string) =>
+  list.find((i) => i.id === id)?.label ?? "";
 
 const packageLine = (id: InquiryValues["package"]) => {
   const tier = packageTiers.find((t) => t.id === id);
@@ -33,7 +34,9 @@ export const Review = ({ values, onEdit }: { values: InquiryValues; onEdit: (ste
       rows: [
         ["Features", values.features.map((id) => label(features, id)).join(", ") || "None selected"],
         ["Timeline", choiceLabel(timelines, values.timeline, values.timelineOther)],
-        ...(values.package === "custom" ? [["Budget", label(budgets, values.budget) || "Not specified"] as [string, string]] : []),
+        ...(values.package === "custom"
+          ? [["Budget", label(budgets, values.budget) || "Not specified"] as [string, string]]
+          : []),
       ],
     },
     {

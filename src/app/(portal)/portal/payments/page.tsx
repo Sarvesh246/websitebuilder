@@ -13,7 +13,12 @@ import { shortDate } from "@/lib/portal/format";
 
 export const metadata = portalMeta("Payments");
 
-const chip = (s: keyof typeof paymentStatusLabel) => (s === "succeeded" ? "pt-chip--done" : s === "failed" || s === "requires_action" ? "pt-chip--warn" : "pt-chip--outline");
+const chip = (s: keyof typeof paymentStatusLabel) =>
+  s === "succeeded"
+    ? "pt-chip--done"
+    : s === "failed" || s === "requires_action"
+      ? "pt-chip--warn"
+      : "pt-chip--outline";
 
 export default async function PaymentsPage() {
   const { viewer, perspective } = await getContext("/portal/payments");
@@ -54,7 +59,11 @@ export default async function PaymentsPage() {
       <PageHeader
         eyebrow={isAdmin ? "Studio finance" : "Your portal"}
         title="Payments"
-        sub={isAdmin ? "What has been collected, what is still owed and every payment on record." : "Your payments and receipts across projects."}
+        sub={
+          isAdmin
+            ? "What has been collected, what is still owed and every payment on record."
+            : "Your payments and receipts across projects."
+        }
       />
 
       {isAdmin && overview && (
@@ -66,7 +75,10 @@ export default async function PaymentsPage() {
           </div>
           <div className="pt-grid pt-cols-main pt-section-gap">
             <Card title="Revenue by month" note="Collected, last six months">
-              <AreaChart title="Revenue collected by month, last six months" data={overview.revenueByMonth.map((m) => ({ label: monthLabel(m.month), value: m.collected }))} />
+              <AreaChart
+                title="Revenue collected by month, last six months"
+                data={overview.revenueByMonth.map((m) => ({ label: monthLabel(m.month), value: m.collected }))}
+              />
             </Card>
             <Card title="Collected and outstanding">
               <Donut collected={overview.kpis.collected} outstanding={overview.kpis.outstanding} />
@@ -75,7 +87,11 @@ export default async function PaymentsPage() {
         </>
       )}
 
-      <Card title={isAdmin ? "All payments" : "Receipts"} className="pt-section-gap" flush={isAdmin && payments.length > 0}>
+      <Card
+        title={isAdmin ? "All payments" : "Receipts"}
+        className="pt-section-gap"
+        flush={isAdmin && payments.length > 0}
+      >
         {payments.length === 0 ? (
           <EmptyState icon={Receipt} title="No payments yet">
             {isAdmin

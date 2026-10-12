@@ -19,7 +19,13 @@ export const AdminControls = async ({ project: p }: { project: ProjectDetail }) 
         <Card title="Studio controls" note="Only you can see these">
           <div className="pt-stack pt-tools">
             <StageControl projectId={p.id} stage={p.stage} />
-            <ScheduleControls projectId={p.id} deadline={p.deadline} previewUrl={p.previewUrl} revisionsIncluded={p.revisionsIncluded} revisionsUsed={p.revisionsUsed} />
+            <ScheduleControls
+              projectId={p.id}
+              deadline={p.deadline}
+              previewUrl={p.previewUrl}
+              revisionsIncluded={p.revisionsIncluded}
+              revisionsUsed={p.revisionsUsed}
+            />
             {!p.hasAccount && <LinkUserForm projectId={p.id} email={p.email} />}
           </div>
         </Card>

@@ -7,7 +7,8 @@ import { avatarDataUri } from "@/lib/avatar";
 import { initials, isOverdue, relativeDay, shortDate } from "@/lib/portal/format";
 import { type Milestone, type ProjectStage, stageLabel } from "@/lib/portal/types";
 
-export const packageName = (id: PackageId): string => (id === "custom" ? customTier.name : (packageTiers.find((t) => t.id === id)?.name ?? id));
+export const packageName = (id: PackageId): string =>
+  id === "custom" ? customTier.name : (packageTiers.find((t) => t.id === id)?.name ?? id);
 
 export const PageHeader = ({
   eyebrow,
@@ -71,7 +72,17 @@ export const Card = ({
   </section>
 );
 
-export const EmptyState = ({ icon: Icon, title, children, action }: { icon: LucideIcon; title: string; children?: ReactNode; action?: ReactNode }) => (
+export const EmptyState = ({
+  icon: Icon,
+  title,
+  children,
+  action,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children?: ReactNode;
+  action?: ReactNode;
+}) => (
   <div className="pt-empty">
     <span className="pt-empty__icon">
       <Icon aria-hidden size={22} strokeWidth={1.7} />
@@ -83,18 +94,29 @@ export const EmptyState = ({ icon: Icon, title, children, action }: { icon: Luci
 );
 
 export const StageChip = ({ stage }: { stage: ProjectStage }) => (
-  <span className={cn("pt-chip", stage === "completed" ? "pt-chip--done" : stage === "cancelled" ? "pt-chip--outline" : "pt-chip--accent")}>{stageLabel[stage]}</span>
+  <span
+    className={cn(
+      "pt-chip",
+      stage === "completed" ? "pt-chip--done" : stage === "cancelled" ? "pt-chip--outline" : "pt-chip--accent",
+    )}
+  >
+    {stageLabel[stage]}
+  </span>
 );
 
 /** Deadline chip. Overdue pairs colour with the words "overdue"; at-risk (within 3 days) says so in text. */
 export const DeadlineChip = ({ deadline, stage }: { deadline: string | null; stage: ProjectStage }) => {
   if (!deadline) return <span className="pt-chip pt-chip--outline">No deadline</span>;
-  if (stage === "completed" || stage === "cancelled") return <span className="pt-chip pt-chip--outline">{shortDate(deadline)}</span>;
+  if (stage === "completed" || stage === "cancelled")
+    return <span className="pt-chip pt-chip--outline">{shortDate(deadline)}</span>;
   const overdue = isOverdue(deadline, stage);
   const rel = relativeDay(deadline);
   const soon = !overdue && (rel === "Today" || rel === "Tomorrow" || /^in [123] days?$/.test(rel));
   return (
-    <span className={cn("pt-chip", overdue ? "pt-chip--warn" : soon ? "pt-chip--accent" : "pt-chip--outline")} title={shortDate(deadline)}>
+    <span
+      className={cn("pt-chip", overdue ? "pt-chip--warn" : soon ? "pt-chip--accent" : "pt-chip--outline")}
+      title={shortDate(deadline)}
+    >
       <CalendarClock aria-hidden size={13} strokeWidth={2} />
       {overdue ? rel : soon ? `At risk: ${rel.toLowerCase()}` : shortDate(deadline)}
     </span>
@@ -111,7 +133,17 @@ export const Avatar = ({ name, seed }: { name: string | null | undefined; seed?:
 };
 
 export const Timeline = ({ milestones, empty }: { milestones: Milestone[]; empty?: ReactNode }) => {
-  if (milestones.length === 0) return <>{empty ?? <p className="pt-small">The studio maps out the milestones once your project is accepted. Each step, and when it is due, appears here.</p>}</>;
+  if (milestones.length === 0)
+    return (
+      <>
+        {empty ?? (
+          <p className="pt-small">
+            The studio maps out the milestones once your project is accepted. Each step, and when it is due, appears
+            here.
+          </p>
+        )}
+      </>
+    );
   return (
     <ol className="pt-timeline">
       {milestones.map((m) => (
@@ -121,12 +153,19 @@ export const Timeline = ({ milestones, empty }: { milestones: Milestone[]; empty
           </span>
           <div>
             <p className="pt-tl__title">
-              {m.title} <span className="sr-only">({m.status === "done" ? "done" : m.status === "active" ? "in progress" : "upcoming"})</span>
+              {m.title}{" "}
+              <span className="sr-only">
+                ({m.status === "done" ? "done" : m.status === "active" ? "in progress" : "upcoming"})
+              </span>
             </p>
             {m.detail && <p className="pt-small">{m.detail}</p>}
             <p className="pt-tl__meta">
               <span>{m.status === "done" ? "Done" : m.status === "active" ? "In progress" : "Upcoming"}</span>
-              {m.status === "done" && m.completedAt ? <span>{shortDate(m.completedAt)}</span> : m.dueDate ? <span>Due {shortDate(m.dueDate)}</span> : null}
+              {m.status === "done" && m.completedAt ? (
+                <span>{shortDate(m.completedAt)}</span>
+              ) : m.dueDate ? (
+                <span>Due {shortDate(m.dueDate)}</span>
+              ) : null}
             </p>
           </div>
         </li>

@@ -35,7 +35,13 @@ const Tile = ({ photo, priority, onOpen }: TileProps) => {
 
   return (
     <li ref={ref} className="lens-tile">
-      <button type="button" className="lens-tile__btn" onClick={onOpen} aria-haspopup="dialog" aria-label={`Open ${photo.title}, ${photo.place}, ${photo.year}`}>
+      <button
+        type="button"
+        className="lens-tile__btn"
+        onClick={onOpen}
+        aria-haspopup="dialog"
+        aria-label={`Open ${photo.title}, ${photo.place}, ${photo.year}`}
+      >
         <Image
           className="lens-tile__img"
           src={photo.src}
@@ -70,7 +76,13 @@ export const Gallery = () => {
     <section className="lens-work" id="work" aria-label="Selected photographs">
       <div className="lens-filters" role="group" aria-label="Filter photographs by category">
         {FILTERS.map((f) => (
-          <button key={f} type="button" className="lens-filter" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+          <button
+            key={f}
+            type="button"
+            className="lens-filter"
+            aria-pressed={filter === f}
+            onClick={() => setFilter(f)}
+          >
             {f}
           </button>
         ))}
@@ -83,7 +95,11 @@ export const Gallery = () => {
           <Tile key={photo.id} photo={photo} priority={i < 2} onOpen={() => setOpen(i)} />
         ))}
       </ul>
-      <AnimatePresence>{open !== null && photos[open] && <Lightbox photos={photos} index={open} onClose={() => setOpen(null)} onIndex={setOpen} />}</AnimatePresence>
+      <AnimatePresence>
+        {open !== null && photos[open] && (
+          <Lightbox photos={photos} index={open} onClose={() => setOpen(null)} onIndex={setOpen} />
+        )}
+      </AnimatePresence>
     </section>
   );
 };

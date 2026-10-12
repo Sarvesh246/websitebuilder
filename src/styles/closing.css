@@ -8,11 +8,7 @@
     padding-block: calc(var(--section-y) + 2rem);
   }
   .final-cta__plate {
-    --plate-veil: radial-gradient(
-      ellipse 60% 55% at 50% 50%,
-      var(--plate-veil-color),
-      transparent 75%
-    );
+    --plate-veil: radial-gradient(ellipse 60% 55% at 50% 50%, var(--plate-veil-color), transparent 75%);
     --plate-fade-bottom: 4rem;
   }
   .final-cta__wrap {
@@ -26,8 +22,7 @@
     align-items: center;
     gap: 1.4rem;
     width: min(100%, 52rem);
-    padding: clamp(2.25rem, 1.5rem + 3vw, 4.25rem)
-      clamp(1.25rem, 1rem + 3vw, 4rem);
+    padding: clamp(2.25rem, 1.5rem + 3vw, 4.25rem) clamp(1.25rem, 1rem + 3vw, 4rem);
     text-align: center;
   }
   .final-cta__panel > * {
@@ -73,10 +68,9 @@
   }
   @media (min-width: 768px) {
     .site-footer__top {
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(
-          0,
-          1.3fr
-        ) minmax(0, 1fr);
+      grid-template-columns:
+        minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.3fr)
+        minmax(0, 1fr);
     }
     .site-footer__brand {
       grid-column: auto;

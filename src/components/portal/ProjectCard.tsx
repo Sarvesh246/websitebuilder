@@ -29,9 +29,16 @@ export const ProjectCard = ({ project }: { project: ProjectSummary }) => {
       <div className="pt-row" style={{ padding: 0 }}>
         <div className="pt-tags">
           <DeadlineChip deadline={project.deadline} stage={project.stage} />
-          {project.stage !== "cancelled" && (processing
-            ? <span className="pt-chip pt-chip--outline">Payment processing</span>
-            : owing > 0 && <span className="pt-chip pt-chip--outline">{formatUsd(owing)} {project.initialPayment === "paid" ? "remaining" : "unpaid"}</span>)}
+          {project.stage !== "cancelled" &&
+            (processing ? (
+              <span className="pt-chip pt-chip--outline">Payment processing</span>
+            ) : (
+              owing > 0 && (
+                <span className="pt-chip pt-chip--outline">
+                  {formatUsd(owing)} {project.initialPayment === "paid" ? "remaining" : "unpaid"}
+                </span>
+              )
+            ))}
           {project.unreadMessages > 0 && (
             <span className="pt-chip pt-chip--accent">
               <span className="pt-dot" aria-hidden /> {project.unreadMessages} new

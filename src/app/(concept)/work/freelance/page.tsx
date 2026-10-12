@@ -15,10 +15,25 @@ export const metadata = conceptMetadata("freelance");
 const WORDS = ["brands", "decks", "launches", "ideas"];
 
 const SERVICES = [
-  { icon: Compass, title: "Brand strategy", text: "Positioning, voice and the one sentence everyone can repeat.", tint: "lilac" },
-  { icon: Sparkles, title: "Identity design", text: "Logos, type and colour that feel like you on a good day.", tint: "butter" },
+  {
+    icon: Compass,
+    title: "Brand strategy",
+    text: "Positioning, voice and the one sentence everyone can repeat.",
+    tint: "lilac",
+  },
+  {
+    icon: Sparkles,
+    title: "Identity design",
+    text: "Logos, type and colour that feel like you on a good day.",
+    tint: "butter",
+  },
   { icon: Presentation, title: "Pitch decks", text: "Stories that hold a room, built slide by slide.", tint: "coral" },
-  { icon: LayoutTemplate, title: "Launch kits", text: "Everything a new thing needs to show up well in week one.", tint: "ink" },
+  {
+    icon: LayoutTemplate,
+    title: "Launch kits",
+    text: "Everything a new thing needs to show up well in week one.",
+    tint: "ink",
+  },
 ] as const;
 
 const PROJECTS = [
@@ -233,8 +248,8 @@ export default function FreelanceConceptPage() {
           <p className="fl-eyebrow">A little about me</p>
           <h2 className="fl-h2">Serious about the work, not about myself</h2>
           <p className="fl-lead">
-            I work with one or two projects at a time so each gets real attention. Expect honest feedback, quick
-            replies and a few bad puns.
+            I work with one or two projects at a time so each gets real attention. Expect honest feedback, quick replies
+            and a few bad puns.
           </p>
         </div>
       </section>
@@ -243,7 +258,9 @@ export default function FreelanceConceptPage() {
         <div className="fl-bookwrap__copy">
           <p className="fl-eyebrow">Book a call</p>
           <h2 className="fl-h2">Let us talk about your thing</h2>
-          <p className="fl-lead">Twenty minutes, no pitch. Tell me what you are building and we will see if I can help.</p>
+          <p className="fl-lead">
+            Twenty minutes, no pitch. Tell me what you are building and we will see if I can help.
+          </p>
           <p className="fl-hand" aria-hidden>
             pick a slot, any slot
           </p>

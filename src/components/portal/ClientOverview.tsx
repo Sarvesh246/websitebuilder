@@ -22,7 +22,11 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
   if (projects.length === 0) {
     return (
       <>
-        <PageHeader eyebrow="Your portal" title={title} sub="This is where your project, messages and payments will live." />
+        <PageHeader
+          eyebrow="Your portal"
+          title={title}
+          sub="This is where your project, messages and payments will live."
+        />
         <Card>
           <EmptyState
             icon={Rocket}
@@ -33,7 +37,8 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
               </Link>
             }
           >
-            Tell the studio what you are building and choose a package. Once you send the request, this page shows your progress, what the studio needs from you, and every payment.
+            Tell the studio what you are building and choose a package. Once you send the request, this page shows your
+            progress, what the studio needs from you, and every payment.
           </EmptyState>
         </Card>
       </>
@@ -60,7 +65,13 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
 
       <GlassSurface variant="feature" padded={false} className="pt-hero">
         <div className="pt-hero__ring">
-          <Ring value={primary.progress} size={196} stroke={14} caption="complete" label={`${projectTitle(primary)} progress`} />
+          <Ring
+            value={primary.progress}
+            size={196}
+            stroke={14}
+            caption="complete"
+            label={`${projectTitle(primary)} progress`}
+          />
         </div>
         <div>
           <div className="pt-tags" style={{ marginBottom: "0.8rem" }}>
@@ -109,7 +120,11 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
         <div className="pt-stack">
           <Card title="Next payment" action={<CreditCard aria-hidden size={18} className="pt-muted" />}>
             <p className="pt-stat__value" style={{ fontSize: "1.9rem" }}>
-              {due.label === "Awaiting quote" ? "Quote pending" : due.label === "Paid in full" || due.label === "Payment processing" ? due.label : formatUsd(payAmount)}
+              {due.label === "Awaiting quote"
+                ? "Quote pending"
+                : due.label === "Paid in full" || due.label === "Payment processing"
+                  ? due.label
+                  : formatUsd(payAmount)}
             </p>
             <p className="pt-small" style={{ marginTop: "0.35rem" }}>
               {due.label === "Due today" && "Due today to start the project."}
@@ -136,7 +151,16 @@ export const ClientOverview = async ({ viewer, projects }: { viewer: Viewer; pro
                 <p className="pt-small" style={{ marginBottom: "0.4rem" }}>
                   {last.mine ? "You" : "The studio"} · {timeAgo(last.createdAt)}
                 </p>
-                <p style={{ display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{last.body}</p>
+                <p
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                  }}
+                >
+                  {last.body}
+                </p>
                 <Link href={`${base}/messages`} className="pt-link" style={{ marginTop: "0.6rem" }}>
                   Open conversation
                 </Link>

@@ -5,9 +5,24 @@ import type { PaymentsDeps } from "@/lib/payments/stripe";
 import type { Viewer } from "@/lib/portal/types";
 
 export const PROJECT_ID = "11111111-1111-4111-8111-111111111111";
-export const OWNER: Viewer = { userId: "22222222-2222-4222-8222-222222222222", email: "client@example.com", fullName: "Client", role: "client" };
-export const ADMIN: Viewer = { userId: "33333333-3333-4333-8333-333333333333", email: "owner@example.com", fullName: "Owner", role: "admin" };
-export const STRANGER: Viewer = { userId: "44444444-4444-4444-8444-444444444444", email: "other@example.com", fullName: null, role: "client" };
+export const OWNER: Viewer = {
+  userId: "22222222-2222-4222-8222-222222222222",
+  email: "client@example.com",
+  fullName: "Client",
+  role: "client",
+};
+export const ADMIN: Viewer = {
+  userId: "33333333-3333-4333-8333-333333333333",
+  email: "owner@example.com",
+  fullName: "Owner",
+  role: "admin",
+};
+export const STRANGER: Viewer = {
+  userId: "44444444-4444-4444-8444-444444444444",
+  email: "other@example.com",
+  fullName: null,
+  role: "client",
+};
 
 export const makeProject = (overrides: Partial<ProjectPayRow> = {}): ProjectPayRow => ({
   id: PROJECT_ID,
@@ -74,18 +89,37 @@ export class FakeRepo implements PaymentsRepo {
   async recordRefundTotal(projectId: string, intentId: string, total: number, refundId?: string | null) {
     const project = this.projects.get(projectId);
     if (!project) return false;
-    const source = this.ledger.find((row) => row.project_id === projectId && row.stripe_payment_intent_id === intentId && row.type !== "refund");
+    const source = this.ledger.find(
+      (row) => row.project_id === projectId && row.stripe_payment_intent_id === intentId && row.type !== "refund",
+    );
     if (!source) throw new Error("refund_source_missing");
     if (!Number.isInteger(total) || total < 0 || total > source.amount) throw new Error("invalid_refund_total");
     if (total === 0) return false;
-    const previous = this.ledger.filter(row => row.type === "refund" && row.idempotency_key.startsWith(`refund:${intentId}:`)).reduce((sum, row) => sum + row.amount, 0);
+    const previous = this.ledger
+      .filter((row) => row.type === "refund" && row.idempotency_key.startsWith(`refund:${intentId}:`))
+      .reduce((sum, row) => sum + row.amount, 0);
     if (total > previous) {
-      this.ledger.push({ ...source, id: `led-${++this.seq}`, type: "refund", status: "succeeded", amount: total - previous,
-        idempotency_key: `refund:${intentId}:${total}`, stripe_payment_intent_id: null, stripe_refund_id: refundId ?? null, paid_at: this.clock() });
+      this.ledger.push({
+        ...source,
+        id: `led-${++this.seq}`,
+        type: "refund",
+        status: "succeeded",
+        amount: total - previous,
+        idempotency_key: `refund:${intentId}:${total}`,
+        stripe_payment_intent_id: null,
+        stripe_refund_id: refundId ?? null,
+        paid_at: this.clock(),
+      });
     }
-    const refunded = this.ledger.filter(row => row.project_id === projectId && row.type === "refund").reduce((sum, row) => sum + row.amount, 0);
+    const refunded = this.ledger
+      .filter((row) => row.project_id === projectId && row.type === "refund")
+      .reduce((sum, row) => sum + row.amount, 0);
     const full = (project.amount_paid ?? 0) > 0 && refunded >= (project.amount_paid ?? 0);
-    Object.assign(project, { refunded_amount: refunded, refund_status: full ? "full" : "partial", payment_status: project.dispute_status === "open" ? "disputed" : full ? "refunded" : "partially_refunded" });
+    Object.assign(project, {
+      refunded_amount: refunded,
+      refund_status: full ? "full" : "partial",
+      payment_status: project.dispute_status === "open" ? "disputed" : full ? "refunded" : "partially_refunded",
+    });
     source.status = Math.max(previous, total) >= source.amount ? "refunded" : "partially_refunded";
     if (total > previous) this.events.push({ projectId, kind: "refund", at: this.clock() });
     return total > previous;
@@ -109,7 +143,13 @@ export class FakeRepo implements PaymentsRepo {
     if (!["pending", "failed", "requires_action"].includes(p.final_payment_status)) return null;
     if (["cancelled", "completed"].includes(p.status)) return null;
     p.final_payment_status = "processing";
-    return { id: p.id, remaining_amount: p.remaining_amount, currency: p.currency, stripe_customer_id: p.stripe_customer_id, stripe_payment_method_id: p.stripe_payment_method_id };
+    return {
+      id: p.id,
+      remaining_amount: p.remaining_amount,
+      currency: p.currency,
+      stripe_customer_id: p.stripe_customer_id,
+      stripe_payment_method_id: p.stripe_payment_method_id,
+    };
   }
   async getProfileCustomerId(userId: string) {
     return this.profileCustomers.get(userId) ?? null;
@@ -136,7 +176,10 @@ export class FakeRepo implements PaymentsRepo {
       id: `led-${++this.seq}`,
       created_at: new Date(1_700_000_000_000 + this.seq).toISOString(),
     };
-    if (full.stripe_payment_intent_id && this.ledger.some((r) => r.stripe_payment_intent_id === full.stripe_payment_intent_id && r.type === full.type)) {
+    if (
+      full.stripe_payment_intent_id &&
+      this.ledger.some((r) => r.stripe_payment_intent_id === full.stripe_payment_intent_id && r.type === full.type)
+    ) {
       throw new Error("unique violation payments_pi_type_idx");
     }
     this.ledger.push(full);
@@ -146,7 +189,12 @@ export class FakeRepo implements PaymentsRepo {
     const row = this.ledger.find((r) => r.id === id);
     if (!row) return;
     const next = { ...row, ...patch };
-    if (next.stripe_payment_intent_id && this.ledger.some((r) => r !== row && r.stripe_payment_intent_id === next.stripe_payment_intent_id && r.type === next.type)) {
+    if (
+      next.stripe_payment_intent_id &&
+      this.ledger.some(
+        (r) => r !== row && r.stripe_payment_intent_id === next.stripe_payment_intent_id && r.type === next.type,
+      )
+    ) {
       throw new Error("unique violation payments_pi_type_idx");
     }
     Object.assign(row, patch);
@@ -187,7 +235,11 @@ export const makeStripe = () => {
   const mocks = {
     paymentIntentsCreate: vi.fn(),
     paymentIntentsRetrieve: vi.fn(async () => ({ payment_method: "pm_saved" })),
-    paymentIntentsSearch: vi.fn(async () => ({ data: [] as unknown[], has_more: false, next_page: null as string | null })),
+    paymentIntentsSearch: vi.fn(async () => ({
+      data: [] as unknown[],
+      has_more: false,
+      next_page: null as string | null,
+    })),
     customersCreate: vi.fn(async () => ({ id: "cus_new" })),
     customersRetrieve: vi.fn(async (id: string) => ({ id })),
     sessionsCreate: vi.fn(async () => ({ id: "cs_1", url: "https://checkout.stripe.test/cs_1" })),
@@ -197,9 +249,15 @@ export const makeStripe = () => {
     chargesRetrieve: vi.fn(async () => ({ payment_intent: "pi_x" })),
   };
   Object.assign(stripe, {
-    paymentIntents: { create: mocks.paymentIntentsCreate, retrieve: mocks.paymentIntentsRetrieve, search: mocks.paymentIntentsSearch },
+    paymentIntents: {
+      create: mocks.paymentIntentsCreate,
+      retrieve: mocks.paymentIntentsRetrieve,
+      search: mocks.paymentIntentsSearch,
+    },
     customers: { create: mocks.customersCreate, retrieve: mocks.customersRetrieve },
-    checkout: { sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire, retrieve: mocks.sessionsRetrieve } },
+    checkout: {
+      sessions: { create: mocks.sessionsCreate, expire: mocks.sessionsExpire, retrieve: mocks.sessionsRetrieve },
+    },
     refunds: { create: mocks.refundsCreate },
     charges: { retrieve: mocks.chargesRetrieve },
   });

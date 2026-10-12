@@ -12,21 +12,64 @@ const body = Space_Grotesk({ subsets: ["latin"], variable: "--cx-body" });
 
 export const metadata = conceptMetadata("org");
 
-const marqueeItems = ["Join the collective", "Spring showcase", "Three nights", "Live on campus", "Union Hall", "Bring a friend"];
+const marqueeItems = [
+  "Join the collective",
+  "Spring showcase",
+  "Three nights",
+  "Live on campus",
+  "Union Hall",
+  "Bring a friend",
+];
 
 const tiles = [
-  { n: "01", title: "Throw loud nights", text: "Live showcases run by members, from soundcheck to the last encore.", img: "/images/work/org/phone.webp", alt: "Hands filming a live set on a phone under pink stage lights", pos: "50% 40%" },
-  { n: "02", title: "Make things together", text: "Posters, zines and mural jams. Every flyer is made in the open studio.", img: "/images/work/org/workshop.webp", alt: "A team brainstorming with sticky notes on a table", pos: "50% 50%" },
-  { n: "03", title: "Find your people", text: "Weekly hangs for writers, players, designers and the plain curious.", img: "/images/work/org/laptops.webp", alt: "Students laughing together around laptops at a table", pos: "40% 50%" },
+  {
+    n: "01",
+    title: "Throw loud nights",
+    text: "Live showcases run by members, from soundcheck to the last encore.",
+    img: "/images/work/org/phone.webp",
+    alt: "Hands filming a live set on a phone under pink stage lights",
+    pos: "50% 40%",
+  },
+  {
+    n: "02",
+    title: "Make things together",
+    text: "Posters, zines and mural jams. Every flyer is made in the open studio.",
+    img: "/images/work/org/workshop.webp",
+    alt: "A team brainstorming with sticky notes on a table",
+    pos: "50% 50%",
+  },
+  {
+    n: "03",
+    title: "Find your people",
+    text: "Weekly hangs for writers, players, designers and the plain curious.",
+    img: "/images/work/org/laptops.webp",
+    alt: "Students laughing together around laptops at a table",
+    pos: "40% 50%",
+  },
 ];
 
 const wall = [
-  { src: "/images/work/org/confetti.webp", alt: "Confetti falling over a crowd in blue light", cap: "Last encore", rot: "-5deg" },
-  { src: "/images/work/org/summit.webp", alt: "Friends sitting arm in arm facing mountains", cap: "Road trip", rot: "3deg" },
+  {
+    src: "/images/work/org/confetti.webp",
+    alt: "Confetti falling over a crowd in blue light",
+    cap: "Last encore",
+    rot: "-5deg",
+  },
+  {
+    src: "/images/work/org/summit.webp",
+    alt: "Friends sitting arm in arm facing mountains",
+    cap: "Road trip",
+    rot: "3deg",
+  },
   { src: "/images/work/org/sunset.webp", alt: "Friends hugging on a hill at sunset", cap: "After hours", rot: "-2deg" },
   { src: "/images/work/org/grad.webp", alt: "A graduation cap seen from behind", cap: "Seniors", rot: "5deg" },
   { src: "/images/work/org/friends.webp", alt: "Friends studying together with books", cap: "Study jam", rot: "-4deg" },
-  { src: "/images/work/org/crowd.webp", alt: "A crowd gathered outdoors under string lights in the evening", cap: "Quad night", rot: "2deg" },
+  {
+    src: "/images/work/org/crowd.webp",
+    alt: "A crowd gathered outdoors under string lights in the evening",
+    cap: "Quad night",
+    rot: "2deg",
+  },
 ];
 
 const roles = [
@@ -36,11 +79,26 @@ const roles = [
 ];
 
 const faqs = [
-  { q: "Do I need to be a student to come?", a: "Showcase nights are open to the campus community. Members get early entry and a say in the lineup." },
-  { q: "Can I perform if I have never been on stage?", a: "Yes. The open mic is built for first sets. Pick the Perform role and we will find you a slot." },
-  { q: "How do I become a member?", a: "Fill in the form above. A club officer replies with the next meeting time and what to bring." },
-  { q: "Is the venue accessible?", a: "Union Hall has step-free entry and seating. Tell us what you need in your message and we will plan around it." },
-  { q: "Does it cost anything to join?", a: "Joining is free. Some workshops ask members to bring their own supplies." },
+  {
+    q: "Do I need to be a student to come?",
+    a: "Showcase nights are open to the campus community. Members get early entry and a say in the lineup.",
+  },
+  {
+    q: "Can I perform if I have never been on stage?",
+    a: "Yes. The open mic is built for first sets. Pick the Perform role and we will find you a slot.",
+  },
+  {
+    q: "How do I become a member?",
+    a: "Fill in the form above. A club officer replies with the next meeting time and what to bring.",
+  },
+  {
+    q: "Is the venue accessible?",
+    a: "Union Hall has step-free entry and seating. Tell us what you need in your message and we will plan around it.",
+  },
+  {
+    q: "Does it cost anything to join?",
+    a: "Joining is free. Some workshops ask members to bring their own supplies.",
+  },
 ];
 
 const Join = ({ className = "" }: { className?: string }) => (
@@ -81,7 +139,13 @@ export default function OrgConcept() {
 
       <section id="top" className="org-hero" aria-labelledby="org-h1">
         <div className="org-hero__bg" aria-hidden>
-          <Image src="/images/work/org/concert.webp" alt="Crowd at a concert under stage lights" fill priority sizes="100vw" />
+          <Image
+            src="/images/work/org/concert.webp"
+            alt="Crowd at a concert under stage lights"
+            fill
+            priority
+            sizes="100vw"
+          />
         </div>
         <div className="org-hero__inner">
           <p className="org-kicker">Spring showcase / April 17 to 19</p>
@@ -136,7 +200,9 @@ export default function OrgConcept() {
         <div className="org-sec__head">
           <p className="org-kicker">The lineup</p>
           <h2 id="org-sch-h" className="org-h2">
-            Three nights.<br />One stage.
+            Three nights.
+            <br />
+            One stage.
           </h2>
         </div>
         <Schedule />
@@ -153,7 +219,13 @@ export default function OrgConcept() {
           {tiles.map((t) => (
             <li key={t.n} className="org-tile">
               <div className="org-tile__img">
-                <Image src={t.img} alt={t.alt} fill sizes="(min-width: 900px) 33vw, 100vw" style={{ objectPosition: t.pos }} />
+                <Image
+                  src={t.img}
+                  alt={t.alt}
+                  fill
+                  sizes="(min-width: 900px) 33vw, 100vw"
+                  style={{ objectPosition: t.pos }}
+                />
               </div>
               <span className="org-tile__n" aria-hidden>
                 {t.n}
@@ -190,7 +262,9 @@ export default function OrgConcept() {
         <div className="org-join__copy">
           <p className="org-kicker">Get involved</p>
           <h2 id="org-join-h" className="org-h2">
-            Your name<br />on the bill.
+            Your name
+            <br />
+            on the bill.
           </h2>
           <ul className="org-roles-list">
             {roles.map((r) => (

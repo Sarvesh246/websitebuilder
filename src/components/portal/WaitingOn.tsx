@@ -11,7 +11,11 @@ export const WaitingOn = ({ items, stage }: { items: WaitingItem[]; stage: Proje
         <h2 className="pt-card__title" id="pt-waiting-title">
           Waiting on you
         </h2>
-        <p className="pt-card__note">{items.length === 0 ? "Nothing right now" : `${items.length} ${items.length === 1 ? "thing" : "things"} to do`}</p>
+        <p className="pt-card__note">
+          {items.length === 0
+            ? "Nothing right now"
+            : `${items.length} ${items.length === 1 ? "thing" : "things"} to do`}
+        </p>
       </div>
     </div>
     {items.length === 0 ? (
@@ -22,7 +26,7 @@ export const WaitingOn = ({ items, stage }: { items: WaitingItem[]; stage: Proje
             ? "Your project is complete. Everything is in your hands now."
             : stage === "cancelled"
               ? "This project is closed. Its files, messages and payment history remain available here."
-            : `You are all caught up. The studio has the next step (${stageLabel[stage].toLowerCase()}), and you will see it here when something needs you.`}
+              : `You are all caught up. The studio has the next step (${stageLabel[stage].toLowerCase()}), and you will see it here when something needs you.`}
         </p>
       </div>
     ) : (
@@ -36,7 +40,10 @@ export const WaitingOn = ({ items, stage }: { items: WaitingItem[]; stage: Proje
               <p className="pt-strong">{item.title}</p>
               <p className="pt-small">{item.detail}</p>
             </div>
-            <Link href={item.href} className={item.tone === "warn" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm"}>
+            <Link
+              href={item.href}
+              className={item.tone === "warn" ? "btn btn-primary btn-sm" : "btn btn-secondary btn-sm"}
+            >
               {item.cta}
               <ArrowRight aria-hidden size={15} strokeWidth={1.9} />
             </Link>

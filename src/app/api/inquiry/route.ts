@@ -41,13 +41,21 @@ export async function POST(request: Request) {
       const { done, value } = await reader.read();
       if (done) break;
       size += value.byteLength;
-      if (size > limits.body) { await reader.cancel(); return json({ error: "too_large" }, 413); }
+      if (size > limits.body) {
+        await reader.cancel();
+        return json({ error: "too_large" }, 413);
+      }
       chunks.push(value);
     }
-  } catch { return json({ error: "bad_request" }, 400); }
+  } catch {
+    return json({ error: "bad_request" }, 400);
+  }
   const bytes = new Uint8Array(size);
   let offset = 0;
-  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
   const text = new TextDecoder().decode(bytes);
   let body: Record<string, unknown>;
   try {
@@ -77,7 +85,8 @@ export async function POST(request: Request) {
   // Only valid submissions count toward the limit, so a visitor fixing typos is never locked out.
   // Prefer the platform-set client IP; without one, share a looser bucket instead of blocking everyone.
   const ip = request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  if (!rateLimit(`account:${viewer.userId}`) || !(ip ? rateLimit(`ip:${ip}`) : rateLimit("unknown", 30))) return json({ error: "rate_limited" }, 429);
+  if (!rateLimit(`account:${viewer.userId}`) || !(ip ? rateLimit(`ip:${ip}`) : rateLimit("unknown", 30)))
+    return json({ error: "rate_limited" }, 429);
 
   if (!storageConfigured()) {
     serverLog("error", "inquiry.storage_not_configured");

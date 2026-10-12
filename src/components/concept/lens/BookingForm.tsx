@@ -6,7 +6,14 @@ import { useState } from "react";
 export const BookingForm = () => {
   const [submitted, setSubmitted] = useState(false);
   return (
-    <form className="lens-form" aria-label="Booking request (concept, not submitted)" onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }}>
+    <form
+      className="lens-form"
+      aria-label="Booking request (concept, not submitted)"
+      onSubmit={(event) => {
+        event.preventDefault();
+        setSubmitted(true);
+      }}
+    >
       <div className="lens-field">
         <label htmlFor="lens-name">Name</label>
         <input id="lens-name" name="name" type="text" autoComplete="off" required maxLength={100} />
@@ -19,7 +26,9 @@ export const BookingForm = () => {
         <label htmlFor="lens-brief">Brief</label>
         <textarea id="lens-brief" name="brief" rows={3} required maxLength={2000} />
       </div>
-      <button type="submit" className="lens-form__send">Try demo request</button>
+      <button type="submit" className="lens-form__send">
+        Try demo request
+      </button>
       <p className="lens-form__note" role="status">
         {submitted ? "Demo request complete. Nothing was sent or saved." : "Concept form. Nothing is sent."}
       </p>

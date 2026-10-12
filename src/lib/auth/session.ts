@@ -36,7 +36,12 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     .select("full_name, role, email")
     .eq("id", userId)
     .maybeSingle<{ full_name: string | null; role: "client" | "admin"; email: string }>();
-  return { userId, email: profile?.email || email, fullName: profile?.full_name ?? null, role: profile?.role === "admin" ? "admin" : "client" };
+  return {
+    userId,
+    email: profile?.email || email,
+    fullName: profile?.full_name ?? null,
+    role: profile?.role === "admin" ? "admin" : "client",
+  };
 });
 
 export const requireViewer = async (next = "/portal"): Promise<Viewer> => {

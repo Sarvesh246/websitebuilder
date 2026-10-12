@@ -24,19 +24,15 @@ export const SectionHeader = ({
 }: SectionHeaderProps) => {
   const centered = align === "center";
   return (
-    <header
-      className={cn(
-        "flex flex-col gap-5",
-        centered ? "items-center text-center" : "items-start",
-        className,
-      )}
-    >
+    <header className={cn("flex flex-col gap-5", centered ? "items-center text-center" : "items-start", className)}>
       {eyebrow && (
         <span className={cn("t-label", centered ? "t-label--rule t-label--rule-both" : "t-label--rule")}>
           {eyebrow}
         </span>
       )}
-      <Heading id={titleId} className="t-h2 max-w-[18ch]">{title}</Heading>
+      <Heading id={titleId} className="t-h2 max-w-[18ch]">
+        {title}
+      </Heading>
       {lead && <p className="t-lead max-w-[46ch]">{lead}</p>}
     </header>
   );

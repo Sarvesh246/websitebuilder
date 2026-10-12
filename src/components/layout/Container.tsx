@@ -21,10 +21,5 @@ export const Container = <T extends ElementType = "div">({
   ...props
 }: ContainerProps<T>) => {
   const Tag: ElementType = as ?? "div";
-  return (
-    <Tag
-      className={cn("relative mx-auto w-full px-[var(--gutter)]", sizes[size], className)}
-      {...props}
-    />
-  );
+  return <Tag className={cn("relative mx-auto w-full px-[var(--gutter)]", sizes[size], className)} {...props} />;
 };

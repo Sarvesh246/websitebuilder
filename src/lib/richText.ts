@@ -25,5 +25,4 @@ export const parseRich = (source: string): RichPart[] => {
 export const plainText = (source: string): string => source.replace(LINK, "$1");
 
 /** Every link target in the copy, without any #fragment. */
-export const richHrefs = (source: string): string[] =>
-  [...source.matchAll(LINK)].map((m) => m[2].split("#")[0] || "/");
+export const richHrefs = (source: string): string[] => [...source.matchAll(LINK)].map((m) => m[2].split("#")[0] || "/");

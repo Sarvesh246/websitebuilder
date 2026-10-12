@@ -17,22 +17,54 @@ const ratio = (a, b) => {
 
 const themes = {
   light: {
-    bg: "#f3f3f1", strong: "#0f1115", text: "#2b2f36", muted: "#5d646e", subtle: "#646b75",
-    accentInk: "#2a4a82", accent: "#3b5f9e", accentSoftBase: [92, 132, 200, 0.14],
-    btnBg: "#17191d", btnText: "#f7f7f5", glassWhite: 0.55,
-    danger: "#b42318", fieldBorder: "#7d8794", fieldWhite: 0.92, footerBg: "#f3f3f1",
-    pillBg: "#dfe8f6", pillInk: "#2c4d85",
+    bg: "#f3f3f1",
+    strong: "#0f1115",
+    text: "#2b2f36",
+    muted: "#5d646e",
+    subtle: "#646b75",
+    accentInk: "#2a4a82",
+    accent: "#3b5f9e",
+    accentSoftBase: [92, 132, 200, 0.14],
+    btnBg: "#17191d",
+    btnText: "#f7f7f5",
+    glassWhite: 0.55,
+    danger: "#b42318",
+    fieldBorder: "#7d8794",
+    fieldWhite: 0.92,
+    footerBg: "#f3f3f1",
+    pillBg: "#dfe8f6",
+    pillInk: "#2c4d85",
     // portal: worst-case scene pixel (5th percentile of c-light-lite) under --pt-veil, then --pt-pane
-    sceneWorst: [171, 176, 179], veilBg: [243, 243, 241], veil: 0.74, paneTint: [255, 255, 255], pane: 0.6,
+    sceneWorst: [171, 176, 179],
+    veilBg: [243, 243, 241],
+    veil: 0.74,
+    paneTint: [255, 255, 255],
+    pane: 0.6,
   },
   dark: {
-    bg: "#0c0e11", strong: "#f3f4f6", text: "#c9cdd3", muted: "#a0a6ae", subtle: "#8d939b",
-    accentInk: "#c3d4f3", accent: "#a9c0ea", accentSoftBase: [169, 192, 234, 0.14],
-    btnBg: "#f3f4f6", btnText: "#0c0e11", glassWhite: 0.06,
-    danger: "#ff9a8f", fieldBorder: "#6f7a89", fieldWhite: 0.08, footerBg: "#0c0e11",
-    pillBg: "#1f2733", pillInk: "#c3d4f3",
+    bg: "#0c0e11",
+    strong: "#f3f4f6",
+    text: "#c9cdd3",
+    muted: "#a0a6ae",
+    subtle: "#8d939b",
+    accentInk: "#c3d4f3",
+    accent: "#a9c0ea",
+    accentSoftBase: [169, 192, 234, 0.14],
+    btnBg: "#f3f4f6",
+    btnText: "#0c0e11",
+    glassWhite: 0.06,
+    danger: "#ff9a8f",
+    fieldBorder: "#6f7a89",
+    fieldWhite: 0.08,
+    footerBg: "#0c0e11",
+    pillBg: "#1f2733",
+    pillInk: "#c3d4f3",
     // portal: worst-case scene pixel (98th percentile of c-dark-lite, the wall lights) under --pt-veil, then --pt-pane
-    sceneWorst: [172, 131, 101], veilBg: [10, 12, 15], veil: 0.7, paneTint: [34, 38, 46], pane: 0.45,
+    sceneWorst: [172, 131, 101],
+    veilBg: [10, 12, 15],
+    veil: 0.7,
+    paneTint: [34, 38, 46],
+    pane: 0.45,
   },
 };
 
@@ -64,7 +96,11 @@ for (const [name, t] of Object.entries(themes)) {
     ["portal: text-muted on pane", t.muted, pane, 4.5],
     ["portal: danger on pane", t.danger, pane, 4.5],
     ["portal: accent-ink on pane", t.accentInk, pane, 4.5],
-  ].map(([label, fg, back, min]) => [label, ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back), min]);
+  ].map(([label, fg, back, min]) => [
+    label,
+    ratio(typeof fg === "string" ? hex(fg) : fg, typeof back === "string" ? hex(back) : back),
+    min,
+  ]);
 
   console.log(`\n${name}`);
   for (const [label, r, min] of checks) {

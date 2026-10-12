@@ -5,6 +5,7 @@ export const inCancellationWindow = (paidAt: string | null, now: Date = new Date
   if (!paidAt) return false;
   const paid = new Date(paidAt);
   const elapsed = now.getTime() - paid.getTime();
-  const utcDay = (date: Date) => Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / 86400000);
+  const utcDay = (date: Date) =>
+    Math.floor(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) / 86400000);
   return Number.isFinite(elapsed) && elapsed >= 0 && utcDay(now) - utcDay(paid) <= CANCELLATION_WINDOW_DAYS;
 };

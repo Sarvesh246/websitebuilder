@@ -20,7 +20,14 @@ export const firstTime = async (deps: PaymentsDeps, key: string): Promise<boolea
 /** Timeline entry + studio email for a payment the studio must look at. Once per key. */
 export const flagForReview = async (
   deps: PaymentsDeps,
-  input: { key: string; projectId: string; timeline: string; subject: string; detail: string; paymentIntentId?: string | null },
+  input: {
+    key: string;
+    projectId: string;
+    timeline: string;
+    subject: string;
+    detail: string;
+    paymentIntentId?: string | null;
+  },
 ): Promise<boolean> => {
   if (!(await firstTime(deps, `review:${input.key}`))) return false;
   try {

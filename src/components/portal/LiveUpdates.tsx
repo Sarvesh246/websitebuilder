@@ -31,18 +31,20 @@ export const LiveUpdates = ({ enabled, viewerId }: { enabled: boolean; viewerId:
     let cancelled = false;
     let unsubscribe: (() => void) | null = null;
     if (enabled && supabasePublicEnv()) {
-      void import("@/utils/supabase/client").then(({ createClient }) => {
-        if (cancelled) return;
-        const supabase = createClient();
-        const channel = supabase
-          .channel("portal-messages")
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (change) => {
-            // The sender's own page already refreshed after sending.
-            if ((change.new as { sender_id?: string }).sender_id !== viewerId) refresh();
-          })
-          .subscribe();
-        unsubscribe = () => void supabase.removeChannel(channel);
-      }).catch(() => undefined);
+      void import("@/utils/supabase/client")
+        .then(({ createClient }) => {
+          if (cancelled) return;
+          const supabase = createClient();
+          const channel = supabase
+            .channel("portal-messages")
+            .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (change) => {
+              // The sender's own page already refreshed after sending.
+              if ((change.new as { sender_id?: string }).sender_id !== viewerId) refresh();
+            })
+            .subscribe();
+          unsubscribe = () => void supabase.removeChannel(channel);
+        })
+        .catch(() => undefined);
     }
     return () => {
       cancelled = true;
@@ -63,10 +65,18 @@ export const Thread = ({ count, children }: { count: number; children: ReactNode
     if (el && follow.current) el.scrollTop = el.scrollHeight;
   }, [count]);
   return (
-    <div ref={ref} onScroll={(event) => {
-      const el = event.currentTarget;
-      follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
-    }} className="pt-thread" role="log" aria-label="Messages" aria-live="polite" tabIndex={0}>
+    <div
+      ref={ref}
+      onScroll={(event) => {
+        const el = event.currentTarget;
+        follow.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+      }}
+      className="pt-thread"
+      role="log"
+      aria-label="Messages"
+      aria-live="polite"
+      tabIndex={0}
+    >
       {children}
     </div>
   );

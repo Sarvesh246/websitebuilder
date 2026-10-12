@@ -202,9 +202,18 @@ export const articles: readonly Article[] = [
       },
     ],
     faq: [
-      { q: "Do I need a portfolio website if I have LinkedIn?", a: "A portfolio is useful when projects, case studies, images, or live demos help prove your skills. LinkedIn gives readers a familiar summary; your website lets them explore the evidence in your own layout." },
-      { q: "Can LinkedIn be used as a portfolio?", a: "LinkedIn can showcase samples and project links in its Featured section. A personal portfolio website adds your own domain, design, and space for detailed case studies. Use both when you need networking and a deeper presentation of your work." },
-      { q: "How much does a custom portfolio website cost?", a: `${priceLine("launch")} for a one-page portfolio. ${priceLine("presence")} for up to three pages. Domain registration and paid services are separate. Use the [website cost calculator](/tools/website-cost-calculator) to match your pages and features to a package.` },
+      {
+        q: "Do I need a portfolio website if I have LinkedIn?",
+        a: "A portfolio is useful when projects, case studies, images, or live demos help prove your skills. LinkedIn gives readers a familiar summary; your website lets them explore the evidence in your own layout.",
+      },
+      {
+        q: "Can LinkedIn be used as a portfolio?",
+        a: "LinkedIn can showcase samples and project links in its Featured section. A personal portfolio website adds your own domain, design, and space for detailed case studies. Use both when you need networking and a deeper presentation of your work.",
+      },
+      {
+        q: "How much does a custom portfolio website cost?",
+        a: `${priceLine("launch")} for a one-page portfolio. ${priceLine("presence")} for up to three pages. Domain registration and paid services are separate. Use the [website cost calculator](/tools/website-cost-calculator) to match your pages and features to a package.`,
+      },
     ],
     hub: "portfolio-websites-for-creators",
     related: ["student-portfolio-website-checklist", "how-much-does-a-student-website-cost"],
@@ -385,7 +394,8 @@ export const articles: readonly Article[] = [
       {
         heading: "Northframe's packages",
         points: packageTiers.map(
-          (t) => `${priceLine(t.id)}: up to ${t.pages} ${t.pages === 1 ? "page" : "pages"}, ${t.revisions} revision ${t.revisions === 1 ? "round" : "rounds"}. ${t.audience}`,
+          (t) =>
+            `${priceLine(t.id)}: up to ${t.pages} ${t.pages === 1 ? "page" : "pages"}, ${t.revisions} revision ${t.revisions === 1 ? "round" : "rounds"}. ${t.audience}`,
         ),
         body: [
           `Every package includes ${commonInclusions.items.join(", ").toLowerCase()}. ${customTier.name} projects (${customTier.scope.slice(0, 4).join(", ").toLowerCase()} and similar) are quoted by scope.`,
@@ -490,7 +500,9 @@ export const articles: readonly Article[] = [
     sections: [
       {
         heading: "When a website builder is the better choice",
-        body: ["A website builder can be a good fit when frequent editing and ready-made platform tools matter most. Consider one if these describe you."],
+        body: [
+          "A website builder can be a good fit when frequent editing and ready-made platform tools matter most. Consider one if these describe you.",
+        ],
         points: [
           "You want to change text, photos, or pages yourself, often, without asking anyone.",
           "You need store or booking tools available within the platform and your chosen plan.",
@@ -612,4 +624,9 @@ export const articlesUpdated = articles.reduce((latest, a) => (a.updated > lates
 
 /** "October 5, 2026" from an ISO date, independent of the server time zone. */
 export const formatDate = (iso: string): string =>
-  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+  new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });

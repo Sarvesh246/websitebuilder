@@ -27,19 +27,35 @@ const ConfirmSurface = ({ onClose, title, children, confirmLabel, onConfirm, bus
     if (!el) return;
     const previous = document.activeElement as HTMLElement | null;
     el.showModal();
-    return () => { el.close(); if (previous?.isConnected) previous.focus(); };
+    return () => {
+      el.close();
+      if (previous?.isConnected) previous.focus();
+    };
   }, []);
   return (
     <m.dialog
       ref={ref}
       className="pt-dialog"
-      initial={{ opacity: 0, y: 12, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 6, scale: .99 }}
-      transition={{ ...spring, opacity: { duration: .15 } }}
-      onCancel={(event) => { event.preventDefault(); if (!busy) onClose(); }}
-      onClick={(event) => { if (!busy && event.target === event.currentTarget) {
-        const rect = event.currentTarget.getBoundingClientRect();
-        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose();
-      } }}
+      initial={{ opacity: 0, y: 12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 6, scale: 0.99 }}
+      transition={{ ...spring, opacity: { duration: 0.15 } }}
+      onCancel={(event) => {
+        event.preventDefault();
+        if (!busy) onClose();
+      }}
+      onClick={(event) => {
+        if (!busy && event.target === event.currentTarget) {
+          const rect = event.currentTarget.getBoundingClientRect();
+          if (
+            event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom
+          )
+            onClose();
+        }
+      }}
       aria-labelledby={titleId}
     >
       <h2 id={titleId}>{title}</h2>

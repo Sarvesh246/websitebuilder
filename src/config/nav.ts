@@ -13,10 +13,7 @@ export const navLinks: readonly NavLink[] = [
   { label: "About", href: "/about" },
 ];
 
-export const footerLinks: readonly NavLink[] = [
-  ...navLinks,
-  { label: "Start a Project", href: "/start" },
-];
+export const footerLinks: readonly NavLink[] = [...navLinks, { label: "Start a Project", href: "/start" }];
 
 export const legalLinks: readonly NavLink[] = [
   { label: "Privacy", href: "/privacy" },

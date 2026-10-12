@@ -33,16 +33,16 @@ export default function TermsPage() {
 
       <LegalSection title="Inquiries">
         <p>
-          Sending an inquiry is a request for a conversation and a quote. It does not create an agreement or oblige either
-          side to work together.
+          Sending an inquiry is a request for a conversation and a quote. It does not create an agreement or oblige
+          either side to work together.
         </p>
       </LegalSection>
 
       <LegalSection title="Project agreement">
         <p>
-          Before paid work begins, the project scope, payment schedule, delivery, revision limits, and ownership terms are
-          confirmed in a separate written project agreement. If anything here differs from that agreement, the agreement
-          applies to your project.
+          Before paid work begins, the project scope, payment schedule, delivery, revision limits, and ownership terms
+          are confirmed in a separate written project agreement. If anything here differs from that agreement, the
+          agreement applies to your project.
         </p>
       </LegalSection>
 
@@ -69,8 +69,8 @@ export default function TermsPage() {
 
       <LegalSection title="Third-party services">
         <p>
-          Websites often rely on outside platforms for hosting, domains, email, and similar services. Northframe does not
-          control them and cannot guarantee that they will run without interruption.
+          Websites often rely on outside platforms for hosting, domains, email, and similar services. Northframe does
+          not control them and cannot guarantee that they will run without interruption.
         </p>
       </LegalSection>
 

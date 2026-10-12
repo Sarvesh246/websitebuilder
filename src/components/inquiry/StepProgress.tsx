@@ -6,7 +6,15 @@ import { cn } from "@/lib/cn";
  * Accessible step list. Below lg it collapses to a segmented bar plus "Step 2 of 5"; from lg it is
  * a vertical list in the sidebar. Steps already reached are buttons, so people can jump back.
  */
-export const StepProgress = ({ current, reached, onGo }: { current: number; reached: number; onGo: (index: number) => void }) => (
+export const StepProgress = ({
+  current,
+  reached,
+  onGo,
+}: {
+  current: number;
+  reached: number;
+  onGo: (index: number) => void;
+}) => (
   <nav aria-label="Progress" className="steps">
     <p className="steps__now" aria-hidden>
       Step {current + 1} of {steps.length}: {steps[current].label}
@@ -27,7 +35,11 @@ export const StepProgress = ({ current, reached, onGo }: { current: number; reac
           </>
         );
         return (
-          <li key={step.id} className={cn("steps__item", done && "is-done", index === current && "is-current")} aria-current={index === current ? "step" : undefined}>
+          <li
+            key={step.id}
+            className={cn("steps__item", done && "is-done", index === current && "is-current")}
+            aria-current={index === current ? "step" : undefined}
+          >
             {clickable ? (
               <button type="button" className="steps__btn" onClick={() => onGo(index)}>
                 {inner}

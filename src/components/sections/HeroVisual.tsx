@@ -8,9 +8,37 @@ export const HeroVisual = () => (
     className="hero-stage"
     label="Three concept website designs shown on floating glass panels"
     layers={[
-      { id: "top", className: "hero-pane--top", depth: 10, node: <GlassPane><ScreenPhoto title="Cleaner websites. Bigger ideas." /></GlassPane> },
-      { id: "main", className: "hero-pane--main", depth: 22, float: true, node: <GlassPane><ScreenIdeas /></GlassPane> },
-      { id: "tall", className: "hero-pane--tall", depth: 16, node: <GlassPane><ScreenTall /></GlassPane> },
+      {
+        id: "top",
+        className: "hero-pane--top",
+        depth: 10,
+        node: (
+          <GlassPane>
+            <ScreenPhoto title="Cleaner websites. Bigger ideas." />
+          </GlassPane>
+        ),
+      },
+      {
+        id: "main",
+        className: "hero-pane--main",
+        depth: 22,
+        float: true,
+        node: (
+          <GlassPane>
+            <ScreenIdeas />
+          </GlassPane>
+        ),
+      },
+      {
+        id: "tall",
+        className: "hero-pane--tall",
+        depth: 16,
+        node: (
+          <GlassPane>
+            <ScreenTall />
+          </GlassPane>
+        ),
+      },
     ]}
   />
 );

@@ -84,7 +84,10 @@
   --glass-edge-lit: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.5));
   --glass-edge-shade: light-dark(rgb(40 70 120 / 0.2), rgb(0 0 0 / 0.55));
   --glass-specular: light-dark(rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.16));
-  --glass-refract: light-dark(rgb(150 190 255 / 0.22), rgb(130 170 240 / 0.14)); /* faint cool lip inside the far edge */
+  --glass-refract: light-dark(
+    rgb(150 190 255 / 0.22),
+    rgb(130 170 240 / 0.14)
+  ); /* faint cool lip inside the far edge */
 
   /* ---------- Glass panes (styles/pane.css): thick acrylic slabs from the references ---------- */
   --pane-fill-a: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.14));
@@ -124,7 +127,10 @@
   --glass-saturate: 1.4;
 
   /* ---------- Portal glass (styles/portal.css): panes over a veiled scene, data engraved into them ---------- */
-  --pt-pane: light-dark(rgb(255 255 255 / 0.6), rgb(34 38 46 / 0.45)); /* dusk panes are smoked, so wall lights behind never wash out text */
+  --pt-pane: light-dark(
+    rgb(255 255 255 / 0.6),
+    rgb(34 38 46 / 0.45)
+  ); /* dusk panes are smoked, so wall lights behind never wash out text */
   --pt-pane-raised: light-dark(rgb(255 255 255 / 0.8), rgb(255 255 255 / 0.1));
   --pt-rail: light-dark(rgb(255 255 255 / 0.48), rgb(255 255 255 / 0.035));
   --pt-sheen: light-dark(rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.045));
@@ -133,7 +139,10 @@
   --pt-veil-deep: light-dark(rgb(243 243 241 / 0.93), rgb(10 12 15 / 0.92));
   --pt-groove: light-dark(rgb(36 52 82 / 0.09), rgb(0 0 0 / 0.3));
   --etch-shade: light-dark(rgb(36 52 82 / 0.15), rgb(0 0 0 / 0.62)); /* the cut: dark upper wall of an engraved line */
-  --etch-lit: light-dark(rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.09)); /* the lip: light caught on its lower edge */
+  --etch-lit: light-dark(
+    rgb(255 255 255 / 0.95),
+    rgb(255 255 255 / 0.09)
+  ); /* the lip: light caught on its lower edge */
   --etch-text-lit: light-dark(rgb(255 255 255 / 0.85), transparent);
   --etch-text-shade: light-dark(transparent, rgb(0 0 0 / 0.6));
   --pt-line-glow: light-dark(transparent, rgb(169 192 234 / 0.4)); /* dusk: light caught in the cut */
@@ -173,7 +182,7 @@
   --fs-button: 0.9375rem;
   --fs-price: clamp(2.5rem, 2rem + 1.6vw, 3.5rem);
 
-  --lh-display: 1.0;
+  --lh-display: 1;
   --lh-h2: 1.03;
   --lh-h3: 1.1;
   --lh-h4: 1.2;
@@ -225,8 +234,47 @@
    CSS keeps reveals and feedback on the compositor without a JS render loop.
    Older browsers retain the cubic fallback; reduced-motion rules still win. */
 @supports (animation-timing-function: linear(0, 1)) {
-  :root, .dusk {
-    --ease-out: linear(0.0000, 0.0369, 0.1241, 0.2354, 0.3534, 0.4674, 0.5714, 0.6622, 0.7392, 0.8026, 0.8537, 0.8940, 0.9252, 0.9488, 0.9663, 0.9790, 0.9879, 0.9941, 0.9981, 1.0007, 1.0021, 1.0029, 1.0031, 1.0030, 1.0028, 1.0025, 1.0021, 1.0017, 1.0014, 1.0011, 1.0009, 1.0007, 1.0005, 1.0004, 1.0003, 1.0002, 1);
+  :root,
+  .dusk {
+    --ease-out: linear(
+      0,
+      0.0369,
+      0.1241,
+      0.2354,
+      0.3534,
+      0.4674,
+      0.5714,
+      0.6622,
+      0.7392,
+      0.8026,
+      0.8537,
+      0.894,
+      0.9252,
+      0.9488,
+      0.9663,
+      0.979,
+      0.9879,
+      0.9941,
+      0.9981,
+      1.0007,
+      1.0021,
+      1.0029,
+      1.0031,
+      1.003,
+      1.0028,
+      1.0025,
+      1.0021,
+      1.0017,
+      1.0014,
+      1.0011,
+      1.0009,
+      1.0007,
+      1.0005,
+      1.0004,
+      1.0003,
+      1.0002,
+      1
+    );
   }
 }
 

@@ -41,7 +41,9 @@ export const JoinForm = () => {
         Join the club
       </button>
       <p className="org-form__note" role="status">
-        {done ? "Demo form: nothing was sent. On a live site this would reach the club inbox." : "Demo form for this concept. It does not send anything."}
+        {done
+          ? "Demo form: nothing was sent. On a live site this would reach the club inbox."
+          : "Demo form for this concept. It does not send anything."}
       </p>
     </form>
   );

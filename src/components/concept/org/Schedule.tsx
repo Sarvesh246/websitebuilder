@@ -24,7 +24,12 @@ const days: Day[] = [
     long: "Saturday",
     date: "Apr 18",
     slots: [
-      { time: "1:00", act: "Zine and print market", note: "Posters, tapes and stickers made by members", tag: "Market" },
+      {
+        time: "1:00",
+        act: "Zine and print market",
+        note: "Posters, tapes and stickers made by members",
+        tag: "Market",
+      },
       { time: "3:00", act: "Mural jam", note: "Bring a marker, leave your mark on the wall", tag: "Make" },
       { time: "7:00", act: "Nova Static", note: "Synths, drums, and one very loud violin", tag: "Headline" },
       { time: "9:00", act: "Choir Riot", note: "Forty voices, no microphones", tag: "Live" },

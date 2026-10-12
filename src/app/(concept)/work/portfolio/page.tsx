@@ -79,9 +79,24 @@ const skills = [
 ];
 
 const education = [
-  { when: "2022 to 2026", what: "BA, Interaction Design", where: "Fictional State University", note: "Final year. Thesis on calm interfaces for study tools." },
-  { when: "Summer 2025", what: "Design engineering intern", where: "A small product studio", note: "Built and shipped interface components with a team of four." },
-  { when: "2024 to now", what: "Design lead, student paper", where: "Campus newsroom", note: "Redesigned the site and mentored two new designers." },
+  {
+    when: "2022 to 2026",
+    what: "BA, Interaction Design",
+    where: "Fictional State University",
+    note: "Final year. Thesis on calm interfaces for study tools.",
+  },
+  {
+    when: "Summer 2025",
+    what: "Design engineering intern",
+    where: "A small product studio",
+    note: "Built and shipped interface components with a team of four.",
+  },
+  {
+    when: "2024 to now",
+    what: "Design lead, student paper",
+    where: "Campus newsroom",
+    note: "Redesigned the site and mentored two new designers.",
+  },
 ];
 
 const toolbox = [
@@ -133,8 +148,8 @@ export default function PortfolioConcept() {
           </h1>
           <div className="pf-hero__foot">
             <p className="pf-lead pf-fade" style={{ "--i": 5 } as React.CSSProperties}>
-              I am Ines, a final-year student who designs and builds for the web. I like clear type, quiet
-              layouts and code that other people can read.
+              I am Ines, a final-year student who designs and builds for the web. I like clear type, quiet layouts and
+              code that other people can read.
             </p>
             <p className="pf-status pf-fade" style={{ "--i": 6 } as React.CSSProperties}>
               <span className="pf-status__dot" aria-hidden />
@@ -189,12 +204,12 @@ export default function PortfolioConcept() {
               Part designer, part <em>engineer,</em> fully a student.
             </h2>
             <p>
-              I started in print and layout, then taught myself to code so my designs would survive contact with
-              a browser. Now I work in both, which means fewer handoffs and fewer surprises.
+              I started in print and layout, then taught myself to code so my designs would survive contact with a
+              browser. Now I work in both, which means fewer handoffs and fewer surprises.
             </p>
             <p>
-              Outside of class I run a small reading group, make type specimens and bike everywhere. I am
-              looking for a team where I can learn from people who care about the details.
+              Outside of class I run a small reading group, make type specimens and bike everywhere. I am looking for a
+              team where I can learn from people who care about the details.
             </p>
           </div>
         </section>
@@ -248,8 +263,8 @@ export default function PortfolioConcept() {
           </h2>
           <div className="pf-contact__row">
             <p>
-              Hiring for an internship, or want to talk about a small project? Write a line about what you are
-              making and I will reply.
+              Hiring for an internship, or want to talk about a small project? Write a line about what you are making
+              and I will reply.
             </p>
             <DemoContacts variant="portfolio" />
           </div>

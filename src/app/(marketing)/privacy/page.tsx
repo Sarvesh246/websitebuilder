@@ -28,71 +28,74 @@ export default function PrivacyPage() {
         </ul>
         <p>
           Nothing is sent until you press Send on the last step. While you fill in the form, a draft is kept in your
-          browser&apos;s session storage so a refresh does not lose your work. It stays on your device and is cleared once
-          you send the form or close the tab.
+          browser&apos;s session storage so a refresh does not lose your work. It stays on your device and is cleared
+          once you send the form or close the tab.
         </p>
         <p>
-          Like any website, the hosting provider that serves these pages may log basic technical data such as IP address,
-          browser type, and requested URL. When you submit the form, your IP address is also held briefly in the server&apos;s
-          memory to limit abuse (for example, repeated submissions). It is not stored with your inquiry.
+          Like any website, the hosting provider that serves these pages may log basic technical data such as IP
+          address, browser type, and requested URL. When you submit the form, your IP address is also held briefly in
+          the server&apos;s memory to limit abuse (for example, repeated submissions). It is not stored with your
+          inquiry.
         </p>
       </LegalSection>
 
       <LegalSection title="Account and payment information">
         <p>
-          If you create an account, your email address and name are held in Supabase Auth, the sign-in service, and in the
-          project database. If you sign in with Google, Google shares only your email address and name with Northframe.
+          If you create an account, your email address and name are held in Supabase Auth, the sign-in service, and in
+          the project database. If you sign in with Google, Google shares only your email address and name with
+          Northframe.
         </p>
         <p>
-          Payments are processed by Stripe. Your card details are entered on Stripe&apos;s hosted checkout page and are handled
-          by Stripe. Northframe never sees or stores card numbers. Northframe keeps only Stripe reference IDs, the amount,
-          and the payment status of each payment, plus the link to Stripe&apos;s receipt so you can open it from your portal.
-          If you pay in two parts, Stripe securely saves your payment method so the remaining balance can be charged as you
-          authorized at checkout.
+          Payments are processed by Stripe. Your card details are entered on Stripe&apos;s hosted checkout page and are
+          handled by Stripe. Northframe never sees or stores card numbers. Northframe keeps only Stripe reference IDs,
+          the amount, and the payment status of each payment, plus the link to Stripe&apos;s receipt so you can open it
+          from your portal. If you pay in two parts, Stripe securely saves your payment method so the remaining balance
+          can be charged as you authorized at checkout.
         </p>
         <p>
-          Inside the portal, the files, messages, preview feedback and checklist answers you send are stored in the project
-          database and a private file store, visible only to you and the studio. While you have the portal open, your browser
-          keeps a live connection to Supabase so new messages appear without a refresh; it carries no tracking.
+          Inside the portal, the files, messages, preview feedback and checklist answers you send are stored in the
+          project database and a private file store, visible only to you and the studio. While you have the portal open,
+          your browser keeps a live connection to Supabase so new messages appear without a refresh; it carries no
+          tracking.
         </p>
       </LegalSection>
 
       <LegalSection title="How information is used">
         <p>
-          Inquiry details are used to read your request, reply to you, and prepare a quote or proposal. You also receive a
-          short automatic confirmation email at the address you gave. Your details are not used for marketing lists or
+          Inquiry details are used to read your request, reply to you, and prepare a quote or proposal. You also receive
+          a short automatic confirmation email at the address you gave. Your details are not used for marketing lists or
           newsletters.
         </p>
       </LegalSection>
 
       <LegalSection title="Service providers">
         <p>
-          Inquiries are stored in a private database hosted by Supabase, a database provider, and a copy is sent by email
-          through Resend, an email delivery service, to Northframe&apos;s inbox. Payments are handled by Stripe, a payment processor.
-          These services process information for the purposes described here, subject to their own privacy policies. The site&apos;s hosting provider serves the pages and runs the
-          form&apos;s server code.
+          Inquiries are stored in a private database hosted by Supabase, a database provider, and a copy is sent by
+          email through Resend, an email delivery service, to Northframe&apos;s inbox. Payments are handled by Stripe, a
+          payment processor. These services process information for the purposes described here, subject to their own
+          privacy policies. The site&apos;s hosting provider serves the pages and runs the form&apos;s server code.
         </p>
         <p>
           Project payments are processed by Stripe. You enter card details on Stripe&apos;s secure checkout page, and
           Northframe never sees or stores card numbers. Northframe keeps payment records (amounts, dates, status, and
-          Stripe reference IDs), your acceptance of the payment terms, and, for projects with a later balance, a reference
-          to the payment method Stripe saved for the remaining balance. Stripe&apos;s own privacy policy covers what it
-          collects.
+          Stripe reference IDs), your acceptance of the payment terms, and, for projects with a later balance, a
+          reference to the payment method Stripe saved for the remaining balance. Stripe&apos;s own privacy policy
+          covers what it collects.
         </p>
       </LegalSection>
 
       <LegalSection title="Data retention">
         <p>
-          Your inquiry is kept in Northframe&apos;s project database and inbox for as long as needed to respond and, if a
-          project goes ahead, to carry it out. It is not publicly accessible. You can ask for it to be deleted at any
+          Your inquiry is kept in Northframe&apos;s project database and inbox for as long as needed to respond and, if
+          a project goes ahead, to carry it out. It is not publicly accessible. You can ask for it to be deleted at any
           time.
         </p>
         <p>
-          You can delete your account yourself from Settings in the portal. That removes your sign-in, profile, messages and
-          files. Requests with no payment history are removed. Project and payment records with payment history are
-          kept, unlinked from your sign-in account, because they are needed for accounting and support. Those records may
-          include the contact details and project information supplied with the request. Account deletion is not available while a
-          paid project is still in progress.
+          You can delete your account yourself from Settings in the portal. That removes your sign-in, profile, messages
+          and files. Requests with no payment history are removed. Project and payment records with payment history are
+          kept, unlinked from your sign-in account, because they are needed for accounting and support. Those records
+          may include the contact details and project information supplied with the request. Account deletion is not
+          available while a paid project is still in progress.
         </p>
       </LegalSection>
 
@@ -100,40 +103,46 @@ export default function PrivacyPage() {
         <p>
           Essential sign-in cookies keep your account session active and support secure sign-in. A studio-only cookie
           remembers client preview mode. This site runs no browser analytics, advertising, or tracking scripts. It also
-          saves your light or dark theme choice in local storage and the temporary form draft in session storage.
-          The theme choice and unsent draft stay in your browser. If browser analytics are added later, this page will be updated first.
+          saves your light or dark theme choice in local storage and the temporary form draft in session storage. The
+          theme choice and unsent draft stay in your browser. If browser analytics are added later, this page will be
+          updated first.
         </p>
         <p>
           When something fails on the server, such as a payment event or a project request that could not be saved, a
-          short error record may be sent to PostHog, a logging service, when server logging is configured, so problems can be found and fixed. These records
-          hold only a fixed event name and technical reference IDs. They never include your name, email address, message
-          text, or card details, and no logging or tracking script runs in your browser.
+          short error record may be sent to PostHog, a logging service, when server logging is configured, so problems
+          can be found and fixed. These records hold only a fixed event name and technical reference IDs. They never
+          include your name, email address, message text, or card details, and no logging or tracking script runs in
+          your browser.
         </p>
       </LegalSection>
 
       <LegalSection title="Data sharing">
         <p>
-          Your information is not sold or rented. It is shared only with the service providers above, as needed to deliver
-          and handle your inquiry, or if the law requires it.
+          Your information is not sold or rented. It is shared only with the service providers above, as needed to
+          deliver and handle your inquiry, or if the law requires it.
         </p>
       </LegalSection>
 
       <LegalSection title="Security">
         <p>
-          The site is served over HTTPS, form input is validated on the server, and submissions are rate limited. No method
-          of transmission or storage is completely secure, so avoid putting passwords or other sensitive details in the form.
+          The site is served over HTTPS, form input is validated on the server, and submissions are rate limited. No
+          method of transmission or storage is completely secure, so avoid putting passwords or other sensitive details
+          in the form.
         </p>
       </LegalSection>
 
       <LegalSection title="Your choices and contact">
-        <p>You can ask to see, correct, or delete the information you sent, or delete your account yourself from portal Settings.</p>
+        <p>
+          You can ask to see, correct, or delete the information you sent, or delete your account yourself from portal
+          Settings.
+        </p>
         <ContactLine />
       </LegalSection>
 
       <LegalSection title="Policy updates">
         <p>
-          If this policy changes, the &quot;Last updated&quot; date above changes with it. The current version is always the
-          one on this page.
+          If this policy changes, the &quot;Last updated&quot; date above changes with it. The current version is always
+          the one on this page.
         </p>
       </LegalSection>
     </LegalPage>

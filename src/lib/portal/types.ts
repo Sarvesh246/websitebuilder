@@ -1,39 +1,93 @@
 /** Shared portal contracts. Money is always integer cents. Server code returns these DTOs; never raw rows. */
 export const projectStages = [
-  "requested", "accepted", "building", "client_review", "revisions", "awaiting_final_payment", "ready_for_launch", "completed",
+  "requested",
+  "accepted",
+  "building",
+  "client_review",
+  "revisions",
+  "awaiting_final_payment",
+  "ready_for_launch",
+  "completed",
 ] as const;
 export type ProjectStage = (typeof projectStages)[number] | "cancelled";
 
 /** Legacy statuses written by the Stage-5 intake map onto the workflow. */
 export const normalizeStage = (status: string): ProjectStage => {
   const legacy: Record<string, ProjectStage> = {
-    new: "requested", contacted: "requested", awaiting_payment: "accepted", paid: "accepted",
-    in_progress: "building", awaiting_client: "client_review", review: "client_review",
+    new: "requested",
+    contacted: "requested",
+    awaiting_payment: "accepted",
+    paid: "accepted",
+    in_progress: "building",
+    awaiting_client: "client_review",
+    review: "client_review",
   };
   return (legacy[status] ?? status) as ProjectStage;
 };
 
 export const stageLabel: Record<ProjectStage, string> = {
-  requested: "Requested", accepted: "Accepted", building: "Building", client_review: "In review", revisions: "Revisions",
-  awaiting_final_payment: "Final payment", ready_for_launch: "Ready to launch", completed: "Completed", cancelled: "Cancelled",
+  requested: "Requested",
+  accepted: "Accepted",
+  building: "Building",
+  client_review: "In review",
+  revisions: "Revisions",
+  awaiting_final_payment: "Final payment",
+  ready_for_launch: "Ready to launch",
+  completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 /** Coarse progress used when a project has no milestones yet. */
 export const stageProgress: Record<ProjectStage, number> = {
-  requested: 5, accepted: 15, building: 45, client_review: 65, revisions: 78, awaiting_final_payment: 90,
-  ready_for_launch: 96, completed: 100, cancelled: 0,
+  requested: 5,
+  accepted: 15,
+  building: 45,
+  client_review: 65,
+  revisions: 78,
+  awaiting_final_payment: 90,
+  ready_for_launch: 96,
+  completed: 100,
+  cancelled: 0,
 };
 
 export type MilestoneStatus = "pending" | "active" | "done";
-export type Milestone = { id: string; title: string; detail: string | null; position: number; status: MilestoneStatus; dueDate: string | null; completedAt: string | null };
-
-export type PaymentStatus = "pending" | "processing" | "succeeded" | "failed" | "requires_action" | "cancelled" | "refunded" | "partially_refunded";
-export type PaymentRow = {
-  id: string; type: "full" | "deposit" | "final_balance" | "refund"; status: PaymentStatus; amount: number; currency: string;
-  createdAt: string; paidAt: string | null; receiptUrl: string | null;
+export type Milestone = {
+  id: string;
+  title: string;
+  detail: string | null;
+  position: number;
+  status: MilestoneStatus;
+  dueDate: string | null;
+  completedAt: string | null;
 };
 
-export type Money = { total: number | null; deposit: number | null; remaining: number | null; paid: number; currency: string };
+export type PaymentStatus =
+  | "pending"
+  | "processing"
+  | "succeeded"
+  | "failed"
+  | "requires_action"
+  | "cancelled"
+  | "refunded"
+  | "partially_refunded";
+export type PaymentRow = {
+  id: string;
+  type: "full" | "deposit" | "final_balance" | "refund";
+  status: PaymentStatus;
+  amount: number;
+  currency: string;
+  createdAt: string;
+  paidAt: string | null;
+  receiptUrl: string | null;
+};
+
+export type Money = {
+  total: number | null;
+  deposit: number | null;
+  remaining: number | null;
+  paid: number;
+  currency: string;
+};
 
 export type ProjectSummary = {
   id: string;
@@ -73,34 +127,92 @@ export type ProjectDetail = ProjectSummary & {
   refundedAmount: number;
   milestones: Milestone[];
   payments: PaymentRow[];
-  events: { id: string; kind: string; title: string; actorRole: "client" | "admin" | "system" | null; createdAt: string }[];
+  events: {
+    id: string;
+    kind: string;
+    title: string;
+    actorRole: "client" | "admin" | "system" | null;
+    createdAt: string;
+  }[];
 };
 
-export type Message = { id: string; projectId: string; senderRole: "client" | "admin"; body: string; createdAt: string; readAt: string | null; mine: boolean };
+export type Message = {
+  id: string;
+  projectId: string;
+  senderRole: "client" | "admin";
+  body: string;
+  createdAt: string;
+  readAt: string | null;
+  mine: boolean;
+};
 export type ProjectFile = {
-  id: string; projectId: string; name: string; sizeBytes: number; mimeType: string | null; uploaderRole: "client" | "admin"; createdAt: string;
+  id: string;
+  projectId: string;
+  name: string;
+  sizeBytes: number;
+  mimeType: string | null;
+  uploaderRole: "client" | "admin";
+  createdAt: string;
   /** Short-lived signed link for image thumbnails; null for other types or when it could not be made. */
   thumbUrl: string | null;
 };
 export type ProjectNote = { id: string; body: string; createdAt: string };
 
-export type FeedbackItem = { id: string; page: string | null; body: string; fileId: string | null; fileName: string | null; status: "open" | "done"; createdAt: string };
+export type FeedbackItem = {
+  id: string;
+  page: string | null;
+  body: string;
+  fileId: string | null;
+  fileName: string | null;
+  status: "open" | "done";
+  createdAt: string;
+};
 export type FeedbackRound = {
-  id: string; number: number; status: "draft" | "submitted" | "resolved"; extra: boolean;
-  submittedAt: string | null; resolvedAt: string | null; createdAt: string; items: FeedbackItem[];
+  id: string;
+  number: number;
+  status: "draft" | "submitted" | "resolved";
+  extra: boolean;
+  submittedAt: string | null;
+  resolvedAt: string | null;
+  createdAt: string;
+  items: FeedbackItem[];
 };
 
 export type ChecklistStatus = "needed" | "provided" | "skipped";
 export type ChecklistItem = {
-  key: string; label: string; hint: string | null; kind: "upload" | "answer"; options: readonly string[]; optional: boolean; custom: boolean;
-  status: ChecklistStatus; answer: string | null; fileId: string | null; fileName: string | null; updatedAt: string | null;
+  key: string;
+  label: string;
+  hint: string | null;
+  kind: "upload" | "answer";
+  options: readonly string[];
+  optional: boolean;
+  custom: boolean;
+  status: ChecklistStatus;
+  answer: string | null;
+  fileId: string | null;
+  fileName: string | null;
+  updatedAt: string | null;
 };
 
 /** One thing the client needs to do next, with a link straight to where they do it. */
-export type WaitingItem = { key: string; title: string; detail: string; href: string; cta: string; tone: "accent" | "warn" };
+export type WaitingItem = {
+  key: string;
+  title: string;
+  detail: string;
+  href: string;
+  cta: string;
+  tone: "accent" | "warn";
+};
 
 export type AdminOverview = {
-  kpis: { activeProjects: number; newRequests: number; collected: number; outstanding: number; overdue: number; unread: number };
+  kpis: {
+    activeProjects: number;
+    newRequests: number;
+    collected: number;
+    outstanding: number;
+    overdue: number;
+    unread: number;
+  };
   revenueByMonth: { month: string; collected: number }[]; // last 6 months, oldest first, cents
   pipeline: { stage: ProjectStage; count: number }[];
   newRequests: ProjectSummary[];

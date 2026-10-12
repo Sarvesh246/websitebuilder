@@ -197,7 +197,11 @@
   .pane.svc {
     background:
       url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/></svg>"),
-      linear-gradient(150deg, light-dark(rgb(255 255 255 / 0.58), rgb(34 38 45 / 0.6)) 0%, light-dark(rgb(255 255 255 / 0.4), rgb(16 18 22 / 0.56)) 100%);
+      linear-gradient(
+        150deg,
+        light-dark(rgb(255 255 255 / 0.58), rgb(34 38 45 / 0.6)) 0%,
+        light-dark(rgb(255 255 255 / 0.4), rgb(16 18 22 / 0.56)) 100%
+      );
     -webkit-backdrop-filter: blur(26px) saturate(1.25) brightness(1.05);
     backdrop-filter: blur(26px) saturate(1.25) brightness(1.05);
   }
@@ -401,11 +405,21 @@
   }
   .own::before {
     top: 0;
-    background: linear-gradient(to bottom, var(--bg-outer), color-mix(in srgb, var(--bg-outer) 40%, transparent) 45%, transparent);
+    background: linear-gradient(
+      to bottom,
+      var(--bg-outer),
+      color-mix(in srgb, var(--bg-outer) 40%, transparent) 45%,
+      transparent
+    );
   }
   .own::after {
     bottom: 0;
-    background: linear-gradient(to top, var(--bg-outer), color-mix(in srgb, var(--bg-outer) 40%, transparent) 45%, transparent);
+    background: linear-gradient(
+      to top,
+      var(--bg-outer),
+      color-mix(in srgb, var(--bg-outer) 40%, transparent) 45%,
+      transparent
+    );
   }
   .own .plate {
     --plate-fade-top: 2rem;

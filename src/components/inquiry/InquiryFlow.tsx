@@ -53,7 +53,9 @@ const lastEditable = steps.length - 2; // index of the contact step; review is t
 const errorsForStep = (all: FieldErrors, index: number): FieldErrors => {
   const fields = stepFields[steps[index].id as keyof typeof stepFields];
   if (!fields) return {};
-  return Object.fromEntries(Object.entries(all).filter(([key]) => (fields as readonly string[]).includes(key.split(".")[0]))) as FieldErrors;
+  return Object.fromEntries(
+    Object.entries(all).filter(([key]) => (fields as readonly string[]).includes(key.split(".")[0])),
+  ) as FieldErrors;
 };
 
 const noopSubscribe = () => () => {};
@@ -71,20 +73,55 @@ const readDraft = (): Draft | null => {
  * Server render and first client render use defaults (so hydration matches); once mounted the form
  * remounts with any saved draft. A package in the URL always wins over a saved one.
  */
-export const InquiryFlow = ({ initialPackage, account }: { initialPackage: PackageId | null; account: InquiryAccount }) => {
-  const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
-  return <InquiryForm key={mounted ? "client" : "server"} initialPackage={initialPackage} account={account} draft={mounted ? readDraft() : null} live={mounted} />;
+export const InquiryFlow = ({
+  initialPackage,
+  account,
+}: {
+  initialPackage: PackageId | null;
+  account: InquiryAccount;
+}) => {
+  const mounted = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+  return (
+    <InquiryForm
+      key={mounted ? "client" : "server"}
+      initialPackage={initialPackage}
+      account={account}
+      draft={mounted ? readDraft() : null}
+      live={mounted}
+    />
+  );
 };
 
-const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage: PackageId | null; account: InquiryAccount; draft: Draft | null; live: boolean }) => {
+const InquiryForm = ({
+  initialPackage,
+  account,
+  draft,
+  live,
+}: {
+  initialPackage: PackageId | null;
+  account: InquiryAccount;
+  draft: Draft | null;
+  live: boolean;
+}) => {
   const router = useRouter();
   const [values, setValues] = useState<InquiryValues>(() => {
     if (!draft) return { ...emptyValues, package: initialPackage ?? "", email: account?.email ?? "" };
     const saved = parsePackageId(draft.values.package) ?? "";
-    return { ...emptyValues, ...draft.values, package: initialPackage ?? saved, links: draft.values.links?.length ? draft.values.links : [""] };
+    return {
+      ...emptyValues,
+      ...draft.values,
+      package: initialPackage ?? saved,
+      links: draft.values.links?.length ? draft.values.links : [""],
+    };
   });
   const [step, setStep] = useState(() => (draft ? Math.min(Math.max(draft.step, 0), lastEditable + 1) : 0));
-  const [reached, setReached] = useState(() => (draft ? Math.min(Math.max(draft.reached ?? draft.step, draft.step), lastEditable + 1) : 0));
+  const [reached, setReached] = useState(() =>
+    draft ? Math.min(Math.max(draft.reached ?? draft.step, draft.step), lastEditable + 1) : 0,
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>("idle");
   const [failure, setFailure] = useState("");
@@ -105,7 +142,8 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
     const saved = draft?.startedAt;
     // A restored draft means someone already worked through the form; drafts saved before startedAt
     // existed get a start far enough back that the server's fill-time check can't mistake them for a bot.
-    startedAt.current = typeof saved === "number" && saved <= Date.now() ? saved : draft ? Date.now() - 60_000 : Date.now();
+    startedAt.current =
+      typeof saved === "number" && saved <= Date.now() ? saved : draft ? Date.now() - 60_000 : Date.now();
     submissionId.current = draft?.submissionId || newSubmissionId();
   }, [draft]);
 
@@ -210,7 +248,12 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
       const res = await fetch("/api/inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...result.data, hp, elapsed: Date.now() - startedAt.current, submissionId: submissionId.current }),
+        body: JSON.stringify({
+          ...result.data,
+          hp,
+          elapsed: Date.now() - startedAt.current,
+          submissionId: submissionId.current,
+        }),
         signal: controller.signal,
       });
       if (res.ok) {
@@ -245,9 +288,9 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
           ? "You've sent a few requests in a short time. Please wait a few minutes, then try again. Your answers are still here."
           : res.status === 401
             ? "Your session ended. Sign in again to send this request. Your answers are still here."
-          : res.status === 503
-            ? copy.unconfigured
-            : copy.errorBody,
+            : res.status === 503
+              ? copy.unconfigured
+              : copy.errorBody,
       );
       setStatus("error");
     } catch {
@@ -267,7 +310,10 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
   const toggleFeature = (id: string) =>
     set("features", values.features.includes(id) ? values.features.filter((f) => f !== id) : [...values.features, id]);
   const setLink = (i: number, value: string) => {
-    set("links", values.links.map((l, j) => (j === i ? value : l)));
+    set(
+      "links",
+      values.links.map((l, j) => (j === i ? value : l)),
+    );
     setErrors((prev) => {
       const next = { ...prev };
       delete next[`links.${i}`];
@@ -281,7 +327,9 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
       <aside className="inquiry__aside">
         <span className="t-label t-label--rule">Start a project</span>
         <h1 className="t-h2 inquiry__title">Tell me what you&rsquo;re building.</h1>
-        <p className="t-lead inquiry__lead">A few quick questions. No commitment, and you can change any answer before sending.</p>
+        <p className="t-lead inquiry__lead">
+          A few quick questions. No commitment, and you can change any answer before sending.
+        </p>
         <StepProgress current={step} reached={reached} onGo={go} />
         <PackageSummary selected={pkg} />
       </aside>
@@ -397,7 +445,12 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
                           type="button"
                           className="icon-btn links__remove"
                           aria-label={`Remove link ${i + 1}`}
-                          onClick={() => set("links", values.links.filter((_, j) => j !== i))}
+                          onClick={() =>
+                            set(
+                              "links",
+                              values.links.filter((_, j) => j !== i),
+                            )
+                          }
                         >
                           <X aria-hidden size={18} strokeWidth={1.75} />
                         </button>
@@ -406,7 +459,11 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
                   ))}
                 </div>
                 {values.links.length < limits.links && (
-                  <button type="button" className="btn btn-link links__add" onClick={() => set("links", [...values.links, ""])}>
+                  <button
+                    type="button"
+                    className="btn btn-link links__add"
+                    onClick={() => set("links", [...values.links, ""])}
+                  >
                     <Plus aria-hidden size={16} strokeWidth={2} />
                     Add another link
                   </button>
@@ -449,7 +506,8 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
                       <button type="button" className="note__link" onClick={() => set("package", "custom")}>
                         Switch to Custom
                       </button>{" "}
-                      or keep {packageChoices.find((c) => c.id === pkg)?.name ?? "this package"} and I&rsquo;ll follow up.
+                      or keep {packageChoices.find((c) => c.id === pkg)?.name ?? "this package"} and I&rsquo;ll follow
+                      up.
                     </p>
                   </div>
                 )}
@@ -491,7 +549,14 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
 
           {step === 3 && (
             <div className="flow__body">
-              <TextField label="Name" name="name" autoComplete="name" value={values.name} onValueChange={(v) => set("name", v)} error={errors.name} />
+              <TextField
+                label="Name"
+                name="name"
+                autoComplete="name"
+                value={values.name}
+                onValueChange={(v) => set("name", v)}
+                error={errors.name}
+              />
               <TextField
                 label="Email"
                 type="email"
@@ -528,7 +593,16 @@ const InquiryForm = ({ initialPackage, account, draft, live }: { initialPackage:
               <div aria-hidden className="hp">
                 <label>
                   Leave this field empty
-                  <input type="text" name="nf_hp_field" tabIndex={-1} autoComplete="off" data-1p-ignore data-lpignore="true" value={hp} onChange={(e) => setHp(e.target.value)} />
+                  <input
+                    type="text"
+                    name="nf_hp_field"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    value={hp}
+                    onChange={(e) => setHp(e.target.value)}
+                  />
                 </label>
               </div>
             </div>
@@ -598,8 +672,8 @@ const AccountGate = ({ next }: { next: string }) => {
     <div className="flow__gate" role="note">
       <h3 className="t-h4">Create a free account to send this</h3>
       <p>
-        Your account is your project portal: progress, messages, files, and payments in one place. Your answers are saved and will
-        be here when you come back.
+        Your account is your project portal: progress, messages, files, and payments in one place. Your answers are
+        saved and will be here when you come back.
       </p>
       <div className="flow__gate-actions">
         <Button href={`/signup?next=${q}`} icon="right">

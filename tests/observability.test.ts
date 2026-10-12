@@ -33,7 +33,12 @@ describe("serverLog", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     initServerLogs("phc_testkey", host);
 
-    serverLog("error", "payments.final_charge_error", { project: "11111111-1111-4111-8111-111111111111" }, "jane@example.com SECRET-DETAIL");
+    serverLog(
+      "error",
+      "payments.final_charge_error",
+      { project: "11111111-1111-4111-8111-111111111111" },
+      "jane@example.com SECRET-DETAIL",
+    );
     await vi.waitFor(() => expect(hits.length).toBeGreaterThan(0), { timeout: 5000 });
 
     const hit = hits[0];

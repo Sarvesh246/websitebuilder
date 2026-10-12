@@ -17,7 +17,10 @@ export const initServerLogs = (key: string, host: string) => {
     timeoutMillis: 3000,
   });
   const provider = new LoggerProvider({
-    resource: resourceFromAttributes({ "service.name": "northframe", "deployment.environment": process.env.VERCEL_ENV ?? "local" }),
+    resource: resourceFromAttributes({
+      "service.name": "northframe",
+      "deployment.environment": process.env.VERCEL_ENV ?? "local",
+    }),
     processors: [new SimpleLogRecordProcessor({ exporter })],
   });
   logs.setGlobalLoggerProvider(provider);

@@ -1,12 +1,31 @@
 /** Pure client-workflow rules (no I/O, unit tested): intake checklist, feedback eligibility, "waiting on you", invoices. */
 import { CUSTOM_INTAKE_PREFIX, intakeTemplates } from "@/config/intake";
 import { formatUsd } from "@/lib/money";
-import type { ChecklistItem, ChecklistStatus, FeedbackRound, PaymentRow, ProjectDetail, ProjectSummary, WaitingItem } from "./types";
+import type {
+  ChecklistItem,
+  ChecklistStatus,
+  FeedbackRound,
+  PaymentRow,
+  ProjectDetail,
+  ProjectSummary,
+  WaitingItem,
+} from "./types";
 
-export type ChecklistRow = { key: string; label: string | null; status: ChecklistStatus; answer: string | null; file_id: string | null; updated_at: string };
+export type ChecklistRow = {
+  key: string;
+  label: string | null;
+  status: ChecklistStatus;
+  answer: string | null;
+  file_id: string | null;
+  updated_at: string;
+};
 
 /** The package template merged with what has been done so far, then any custom items the studio added. */
-export const mergeChecklist = (pkg: ProjectSummary["package"], rows: ChecklistRow[], fileNames: Map<string, string>): ChecklistItem[] => {
+export const mergeChecklist = (
+  pkg: ProjectSummary["package"],
+  rows: ChecklistRow[],
+  fileNames: Map<string, string>,
+): ChecklistItem[] => {
   const byKey = new Map(rows.map((r) => [r.key, r]));
   const state = (key: string) => {
     const r = byKey.get(key);
@@ -19,16 +38,33 @@ export const mergeChecklist = (pkg: ProjectSummary["package"], rows: ChecklistRo
     };
   };
   const fromTemplate: ChecklistItem[] = intakeTemplates[pkg].map((t) => ({
-    key: t.key, label: t.label, hint: t.hint, kind: t.kind, options: t.options ?? [], optional: Boolean(t.optional), custom: false, ...state(t.key),
+    key: t.key,
+    label: t.label,
+    hint: t.hint,
+    kind: t.kind,
+    options: t.options ?? [],
+    optional: Boolean(t.optional),
+    custom: false,
+    ...state(t.key),
   }));
   const custom: ChecklistItem[] = rows
     .filter((r) => r.key.startsWith(CUSTOM_INTAKE_PREFIX))
     .sort((a, b) => a.updated_at.localeCompare(b.updated_at))
-    .map((r) => ({ key: r.key, label: r.label ?? "Requested item", hint: null, kind: "upload", options: [], optional: false, custom: true, ...state(r.key) }));
+    .map((r) => ({
+      key: r.key,
+      label: r.label ?? "Requested item",
+      hint: null,
+      kind: "upload",
+      options: [],
+      optional: false,
+      custom: true,
+      ...state(r.key),
+    }));
   return [...fromTemplate, ...custom];
 };
 
-export const checklistOutstanding = (items: ChecklistItem[]) => items.filter((i) => i.status === "needed" && !i.optional);
+export const checklistOutstanding = (items: ChecklistItem[]) =>
+  items.filter((i) => i.status === "needed" && !i.optional);
 
 /** Feedback is open while a preview is up for review and the client has not signed off. */
 export const canGiveFeedback = (p: Pick<ProjectDetail, "stage" | "previewUrl" | "approvedAt">) =>
@@ -43,13 +79,18 @@ export const balanceDue = (p: ProjectDetail) =>
   (p.money.remaining ?? 0) > 0 &&
   p.finalPayment !== "paid" &&
   p.stage !== "cancelled" &&
-  (p.finalPayment === "failed" || p.finalPayment === "requires_action" || (p.stage === "awaiting_final_payment" && p.finalPayment !== "processing"));
+  (p.finalPayment === "failed" ||
+    p.finalPayment === "requires_action" ||
+    (p.stage === "awaiting_final_payment" && p.finalPayment !== "processing"));
 
 const EARLY_STAGES = new Set(["requested", "accepted", "building"]);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 /** Everything the client owes the studio right now, most urgent first. Empty means "all caught up". */
-export const waitingOn = (p: ProjectDetail, input: { checklist: ChecklistItem[]; rounds: FeedbackRound[] }): WaitingItem[] => {
+export const waitingOn = (
+  p: ProjectDetail,
+  input: { checklist: ChecklistItem[]; rounds: FeedbackRound[] },
+): WaitingItem[] => {
   if (p.stage === "cancelled" || p.stage === "completed") return [];
   const base = `/portal/projects/${p.id}`;
   const out: WaitingItem[] = [];
@@ -59,8 +100,14 @@ export const waitingOn = (p: ProjectDetail, input: { checklist: ChecklistItem[];
     const failed = p.initialPayment === "failed";
     out.push({
       key: "initial-payment",
-      title: failed ? "Your payment did not go through" : full ? "Make your payment to start" : "Pay the deposit to start",
-      detail: failed ? "Nothing was charged. Try again with the same or another card." : "Work begins once this payment is in.",
+      title: failed
+        ? "Your payment did not go through"
+        : full
+          ? "Make your payment to start"
+          : "Pay the deposit to start",
+      detail: failed
+        ? "Nothing was charged. Try again with the same or another card."
+        : "Work begins once this payment is in.",
       href: `${base}/checkout`,
       cta: `Pay ${formatUsd(p.money.deposit)}`,
       tone: failed ? "warn" : "accent",
@@ -72,7 +119,9 @@ export const waitingOn = (p: ProjectDetail, input: { checklist: ChecklistItem[];
     out.push({
       key: "final-payment",
       title: failed ? "The final payment needs your attention" : "Pay the remaining balance",
-      detail: failed ? "The saved card was not charged. Pay securely from the Payments tab." : "Your site launches once the balance is paid.",
+      detail: failed
+        ? "The saved card was not charged. Pay securely from the Payments tab."
+        : "Your site launches once the balance is paid.",
       href: `${base}/payments`,
       cta: `Pay ${formatUsd(p.money.remaining)}`,
       tone: failed ? "warn" : "accent",
@@ -138,4 +187,5 @@ export const invoiceNumber = (pay: Pick<PaymentRow, "id" | "createdAt" | "paidAt
 
 /** Only money that actually arrived gets an invoice. */
 export const isInvoiceable = (pay: Pick<PaymentRow, "type" | "status">) =>
-  pay.type !== "refund" && (pay.status === "succeeded" || pay.status === "refunded" || pay.status === "partially_refunded");
+  pay.type !== "refund" &&
+  (pay.status === "succeeded" || pay.status === "refunded" || pay.status === "partially_refunded");

@@ -1,6 +1,20 @@
 import {
-  BadgeCheck, CalendarClock, Circle, CircleCheck, CreditCard, Flag, Globe, ListChecks, MessageSquareText, Paperclip, RotateCcw,
-  Sparkles, TriangleAlert, Undo2, UserRound, type LucideIcon,
+  BadgeCheck,
+  CalendarClock,
+  Circle,
+  CircleCheck,
+  CreditCard,
+  Flag,
+  Globe,
+  ListChecks,
+  MessageSquareText,
+  Paperclip,
+  RotateCcw,
+  Sparkles,
+  TriangleAlert,
+  Undo2,
+  UserRound,
+  type LucideIcon,
 } from "lucide-react";
 import { formatUsd } from "@/lib/money";
 import { clockTime, dayKey as calendarDayKey, relativeDay, shortDate } from "@/lib/portal/format";
@@ -44,10 +58,19 @@ export const MoneySummary = ({ p }: { p: ProjectDetail }) => {
 
 /** Studio-only payment controls. The parent page must only render this for a verified admin perspective. */
 export const AdminPaymentTools = ({ p }: { p: ProjectDetail }) => {
-  const eligible = p.initialPayment === "paid" && p.finalPayment !== "paid" && p.finalPayment !== "not_required" && (p.money.remaining ?? 0) > 0 && p.stage !== "cancelled";
+  const eligible =
+    p.initialPayment === "paid" &&
+    p.finalPayment !== "paid" &&
+    p.finalPayment !== "not_required" &&
+    (p.money.remaining ?? 0) > 0 &&
+    p.stage !== "cancelled";
   const refundable = p.payments
     .filter((x) => x.type !== "refund" && (x.status === "succeeded" || x.status === "partially_refunded"))
-    .map((x) => ({ id: x.id, label: `${paymentTypeLabel[x.type]} ${formatUsd(x.amount)} (${shortDate(x.paidAt ?? x.createdAt)})`, amountCents: x.amount }));
+    .map((x) => ({
+      id: x.id,
+      label: `${paymentTypeLabel[x.type]} ${formatUsd(x.amount)} (${shortDate(x.paidAt ?? x.createdAt)})`,
+      amountCents: x.amount,
+    }));
   return (
     <div className="pt-stack">
       <div className="pt-stack">
@@ -77,7 +100,19 @@ export const Requirements = ({ p, admin }: { p: ProjectDetail; admin: boolean })
       )}
       <div>
         <dt>Features</dt>
-        <dd>{p.features.length ? <span className="pt-tags">{p.features.map((f) => <span key={f} className="pt-chip">{f}</span>)}</span> : "None listed"}</dd>
+        <dd>
+          {p.features.length ? (
+            <span className="pt-tags">
+              {p.features.map((f) => (
+                <span key={f} className="pt-chip">
+                  {f}
+                </span>
+              ))}
+            </span>
+          ) : (
+            "None listed"
+          )}
+        </dd>
       </div>
       {p.existingWebsite && (
         <div>
@@ -142,14 +177,38 @@ export const Requirements = ({ p, admin }: { p: ProjectDetail; admin: boolean })
 );
 
 const eventIcon: Record<string, LucideIcon> = {
-  payment_received: CreditCard, final_payment_received: CreditCard, payment: CreditCard, payment_failed: TriangleAlert,
-  final_payment_failed: TriangleAlert, refund: Undo2, dispute: TriangleAlert, stage: Flag, milestone: CircleCheck,
-  file: Paperclip, preview: Globe, approval: BadgeCheck, feedback: MessageSquareText, checklist: ListChecks,
-  revision: RotateCcw, deadline: CalendarClock, account: UserRound, request: Sparkles,
+  payment_received: CreditCard,
+  final_payment_received: CreditCard,
+  payment: CreditCard,
+  payment_failed: TriangleAlert,
+  final_payment_failed: TriangleAlert,
+  refund: Undo2,
+  dispute: TriangleAlert,
+  stage: Flag,
+  milestone: CircleCheck,
+  file: Paperclip,
+  preview: Globe,
+  approval: BadgeCheck,
+  feedback: MessageSquareText,
+  checklist: ListChecks,
+  revision: RotateCcw,
+  deadline: CalendarClock,
+  account: UserRound,
+  request: Sparkles,
 };
 
 const actorText = (role: ProjectDetail["events"][number]["actorRole"], admin: boolean) =>
-  role === "system" ? "Automatic" : role === "admin" ? (admin ? "You" : "Studio") : role === "client" ? (admin ? "Client" : "You") : null;
+  role === "system"
+    ? "Automatic"
+    : role === "admin"
+      ? admin
+        ? "You"
+        : "Studio"
+      : role === "client"
+        ? admin
+          ? "Client"
+          : "You"
+        : null;
 
 const dayKey = (iso: string) => calendarDayKey(new Date(iso));
 const dayLabel = (iso: string) => {
@@ -202,7 +261,9 @@ const RECENT = 6;
 export const ActivityList = ({ events, admin = false }: { events: ProjectDetail["events"]; admin?: boolean }) => (
   <Card title="Activity" note="Everything that has happened on this project">
     {events.length === 0 ? (
-      <p className="pt-small">Payments, files, feedback and stage changes are recorded here as they happen, starting with your request.</p>
+      <p className="pt-small">
+        Payments, files, feedback and stage changes are recorded here as they happen, starting with your request.
+      </p>
     ) : (
       <div className="pt-history">
         <EventGroups events={events.slice(0, RECENT)} admin={admin} />

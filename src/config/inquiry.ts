@@ -120,10 +120,8 @@ export const copy = {
   quoteNote: "This may require a custom quote depending on scope.",
   consent: "By submitting, you're asking Northframe to contact you about this project.",
   successTitle: "Project request received.",
-  successBody:
-    "Thanks for reaching out. I'll review the details and follow up using the email you provided.",
-  errorBody:
-    "Something went wrong while sending your request. Your answers are still here, so you can try again.",
+  successBody: "Thanks for reaching out. I'll review the details and follow up using the email you provided.",
+  errorBody: "Something went wrong while sending your request. Your answers are still here, so you can try again.",
   unconfigured:
     "Project requests can't be delivered right now. Your answers are still here, so you can try again later.",
 } as const;

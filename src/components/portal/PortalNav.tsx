@@ -15,7 +15,8 @@ const items: Item[] = [
   { href: "/portal/settings", label: "Settings", icon: Settings },
 ];
 
-const isActive = (pathname: string, href: string) => (href === "/portal" ? pathname === "/portal" : pathname === href || pathname.startsWith(`${href}/`));
+const isActive = (pathname: string, href: string) =>
+  href === "/portal" ? pathname === "/portal" : pathname === href || pathname.startsWith(`${href}/`);
 
 export const PortalNav = ({ variant, unreadMessages }: { variant: "side" | "tabs"; unreadMessages: number }) => {
   const pathname = usePathname();
@@ -23,7 +24,12 @@ export const PortalNav = ({ variant, unreadMessages }: { variant: "side" | "tabs
   const links = items.map(({ href, label: text, icon: Icon, badgeKey }) => {
     const badge = badgeKey === "messages" && unreadMessages > 0 ? unreadMessages : 0;
     return (
-      <Link key={href} href={href} className={variant === "side" ? "pt-nav__link" : "pt-tab"} aria-current={isActive(pathname, href) ? "page" : undefined}>
+      <Link
+        key={href}
+        href={href}
+        className={variant === "side" ? "pt-nav__link" : "pt-tab"}
+        aria-current={isActive(pathname, href) ? "page" : undefined}
+      >
         <Icon aria-hidden size={variant === "side" ? 19 : 22} strokeWidth={1.75} />
         <span>{text}</span>
         {badge > 0 && (

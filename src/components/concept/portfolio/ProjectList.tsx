@@ -54,7 +54,13 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
       <ol className="pf-list">
         {projects.map((p, i) => (
           <li key={p.n} className="pf-row" data-active={active === i || undefined}>
-            <button type="button" aria-haspopup="dialog" onClick={() => { setSelected(p); setActive(null); }}
+            <button
+              type="button"
+              aria-haspopup="dialog"
+              onClick={() => {
+                setSelected(p);
+                setActive(null);
+              }}
               className="pf-row__link"
               onPointerEnter={(e) => enter(i, e)}
               onFocus={() => setActive(i)}
@@ -75,7 +81,12 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
           </li>
         ))}
       </ol>
-      <m.div className="pf-preview" style={{ x: reduce ? x : springX, y: reduce ? y : springY }} aria-hidden data-on={active !== null || undefined}>
+      <m.div
+        className="pf-preview"
+        style={{ x: reduce ? x : springX, y: reduce ? y : springY }}
+        aria-hidden
+        data-on={active !== null || undefined}
+      >
         <div className="pf-preview__frame">
           {projects.map((p, i) => (
             <Image
@@ -90,7 +101,9 @@ export const ProjectList = ({ projects }: { projects: Project[] }) => {
           ))}
         </div>
       </m.div>
-      <AnimatePresence>{selected && <ProjectDetails project={selected} onClose={() => setSelected(null)} />}</AnimatePresence>
+      <AnimatePresence>
+        {selected && <ProjectDetails project={selected} onClose={() => setSelected(null)} />}
+      </AnimatePresence>
     </div>
   );
 };
@@ -102,15 +115,40 @@ const ProjectDetails = ({ project, onClose }: { project: Project; onClose: () =>
     const element = dialog.current;
     const previous = document.activeElement as HTMLElement | null;
     element?.showModal();
-    return () => { element?.close(); if (previous?.isConnected) previous.focus(); };
+    return () => {
+      element?.close();
+      if (previous?.isConnected) previous.focus();
+    };
   }, []);
-  return <m.dialog ref={dialog} className="pf-project-dialog" aria-label={project.title}
-    initial={{ y: 12, scale: .98, opacity: 0 }} animate={{ y: 0, scale: 1, opacity: 1 }} exit={{ y: 6, scale: .99, opacity: 0 }}
-    transition={{ ...spring, opacity: { duration: .15 } }} onCancel={event => { event.preventDefault(); onClose(); }}>
-    <button type="button" className="pf-btn pf-btn--ghost" onClick={onClose}>Close project</button>
-    <h2 className="pf-h2">{project.title}</h2>
-    <p>{project.kind} · {project.year}</p>
-    <Image src={project.img} alt={project.alt} width={project.w} height={project.h} sizes="(max-width: 760px) 90vw, 720px" />
-    <p>{project.blurb}</p>
-  </m.dialog>;
+  return (
+    <m.dialog
+      ref={dialog}
+      className="pf-project-dialog"
+      aria-label={project.title}
+      initial={{ y: 12, scale: 0.98, opacity: 0 }}
+      animate={{ y: 0, scale: 1, opacity: 1 }}
+      exit={{ y: 6, scale: 0.99, opacity: 0 }}
+      transition={{ ...spring, opacity: { duration: 0.15 } }}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+    >
+      <button type="button" className="pf-btn pf-btn--ghost" onClick={onClose}>
+        Close project
+      </button>
+      <h2 className="pf-h2">{project.title}</h2>
+      <p>
+        {project.kind} · {project.year}
+      </p>
+      <Image
+        src={project.img}
+        alt={project.alt}
+        width={project.w}
+        height={project.h}
+        sizes="(max-width: 760px) 90vw, 720px"
+      />
+      <p>{project.blurb}</p>
+    </m.dialog>
+  );
 };

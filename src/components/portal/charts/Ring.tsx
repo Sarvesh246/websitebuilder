@@ -25,7 +25,12 @@ export const Ring = ({ value, size = 200, stroke = 14, label = "Project progress
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <div className={cn("pt-ring", className)} style={{ width: size, height: size }} role="img" aria-label={`${label}: ${pct} percent`}>
+    <div
+      className={cn("pt-ring", className)}
+      style={{ width: size, height: size }}
+      role="img"
+      aria-label={`${label}: ${pct} percent`}
+    >
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} aria-hidden>
         <circle className="pt-ring__track" cx={size / 2} cy={size / 2} r={r} strokeWidth={stroke} fill="none" />
         <circle

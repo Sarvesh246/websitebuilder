@@ -14,7 +14,9 @@ export const MessageComposer = ({ projectId, disabledReason }: { projectId: stri
   const submit = () => {
     const text = body.trim();
     if (!text || disabled || pending) return;
-    run(() => sendMessage(projectId, text), { onOk: () => setBody((current) => current.trim() === text ? "" : current) });
+    run(() => sendMessage(projectId, text), {
+      onOk: () => setBody((current) => (current.trim() === text ? "" : current)),
+    });
   };
 
   return (
@@ -48,7 +50,12 @@ export const MessageComposer = ({ projectId, disabledReason }: { projectId: stri
         <span className="pt-small" role={error ? "alert" : undefined}>
           {error ?? disabledReason ?? "Ctrl or Cmd + Enter to send"}
         </span>
-        <button type="submit" className="btn btn-primary btn-sm" disabled={pending || disabled || !body.trim()} aria-busy={pending}>
+        <button
+          type="submit"
+          className="btn btn-primary btn-sm"
+          disabled={pending || disabled || !body.trim()}
+          aria-busy={pending}
+        >
           {pending ? "Sending" : "Send"}
           <Send aria-hidden size={15} strokeWidth={1.9} />
         </button>

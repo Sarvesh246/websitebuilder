@@ -76,7 +76,9 @@
     color: #fff;
     text-decoration: none;
     background: #111;
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.15) inset, 0 18px 40px -22px rgb(0 0 0 / 0.55);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.15) inset,
+      0 18px 40px -22px rgb(0 0 0 / 0.55);
     transition:
       transform var(--dur-med) var(--ease-standard),
       box-shadow var(--dur-med) var(--ease-standard);
@@ -108,7 +110,11 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(24rem 24rem at var(--mx) var(--my), color-mix(in oklab, var(--glow) 55%, transparent), transparent 62%);
+    background: radial-gradient(
+      24rem 24rem at var(--mx) var(--my),
+      color-mix(in oklab, var(--glow) 55%, transparent),
+      transparent 62%
+    );
     mix-blend-mode: screen;
     opacity: 0;
     transition: opacity var(--dur-med) var(--ease-standard);
@@ -271,7 +277,11 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(60% 60% at 50% 50%, color-mix(in oklab, var(--glow) 40%, transparent), rgb(5 6 8 / 0.55));
+    background: radial-gradient(
+      60% 60% at 50% 50%,
+      color-mix(in oklab, var(--glow) 40%, transparent),
+      rgb(5 6 8 / 0.55)
+    );
     opacity: 0;
     animation: cc-tint 220ms var(--ease-standard) forwards;
   }

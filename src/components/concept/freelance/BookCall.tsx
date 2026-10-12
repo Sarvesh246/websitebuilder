@@ -55,7 +55,12 @@ export const BookCall = () => {
             </div>
           </fieldset>
           <div className="fl-book__foot">
-            <button type="button" className="fl-pill fl-pill--ink" disabled={!day || !time} onClick={() => setBooked(true)}>
+            <button
+              type="button"
+              className="fl-pill fl-pill--ink"
+              disabled={!day || !time}
+              onClick={() => setBooked(true)}
+            >
               Book the call
             </button>
             <p className="fl-book__status" aria-live="polite">

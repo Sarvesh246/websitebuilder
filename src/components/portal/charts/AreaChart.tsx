@@ -31,7 +31,9 @@ export const AreaChart = ({ data, title }: AreaChartProps) => {
   const y = (v: number) => PAD.t + ih - ((v - min) / (max - min)) * ih;
   const pts = data.map((d, i) => [x(i), y(d.value)] as const);
   const line = pts.map(([px, py], i) => `${i ? "L" : "M"}${px.toFixed(1)} ${py.toFixed(1)}`).join(" ");
-  const area = pts.length ? `${line} L${pts[pts.length - 1][0].toFixed(1)} ${y(0)} L${pts[0][0].toFixed(1)} ${y(0)} Z` : "";
+  const area = pts.length
+    ? `${line} L${pts[pts.length - 1][0].toFixed(1)} ${y(0)} L${pts[0][0].toFixed(1)} ${y(0)} Z`
+    : "";
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => min + f * (max - min));
 
   return (
@@ -64,23 +66,23 @@ export const AreaChart = ({ data, title }: AreaChartProps) => {
       </svg>
       {/* sr-only on the wrapper: on a <table> itself it does not clip the <caption>, which then shows under the chart. */}
       <div className="sr-only">
-      <table>
-        <caption>{title}</caption>
-        <thead>
-          <tr>
-            <th scope="col">Month</th>
-            <th scope="col">Collected</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((d) => (
-            <tr key={d.label}>
-              <th scope="row">{d.label}</th>
-              <td>{formatUsd(d.value)}</td>
+        <table>
+          <caption>{title}</caption>
+          <thead>
+            <tr>
+              <th scope="col">Month</th>
+              <th scope="col">Collected</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((d) => (
+              <tr key={d.label}>
+                <th scope="row">{d.label}</th>
+                <td>{formatUsd(d.value)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </figure>
   );

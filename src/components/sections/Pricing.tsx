@@ -30,7 +30,11 @@ export const Pricing = () => (
           align="center"
           titleId="pricing-title"
           eyebrow="Pricing"
-          title={<>Simple packages. No <span className="whitespace-nowrap">agency-sized</span> price tag.</>}
+          title={
+            <>
+              Simple packages. No <span className="whitespace-nowrap">agency-sized</span> price tag.
+            </>
+          }
           lead="Fixed one-time prices, listed up front. Pick the size of site you need. Accounts, databases, and payments are Custom."
         />
         <p className="pricing__founding">

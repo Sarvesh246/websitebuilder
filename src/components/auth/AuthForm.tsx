@@ -12,16 +12,32 @@ import { createClient } from "@/utils/supabase/client";
 type Mode = "login" | "signup";
 
 const copy = {
-  login: { title: "Welcome back.", lead: "Sign in to follow your project, message me, and manage payments.", submit: "Sign in", alt: "New here?", altLink: "Create an account", altHref: "/signup" },
-  signup: { title: "Create your account.", lead: "Your account is your project portal: progress, messages, files, and payments in one place.", submit: "Create account", alt: "Already have an account?", altLink: "Sign in", altHref: "/login" },
+  login: {
+    title: "Welcome back.",
+    lead: "Sign in to follow your project, message me, and manage payments.",
+    submit: "Sign in",
+    alt: "New here?",
+    altLink: "Create an account",
+    altHref: "/signup",
+  },
+  signup: {
+    title: "Create your account.",
+    lead: "Your account is your project portal: progress, messages, files, and payments in one place.",
+    submit: "Create account",
+    alt: "Already have an account?",
+    altLink: "Sign in",
+    altHref: "/login",
+  },
 } as const;
 
 /** Friendly messages only: raw provider errors are never shown. */
 const friendly = (message: string) => {
   const m = message.toLowerCase();
   if (m.includes("invalid login")) return "That email and password don't match.";
-  if (m.includes("email not confirmed")) return "Open the confirmation link in your email before signing in. Check your spam folder too.";
-  if (m.includes("already registered") || m.includes("already been registered")) return "An account with this email already exists. Try signing in.";
+  if (m.includes("email not confirmed"))
+    return "Open the confirmation link in your email before signing in. Check your spam folder too.";
+  if (m.includes("already registered") || m.includes("already been registered"))
+    return "An account with this email already exists. Try signing in.";
   if (m.includes("password") && m.includes("characters")) return "Use a password of at least 8 characters.";
   if (m.includes("rate") || m.includes("too many")) return "Too many attempts. Please wait a minute and try again.";
   return "Something went wrong. Please try again.";
@@ -93,7 +109,10 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
     setError("");
     setInvalid(null);
     try {
-      const { error: err } = await createClient().auth.signInWithOAuth({ provider: "google", options: { redirectTo: callback() } });
+      const { error: err } = await createClient().auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: callback() },
+      });
       if (err) throw err;
     } catch {
       inFlight.current = false;
@@ -107,8 +126,8 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
       <GlassSurface variant="elevated" className="auth__panel">
         <h1 className="t-h3">Check your email.</h1>
         <p className="t-body">
-          I sent a confirmation link to <strong>{email}</strong>. Open it to finish creating your account, then you will land right
-          back where you left off.
+          I sent a confirmation link to <strong>{email}</strong>. Open it to finish creating your account, then you will
+          land right back where you left off.
         </p>
       </GlassSurface>
     );
@@ -120,7 +139,10 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
       <p className="t-body auth__lead">{c.lead}</p>
       <button type="button" disabled={busy} className="btn btn-secondary btn-block" onClick={google}>
         <svg aria-hidden width="18" height="18" viewBox="0 0 24 24">
-          <path fill="currentColor" d="M21.35 11.1H12v2.98h5.35c-.23 1.4-1.66 4.1-5.35 4.1a5.98 5.98 0 0 1 0-11.96c1.9 0 3.17.8 3.9 1.5l2.66-2.56C17.5 3.5 15 2.4 12 2.4a9.6 9.6 0 1 0 0 19.2c5.54 0 9.2-3.9 9.2-9.38 0-.63-.07-1.1-.15-1.12Z" />
+          <path
+            fill="currentColor"
+            d="M21.35 11.1H12v2.98h5.35c-.23 1.4-1.66 4.1-5.35 4.1a5.98 5.98 0 0 1 0-11.96c1.9 0 3.17.8 3.9 1.5l2.66-2.56C17.5 3.5 15 2.4 12 2.4a9.6 9.6 0 1 0 0 19.2c5.54 0 9.2-3.9 9.2-9.38 0-.63-.07-1.1-.15-1.12Z"
+          />
         </svg>
         Continue with Google
       </button>
@@ -128,8 +150,29 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
         <span>or</span>
       </p>
       <form onSubmit={submit} noValidate className="auth__form">
-        {mode === "signup" && <TextField disabled={busy} label="Full name" name="name" maxLength={100} autoComplete="name" value={name} onValueChange={setName} />}
-        <TextField disabled={busy} label="Email" name="email" type="email" maxLength={254} inputMode="email" autoComplete="email" value={email} error={invalid === "email" ? error : undefined} onValueChange={setEmail} />
+        {mode === "signup" && (
+          <TextField
+            disabled={busy}
+            label="Full name"
+            name="name"
+            maxLength={100}
+            autoComplete="name"
+            value={name}
+            onValueChange={setName}
+          />
+        )}
+        <TextField
+          disabled={busy}
+          label="Email"
+          name="email"
+          type="email"
+          maxLength={254}
+          inputMode="email"
+          autoComplete="email"
+          value={email}
+          error={invalid === "email" ? error : undefined}
+          onValueChange={setEmail}
+        />
         <TextField
           label="Password"
           name="password"
@@ -152,7 +195,19 @@ export const AuthForm = ({ mode, next, notice }: { mode: Mode; next?: string; no
           {c.submit}
         </button>
       </form>
-      {mode === "signup" && <p className="t-small">Review our <Link href="/terms" className="auth__link">Terms</Link> and <Link href="/privacy" className="auth__link">Privacy Policy</Link> before creating your account.</p>}
+      {mode === "signup" && (
+        <p className="t-small">
+          Review our{" "}
+          <Link href="/terms" className="auth__link">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="auth__link">
+            Privacy Policy
+          </Link>{" "}
+          before creating your account.
+        </p>
+      )}
       <p className="auth__alt">
         {c.alt}{" "}
         <Link href={`${c.altHref}${next ? `?next=${encodeURIComponent(next)}` : ""}`} className="auth__link">

@@ -139,7 +139,9 @@
   border: 2px solid var(--fl-ink);
   font-weight: 700;
   white-space: nowrap;
-  transition: transform 0.35s var(--fl-spring), box-shadow 0.2s ease;
+  transition:
+    transform 0.35s var(--fl-spring),
+    box-shadow 0.2s ease;
 }
 
 .cx-freelance .fl-pill--ink {
@@ -723,7 +725,9 @@
   background: var(--fl-bg);
   border: 2px solid var(--fl-ink);
   font-weight: 600;
-  transition: transform 0.35s var(--fl-spring), background-color 0.15s ease;
+  transition:
+    transform 0.35s var(--fl-spring),
+    background-color 0.15s ease;
 }
 
 .cx-freelance .fl-chip:hover {

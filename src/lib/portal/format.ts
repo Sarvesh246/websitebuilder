@@ -8,7 +8,12 @@ const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
  */
 export const DISPLAY_TZ = "America/Chicago";
 
-const dayKeyFormat = new Intl.DateTimeFormat("en-CA", { timeZone: DISPLAY_TZ, year: "numeric", month: "2-digit", day: "2-digit" });
+const dayKeyFormat = new Intl.DateTimeFormat("en-CA", {
+  timeZone: DISPLAY_TZ,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
 
 /** Calendar day as a UTC-midnight timestamp. Date-only strings are days already; timestamps use DISPLAY_TZ. */
 const calendarDay = (value: string | Date): number => {
@@ -44,11 +49,17 @@ export const shortDate = (iso: string | null | undefined): string => {
   if (Number.isNaN(day)) return "";
   const d = new Date(day);
   const sameYear = d.getUTCFullYear() === new Date(calendarDay(new Date())).getUTCFullYear();
-  return d.toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", ...(sameYear ? {} : { year: "numeric" }) });
+  return d.toLocaleDateString("en-US", {
+    timeZone: "UTC",
+    month: "short",
+    day: "numeric",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
 };
 
 /** "3:05 PM". */
-export const clockTime = (iso: string): string => new Date(iso).toLocaleTimeString("en-US", { timeZone: DISPLAY_TZ, hour: "numeric", minute: "2-digit" });
+export const clockTime = (iso: string): string =>
+  new Date(iso).toLocaleTimeString("en-US", { timeZone: DISPLAY_TZ, hour: "numeric", minute: "2-digit" });
 
 export const timeAgo = (iso: string | null | undefined): string => {
   if (!iso) return "";

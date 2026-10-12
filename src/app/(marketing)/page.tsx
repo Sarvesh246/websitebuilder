@@ -19,10 +19,7 @@ const jsonLd = graph(organizationNode, founderNode, websiteNode, serviceNode);
 export default function Home() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }} />
       <Hero />
       <Why />
       <Services />

@@ -8,7 +8,12 @@ import { useAction } from "./useAction";
 export const ExitPreviewButton = () => {
   const { pending, run } = useAction();
   return (
-    <button type="button" className="btn btn-secondary btn-sm" disabled={pending} onClick={() => run(() => setViewAs(false))}>
+    <button
+      type="button"
+      className="btn btn-secondary btn-sm"
+      disabled={pending}
+      onClick={() => run(() => setViewAs(false))}
+    >
       Exit preview
     </button>
   );
@@ -51,10 +56,22 @@ export const NameForm = ({ initial, disabled }: { initial: string; disabled?: bo
     >
       <div className="pt-field">
         <label htmlFor="pt-fullname">Full name</label>
-        <input id="pt-fullname" className="pt-input" disabled={disabled || pending} value={name} maxLength={100} autoComplete="name" onChange={(e) => setName(e.target.value)} />
+        <input
+          id="pt-fullname"
+          className="pt-input"
+          disabled={disabled || pending}
+          value={name}
+          maxLength={100}
+          autoComplete="name"
+          onChange={(e) => setName(e.target.value)}
+        />
       </div>
       <div className="pt-form-row">
-        <button type="submit" className="btn btn-primary btn-sm" disabled={disabled || pending || name.trim().length < 1 || name.trim() === initial}>
+        <button
+          type="submit"
+          className="btn btn-primary btn-sm"
+          disabled={disabled || pending || name.trim().length < 1 || name.trim() === initial}
+        >
           {pending ? "Saving" : "Save name"}
         </button>
         {notice && (

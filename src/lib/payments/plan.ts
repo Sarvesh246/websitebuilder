@@ -25,11 +25,13 @@ export const splitTotal = (total: number) => {
 };
 
 export const pricingSnapshot = (packageId: PackageId): PricingSnapshot => {
-  if (packageId === "custom") return { total: null, deposit: null, remaining: null, currency: "usd", finalRequired: true };
+  if (packageId === "custom")
+    return { total: null, deposit: null, remaining: null, currency: "usd", finalRequired: true };
   const tier = packageTiers.find((item) => item.id === packageId);
   if (!tier) throw new Error(`Unknown package: ${packageId}`);
   const total = dollarsToCents(tier.price);
-  if (!SPLIT_PACKAGES.includes(packageId)) return { total, deposit: total, remaining: 0, currency: "usd", finalRequired: false };
+  if (!SPLIT_PACKAGES.includes(packageId))
+    return { total, deposit: total, remaining: 0, currency: "usd", finalRequired: false };
   return { total, ...splitTotal(total), currency: "usd", finalRequired: true };
 };
 
@@ -46,22 +48,40 @@ export type DueSummary = {
   dueNow: number;
   /** Cents that will fall due later (after revisions). */
   dueLater: number;
-  label: "Awaiting quote" | "Due today" | "Due after revisions" | "Final payment due" | "Paid in full" | "Payment processing";
+  label:
+    | "Awaiting quote"
+    | "Due today"
+    | "Due after revisions"
+    | "Final payment due"
+    | "Paid in full"
+    | "Payment processing";
 };
 
 /** What a client owes and when, derived only from the stored snapshot and payment states. */
 export const dueSummary = (row: DueInput): DueSummary => {
   if (row.deposit_amount == null) return { dueNow: 0, dueLater: 0, label: "Awaiting quote" };
   const remaining = row.remaining_amount ?? 0;
-  const finalSettled = remaining === 0 || row.final_payment_status === "paid" || row.final_payment_status === "not_required";
-  if (row.initial_payment_status === "processing" || (row.initial_payment_status === "paid" && row.final_payment_status === "processing")) {
-    return { dueNow: 0, dueLater: row.initial_payment_status === "processing" ? row.deposit_amount + remaining : remaining, label: "Payment processing" };
+  const finalSettled =
+    remaining === 0 || row.final_payment_status === "paid" || row.final_payment_status === "not_required";
+  if (
+    row.initial_payment_status === "processing" ||
+    (row.initial_payment_status === "paid" && row.final_payment_status === "processing")
+  ) {
+    return {
+      dueNow: 0,
+      dueLater: row.initial_payment_status === "processing" ? row.deposit_amount + remaining : remaining,
+      label: "Payment processing",
+    };
   }
   if (row.initial_payment_status !== "paid") {
     return { dueNow: row.deposit_amount, dueLater: finalSettled ? 0 : remaining, label: "Due today" };
   }
   if (finalSettled) return { dueNow: 0, dueLater: 0, label: "Paid in full" };
-  if (row.final_payment_status === "failed" || row.final_payment_status === "requires_action" || row.status === "awaiting_final_payment") {
+  if (
+    row.final_payment_status === "failed" ||
+    row.final_payment_status === "requires_action" ||
+    row.status === "awaiting_final_payment"
+  ) {
     return { dueNow: remaining, dueLater: 0, label: "Final payment due" };
   }
   return { dueNow: 0, dueLater: remaining, label: "Due after revisions" };

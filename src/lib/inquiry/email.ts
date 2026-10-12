@@ -49,15 +49,17 @@ const rows = (d: InquiryValues): [string, string][] => [
 ];
 
 const inquiryMail = (d: InquiryValues, to: string): Mail => {
-  const text = [
-    ...rows(d).map(([k, v]) => `${k}: ${v}`),
-    "",
-    "Project details:",
-    d.description,
-  ].join("\n");
-  const html = `<div style="font:15px/1.6 system-ui,sans-serif;color:#111"><table cellpadding="6" style="border-collapse:collapse">${rows(d)
-    .map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><b>${escapeHtml(k)}</b></td><td>${escapeHtml(v).replace(/\n/g, "<br>")}</td></tr>`)
-    .join("")}</table><p><b>Project details</b></p><p style="white-space:pre-wrap">${escapeHtml(d.description)}</p></div>`;
+  const text = [...rows(d).map(([k, v]) => `${k}: ${v}`), "", "Project details:", d.description].join("\n");
+  const html = `<div style="font:15px/1.6 system-ui,sans-serif;color:#111"><table cellpadding="6" style="border-collapse:collapse">${rows(
+    d,
+  )
+    .map(
+      ([k, v]) =>
+        `<tr><td style="color:#555;vertical-align:top"><b>${escapeHtml(k)}</b></td><td>${escapeHtml(v).replace(/\n/g, "<br>")}</td></tr>`,
+    )
+    .join(
+      "",
+    )}</table><p><b>Project details</b></p><p style="white-space:pre-wrap">${escapeHtml(d.description)}</p></div>`;
   // Subject is static apart from the package name: no user text in headers.
   return { to, subject: `New project request: ${d.package}`, text, html, replyTo: d.email };
 };
@@ -135,7 +137,12 @@ export const sendClientMail = async (to: string, subject: string, lines: string[
   const address = to.trim();
   if (!cfg || !/^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(address)) return false;
   try {
-    await send(cfg, { to: address, subject: subject.replace(/[\r\n]+/g, " ").slice(0, 150), text: lines.join("\n"), replyTo: cfg.to });
+    await send(cfg, {
+      to: address,
+      subject: subject.replace(/[\r\n]+/g, " ").slice(0, 150),
+      text: lines.join("\n"),
+      replyTo: cfg.to,
+    });
     return true;
   } catch (error) {
     console.error("[payments] client email failed:", error instanceof Error ? error.message : "unknown");

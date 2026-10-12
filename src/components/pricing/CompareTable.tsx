@@ -1,11 +1,6 @@
 import { Check, Minus } from "lucide-react";
 import { GlassSurface } from "@/components/ui/GlassSurface";
-import {
-  compareRows,
-  customTier,
-  packageTiers,
-  type CompareCell,
-} from "@/config/pricing";
+import { compareRows, customTier, packageTiers, type CompareCell } from "@/config/pricing";
 
 const columns = [
   ...packageTiers.map((tier) => ({

@@ -8,20 +8,52 @@ import { ADMIN, FakeRepo, PROJECT_ID, makeDeps, makePaidDepositProject, makeProj
 const NOW = "2026-10-07T12:00:00.000Z";
 
 /** A PaymentIntent as Stripe search returns it (with latest_charge expanded). */
-const pi = (id: string, o: { stage?: string; status?: string; amount?: number; refunded?: number; collect?: string; created?: number; project?: string } = {}) => ({
+const pi = (
+  id: string,
+  o: {
+    stage?: string;
+    status?: string;
+    amount?: number;
+    refunded?: number;
+    collect?: string;
+    created?: number;
+    project?: string;
+  } = {},
+) => ({
   id,
   status: o.status ?? "succeeded",
   amount_received: o.status && o.status !== "succeeded" ? 0 : (o.amount ?? 10000),
   currency: "usd",
   created: o.created ?? 1,
   payment_method: "pm_saved",
-  metadata: { project_id: o.project ?? PROJECT_ID, payment_stage: o.stage ?? "deposit", ...(o.collect ? { collect: o.collect } : {}) },
-  latest_charge: { status: "succeeded", paid: true, disputed: false, amount_refunded: o.refunded ?? 0, refunded: (o.refunded ?? 0) >= (o.amount ?? 10000), receipt_url: "https://pay.stripe.test/r" },
+  metadata: {
+    project_id: o.project ?? PROJECT_ID,
+    payment_stage: o.stage ?? "deposit",
+    ...(o.collect ? { collect: o.collect } : {}),
+  },
+  latest_charge: {
+    status: "succeeded",
+    paid: true,
+    disputed: false,
+    amount_refunded: o.refunded ?? 0,
+    refunded: (o.refunded ?? 0) >= (o.amount ?? 10000),
+    receipt_url: "https://pay.stripe.test/r",
+  },
   last_payment_error: null,
 });
 
-const seedLedger = (repo: FakeRepo, row: Partial<Parameters<FakeRepo["upsertLedger"]>[0]> & { idempotency_key: string }) =>
-  repo.upsertLedger({ project_id: PROJECT_ID, type: "deposit", status: "pending", amount: 10000, currency: "usd", ...row });
+const seedLedger = (
+  repo: FakeRepo,
+  row: Partial<Parameters<FakeRepo["upsertLedger"]>[0]> & { idempotency_key: string },
+) =>
+  repo.upsertLedger({
+    project_id: PROJECT_ID,
+    type: "deposit",
+    status: "pending",
+    amount: 10000,
+    currency: "usd",
+    ...row,
+  });
 
 describe("charging the balance when the client approves", () => {
   it("runs as the system actor with the stored authorization", async () => {
@@ -30,7 +62,10 @@ describe("charging the balance when the client approves", () => {
     mocks.paymentIntentsCreate.mockResolvedValue({ id: "pi_fin", status: "succeeded", amount_received: 10000 });
     const result = await collectFinalBalance(PROJECT_ID, "client_approval", deps);
     expect(result.outcome).toBe("paid");
-    expect(mocks.paymentIntentsCreate).toHaveBeenCalledWith(expect.objectContaining({ amount: 10000, off_session: true, receipt_email: "client@example.com" }), expect.anything());
+    expect(mocks.paymentIntentsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ amount: 10000, off_session: true, receipt_email: "client@example.com" }),
+      expect.anything(),
+    );
   });
 
   it("never charges a saved card without the checkout authorization, even for the studio", async () => {
@@ -48,7 +83,10 @@ describe("charging the balance when the client approves", () => {
     mocks.paymentIntentsCreate.mockImplementation(async () => {
       throw Object.assign(new Error("declined"), { type: "StripeCardError", code: "card_declined" });
     });
-    const results = await Promise.all([collectFinalBalance(PROJECT_ID, "client_approval", deps), collectFinalBalance(PROJECT_ID, "client_approval", deps)]);
+    const results = await Promise.all([
+      collectFinalBalance(PROJECT_ID, "client_approval", deps),
+      collectFinalBalance(PROJECT_ID, "client_approval", deps),
+    ]);
     expect(mocks.paymentIntentsCreate).toHaveBeenCalledTimes(1);
     expect(results.map((r) => r.outcome).sort()).toEqual(["failed", "processing"]);
   });
@@ -65,7 +103,9 @@ describe("balance reminders", () => {
   it("are paced and capped", async () => {
     emailEnv();
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 200 }));
-    const repo = new FakeRepo(makePaidDepositProject({ final_payment_status: "failed", status: "awaiting_final_payment" }));
+    const repo = new FakeRepo(
+      makePaidDepositProject({ final_payment_status: "failed", status: "awaiting_final_payment" }),
+    );
     let now = new Date(NOW).getTime();
     repo.clock = () => new Date(now).toISOString();
     const { deps } = makeDeps(repo, NOW);
@@ -118,7 +158,15 @@ describe("review flags", () => {
     await finalizeDeposit(deps, { projectId: PROJECT_ID, paymentIntentId: "pi_X", amountReceived: 9900 }); // checkout.session.completed
     await finalizeDeposit(deps, { projectId: PROJECT_ID, paymentIntentId: "pi_X", amountReceived: 9900 }); // payment_intent.succeeded
     expect(repo.events.filter((e) => e.kind === "payment_review")).toHaveLength(1);
-    expect(await flagForReview(deps, { key: "mismatch:pi_X", projectId: PROJECT_ID, timeline: "t", subject: "s", detail: "d" })).toBe(false);
+    expect(
+      await flagForReview(deps, {
+        key: "mismatch:pi_X",
+        projectId: PROJECT_ID,
+        timeline: "t",
+        subject: "s",
+        detail: "d",
+      }),
+    ).toBe(false);
   });
 });
 
@@ -130,7 +178,11 @@ describe("daily reconciliation", () => {
     mocks.paymentIntentsSearch.mockResolvedValue({ data: [pi("pi_A")], has_more: false, next_page: null });
     const r = await reconcileProject(deps, repo.projects.get(PROJECT_ID)!);
     expect(r.recorded).toBe(1);
-    expect(repo.projects.get(PROJECT_ID)).toMatchObject({ initial_payment_status: "paid", stripe_deposit_pi: "pi_A", status: "accepted" });
+    expect(repo.projects.get(PROJECT_ID)).toMatchObject({
+      initial_payment_status: "paid",
+      stripe_deposit_pi: "pi_A",
+      status: "accepted",
+    });
     expect(mocks.refundsCreate).not.toHaveBeenCalled();
     // Running again changes nothing.
     const again = await reconcileProject(deps, repo.projects.get(PROJECT_ID)!);
@@ -144,11 +196,15 @@ describe("daily reconciliation", () => {
     const first = pi("pi_first", { created: 100 });
     const second = pi("pi_second", { created: 200 });
     mocks.paymentIntentsSearch.mockResolvedValue({ data: [second, first], has_more: false, next_page: null });
-    mocks.paymentIntentsRetrieve.mockImplementation((async (id: string) => (id === "pi_first" ? first : second)) as never);
+    mocks.paymentIntentsRetrieve.mockImplementation((async (id: string) =>
+      id === "pi_first" ? first : second) as never);
     await reconcileProject(deps, repo.projects.get(PROJECT_ID)!);
     expect(repo.projects.get(PROJECT_ID)!.stripe_deposit_pi).toBe("pi_first");
     expect(mocks.refundsCreate).toHaveBeenCalledTimes(1);
-    expect(mocks.refundsCreate).toHaveBeenCalledWith(expect.objectContaining({ payment_intent: "pi_second", amount: 10000 }), expect.anything());
+    expect(mocks.refundsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ payment_intent: "pi_second", amount: 10000 }),
+      expect.anything(),
+    );
   });
 
   it("syncs a refund made in the Stripe dashboard", async () => {
@@ -156,7 +212,11 @@ describe("daily reconciliation", () => {
     const row = await seedLedger(repo, { idempotency_key: `project:${PROJECT_ID}:deposit`, status: "succeeded" });
     await repo.updateLedger(row.id, { stripe_payment_intent_id: "pi_A" });
     const { deps, mocks } = makeDeps(repo, NOW);
-    mocks.paymentIntentsSearch.mockResolvedValue({ data: [pi("pi_A", { refunded: 2500 })], has_more: false, next_page: null });
+    mocks.paymentIntentsSearch.mockResolvedValue({
+      data: [pi("pi_A", { refunded: 2500 })],
+      has_more: false,
+      next_page: null,
+    });
     expect((await reconcileProject(deps, repo.projects.get(PROJECT_ID)!)).refundsSynced).toBe(1);
     expect(repo.projects.get(PROJECT_ID)).toMatchObject({ refunded_amount: 2500, refund_status: "partial" });
     expect((await reconcileProject(deps, repo.projects.get(PROJECT_ID)!)).refundsSynced).toBe(0); // counted once
@@ -165,16 +225,31 @@ describe("daily reconciliation", () => {
 
   it("releases a final-charge claim abandoned before any charge reached Stripe", async () => {
     const old = new Date(new Date(NOW).getTime() - STUCK_CLAIM_MS - 60_000).toISOString();
-    const repo = new FakeRepo(makePaidDepositProject({ final_payment_status: "processing", payment_status: "processing", updated_at: old }));
-    await seedLedger(repo, { idempotency_key: `project:${PROJECT_ID}:final`, type: "final_balance", status: "processing" });
+    const repo = new FakeRepo(
+      makePaidDepositProject({ final_payment_status: "processing", payment_status: "processing", updated_at: old }),
+    );
+    await seedLedger(repo, {
+      idempotency_key: `project:${PROJECT_ID}:final`,
+      type: "final_balance",
+      status: "processing",
+    });
     const { deps } = makeDeps(repo, NOW);
     expect((await reconcileProject(deps, repo.projects.get(PROJECT_ID)!)).claimsResolved).toBe(1);
-    expect(repo.projects.get(PROJECT_ID)).toMatchObject({ final_payment_status: "pending", payment_status: "deposit_paid" });
+    expect(repo.projects.get(PROJECT_ID)).toMatchObject({
+      final_payment_status: "pending",
+      payment_status: "deposit_paid",
+    });
   });
 
   it("leaves a fresh claim alone (it may be charging right now)", async () => {
-    const repo = new FakeRepo(makePaidDepositProject({ final_payment_status: "processing", updated_at: new Date(NOW).toISOString() }));
-    await seedLedger(repo, { idempotency_key: `project:${PROJECT_ID}:final`, type: "final_balance", status: "processing" });
+    const repo = new FakeRepo(
+      makePaidDepositProject({ final_payment_status: "processing", updated_at: new Date(NOW).toISOString() }),
+    );
+    await seedLedger(repo, {
+      idempotency_key: `project:${PROJECT_ID}:final`,
+      type: "final_balance",
+      status: "processing",
+    });
     const { deps } = makeDeps(repo, NOW);
     expect((await reconcileProject(deps, repo.projects.get(PROJECT_ID)!)).claimsResolved).toBe(0);
     expect(repo.projects.get(PROJECT_ID)!.final_payment_status).toBe("processing");
@@ -183,18 +258,34 @@ describe("daily reconciliation", () => {
   it("settles a stuck claim whose off-session charge did succeed", async () => {
     const old = new Date(new Date(NOW).getTime() - STUCK_CLAIM_MS - 60_000).toISOString();
     const repo = new FakeRepo(makePaidDepositProject({ final_payment_status: "processing", updated_at: old }));
-    await seedLedger(repo, { idempotency_key: `project:${PROJECT_ID}:final`, type: "final_balance", status: "processing" });
+    await seedLedger(repo, {
+      idempotency_key: `project:${PROJECT_ID}:final`,
+      type: "final_balance",
+      status: "processing",
+    });
     const { deps, mocks } = makeDeps(repo, NOW);
-    mocks.paymentIntentsSearch.mockResolvedValue({ data: [pi("pi_fin", { stage: "final_balance", collect: "off_session" })], has_more: false, next_page: null });
+    mocks.paymentIntentsSearch.mockResolvedValue({
+      data: [pi("pi_fin", { stage: "final_balance", collect: "off_session" })],
+      has_more: false,
+      next_page: null,
+    });
     await reconcileProject(deps, repo.projects.get(PROJECT_ID)!);
-    expect(repo.projects.get(PROJECT_ID)).toMatchObject({ final_payment_status: "paid", status: "ready_for_launch", stripe_final_pi: "pi_fin" });
+    expect(repo.projects.get(PROJECT_ID)).toMatchObject({
+      final_payment_status: "paid",
+      status: "ready_for_launch",
+      stripe_final_pi: "pi_fin",
+    });
   });
 
   it("ignores intents that belong to another project", async () => {
     const repo = new FakeRepo(makeProject({ status: "requested" }));
     await seedLedger(repo, { idempotency_key: `project:${PROJECT_ID}:deposit` });
     const { deps, mocks } = makeDeps(repo, NOW);
-    mocks.paymentIntentsSearch.mockResolvedValue({ data: [pi("pi_other", { project: "someone-else" })], has_more: false, next_page: null });
+    mocks.paymentIntentsSearch.mockResolvedValue({
+      data: [pi("pi_other", { project: "someone-else" })],
+      has_more: false,
+      next_page: null,
+    });
     await reconcileProject(deps, repo.projects.get(PROJECT_ID)!);
     expect(repo.projects.get(PROJECT_ID)!.initial_payment_status).toBe("pending");
   });

@@ -15,7 +15,11 @@ export const ServiceStatus = async () => {
   return (
     <Card
       title="Service status"
-      note={issues === 0 ? "Payments, database, hosting and email, checked every few minutes" : `${issues} ${issues === 1 ? "service reports" : "services report"} a problem`}
+      note={
+        issues === 0
+          ? "Payments, database, hosting and email, checked every few minutes"
+          : `${issues} ${issues === 1 ? "service reports" : "services report"} a problem`
+      }
     >
       <ul className="pt-status">
         {services.map((s) => (

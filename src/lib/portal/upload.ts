@@ -50,7 +50,11 @@ export const uploadToProject = async (
     const ticket = await createUploadTicket(projectId, { name: file.name, size: file.size, type: file.type });
     if (!ticket.ok) return { ok: false, error: ticket.error };
     const sent = await send(ticket.signedUrl, file, ticket.contentType, onProgress, signal);
-    if (!sent) return { ok: false, error: signal?.aborted ? "Upload cancelled." : "The upload was interrupted. Please try again." };
+    if (!sent)
+      return {
+        ok: false,
+        error: signal?.aborted ? "Upload cancelled." : "The upload was interrupted. Please try again.",
+      };
     const done = await confirmUpload(projectId, ticket.path, file.name);
     if (!done.ok) return { ok: false, error: done.error };
     onProgress(100);

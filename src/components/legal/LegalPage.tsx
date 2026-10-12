@@ -9,7 +9,9 @@ import { legalUpdated, siteConfig } from "@/config/site";
 /** Section titles of the direct LegalSection children, for the "On this page" rail. */
 const sectionTitles = (children: ReactNode): string[] =>
   Children.toArray(children).flatMap((child) =>
-    isValidElement<{ title?: string }>(child) && child.type === LegalSection && child.props.title ? [child.props.title] : [],
+    isValidElement<{ title?: string }>(child) && child.type === LegalSection && child.props.title
+      ? [child.props.title]
+      : [],
   );
 
 /**
@@ -47,8 +49,11 @@ export const LegalSection = ({ title, id, children }: { title: string; id?: stri
 export const ContactLine = () =>
   siteConfig.contactEmail ? (
     <p>
-      Email <a href={`mailto:${siteConfig.contactEmail}`} className="break-anywhere">{siteConfig.contactEmail}</a>, or
-      use the <Link href="/start">project inquiry form</Link>.
+      Email{" "}
+      <a href={`mailto:${siteConfig.contactEmail}`} className="break-anywhere">
+        {siteConfig.contactEmail}
+      </a>
+      , or use the <Link href="/start">project inquiry form</Link>.
     </p>
   ) : (
     <p>

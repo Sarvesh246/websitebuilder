@@ -47,7 +47,11 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
       <PageHeader
         eyebrow={isAdmin ? "Studio" : "Your work"}
         title="Projects"
-        sub={isAdmin ? "Every project and request, with stage, progress, deadline and balance." : "Your website projects and where each one stands."}
+        sub={
+          isAdmin
+            ? "Every project and request, with stage, progress, deadline and balance."
+            : "Your website projects and where each one stands."
+        }
         actions={
           !isAdmin && (
             <Link href="/start" className="btn btn-primary btn-sm">
@@ -61,7 +65,14 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
         <form className="pt-filters" method="get" role="search" aria-label="Filter projects">
           <div className="pt-field pt-field--grow">
             <label htmlFor="pf-q">Search</label>
-            <input id="pf-q" name="q" type="search" className="pt-input" defaultValue={q} placeholder="Client, organization or email" />
+            <input
+              id="pf-q"
+              name="q"
+              type="search"
+              className="pt-input"
+              defaultValue={q}
+              placeholder="Client, organization or email"
+            />
           </div>
           <div className="pt-field">
             <label htmlFor="pf-stage">Stage</label>
@@ -143,7 +154,8 @@ export default async function ProjectsPage({ searchParams }: PageProps<"/portal/
                       <Link href={`/portal/projects/${p.id}`} className="pt-table__client">
                         {p.unreadMessages > 0 && (
                           <>
-                            <span className="pt-dot" aria-hidden /> <span className="sr-only">{p.unreadMessages} unread messages. </span>
+                            <span className="pt-dot" aria-hidden />{" "}
+                            <span className="sr-only">{p.unreadMessages} unread messages. </span>
                           </>
                         )}
                         {p.clientName}

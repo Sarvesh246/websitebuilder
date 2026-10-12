@@ -19,8 +19,15 @@ export async function POST(request: Request) {
   }
 
   let rawBody: string;
-  try { rawBody = await boundedText(request.body, 1_048_576); }
-  catch (error) { return new Response("Invalid webhook body", { status: error instanceof RangeError ? 413 : 400 }); }
-  const result = await processStripeWebhook(deps, { rawBody, signature: request.headers.get("stripe-signature"), secret });
+  try {
+    rawBody = await boundedText(request.body, 1_048_576);
+  } catch (error) {
+    return new Response("Invalid webhook body", { status: error instanceof RangeError ? 413 : 400 });
+  }
+  const result = await processStripeWebhook(deps, {
+    rawBody,
+    signature: request.headers.get("stripe-signature"),
+    secret,
+  });
   return new Response(result.body, { status: result.status });
 }

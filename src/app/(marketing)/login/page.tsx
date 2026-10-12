@@ -24,7 +24,11 @@ export default async function Page({ searchParams }: PageProps<"/login">) {
       <Plate name="intake" eager />
       <Container>
         <div className="auth__wrap">
-          <AuthForm mode="login" next={target} notice={error === "callback" ? "That sign-in link did not work. Please try again." : undefined} />
+          <AuthForm
+            mode="login"
+            next={target}
+            notice={error === "callback" ? "That sign-in link did not work. Please try again." : undefined}
+          />
         </div>
       </Container>
     </Section>

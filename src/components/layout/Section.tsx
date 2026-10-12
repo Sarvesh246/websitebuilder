@@ -16,8 +16,5 @@ type SectionProps = {
  * Put <Ambient/> first, then a <Container/> (which stacks above it) inside.
  */
 export const Section = ({ spacing: space = "default", className, ...props }: SectionProps) => (
-  <section
-    className={cn("relative isolate", spacing[space], className)}
-    {...props}
-  />
+  <section className={cn("relative isolate", spacing[space], className)} {...props} />
 );

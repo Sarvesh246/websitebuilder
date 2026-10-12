@@ -1,7 +1,11 @@
 /* Shell shared by the concept sites. Concept palettes live in their own scoped files. */
-html:has(.cx) { scroll-padding-top: 0; }
+html:has(.cx) {
+  scroll-padding-top: 0;
+}
 /* Concept headers have their own height; marketing anchor offsets must not leak into them. */
-.cx :where(section[id]) { scroll-margin-top: calc(var(--cx-bar) + 5rem); }
+.cx :where(section[id]) {
+  scroll-margin-top: calc(var(--cx-bar) + 5rem);
+}
 .cx {
   --cx-bar: 2.5rem;
   position: relative;
@@ -61,7 +65,10 @@ html[data-arrive] .cx-arrival {
   padding: 0 clamp(0.75rem, 2vw, 1.5rem);
   background: #0d0f12;
   color: #eef1f5;
-  font: 500 0.8rem/1 var(--font-figtree, system-ui), system-ui, sans-serif;
+  font:
+    500 0.8rem/1 var(--font-figtree, system-ui),
+    system-ui,
+    sans-serif;
   letter-spacing: 0.01em;
   border-bottom: 1px solid rgb(255 255 255 / 0.1);
 }

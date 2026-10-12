@@ -5,7 +5,13 @@ import { formatUsd } from "@/lib/money";
 
 /** What the client owes and when, from the stored snapshot (no Stripe, no client input). */
 export const dueFor = (p: ProjectSummary) =>
-  dueSummary({ deposit_amount: p.money.deposit, remaining_amount: p.money.remaining, initial_payment_status: p.initialPayment, final_payment_status: p.finalPayment, status: p.stage });
+  dueSummary({
+    deposit_amount: p.money.deposit,
+    remaining_amount: p.money.remaining,
+    initial_payment_status: p.initialPayment,
+    final_payment_status: p.finalPayment,
+    status: p.stage,
+  });
 
 export const stageSentence: Record<ProjectStage, string> = {
   requested: "Your request is in. The studio will review it and confirm the details.",
@@ -33,7 +39,12 @@ export const paymentStatusLabel: Record<PaymentStatus, string> = {
   partially_refunded: "Partly refunded",
 };
 
-export const paymentTypeLabel = { full: "Full payment", deposit: "Deposit", final_balance: "Final balance", refund: "Refund" } as const;
+export const paymentTypeLabel = {
+  full: "Full payment",
+  deposit: "Deposit",
+  final_balance: "Final balance",
+  refund: "Refund",
+} as const;
 
 /** Month key ("2026-05" or already a label) to a short month name. */
 export const monthLabel = (m: string): string => {
@@ -46,7 +57,9 @@ export const monthLabel = (m: string): string => {
  * The balance a client's approval will charge to their saved card, formatted, or null when approving
  * charges nothing (paid in full, nothing saved yet, or already paid). Mirrors collectFinalBalance's rules.
  */
-export const approvalChargeLabel = (p: Pick<ProjectDetail, "initialPayment" | "finalPayment" | "money">): string | null => {
+export const approvalChargeLabel = (
+  p: Pick<ProjectDetail, "initialPayment" | "finalPayment" | "money">,
+): string | null => {
   const remaining = p.money.remaining ?? 0;
   if (p.initialPayment !== "paid" || remaining <= 0) return null;
   if (!["pending", "failed", "requires_action"].includes(p.finalPayment)) return null;
@@ -54,4 +67,6 @@ export const approvalChargeLabel = (p: Pick<ProjectDetail, "initialPayment" | "f
 };
 
 export const approvalNote = (charge: string | null, base: string): string =>
-  charge ? `${base} Your remaining balance of ${charge} is then charged to the card you saved at checkout.` : `${base} It doesn't charge anything.`;
+  charge
+    ? `${base} Your remaining balance of ${charge} is then charged to the card you saved at checkout.`
+    : `${base} It doesn't charge anything.`;

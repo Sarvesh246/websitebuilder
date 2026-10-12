@@ -16,7 +16,8 @@ export async function POST(request: Request) {
   // A provider outage must not leave this browser signed in after it says "Sign out".
   const jar = await cookies();
   for (const cookie of jar.getAll()) {
-    if (/^sb-.+-auth-token(?:\.\d+|-code-verifier)?$/.test(cookie.name) || cookie.name === "nf-view-as") jar.delete(cookie.name);
+    if (/^sb-.+-auth-token(?:\.\d+|-code-verifier)?$/.test(cookie.name) || cookie.name === "nf-view-as")
+      jar.delete(cookie.name);
   }
   const response = NextResponse.redirect(`${own}/`, { status: 303 });
   response.headers.set("Cache-Control", "private, no-store");

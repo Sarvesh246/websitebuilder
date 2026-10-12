@@ -42,7 +42,10 @@ export const siteConfig = {
    */
   contactPhone: "+17327620126" as string | null,
   /** Only real, approved profiles (shown in the footer, rel="me"). No placeholder social links. */
-  social: [{ label: "Instagram", href: "https://www.instagram.com/northframebuilds/" }] as readonly { label: string; href: string }[],
+  social: [{ label: "Instagram", href: "https://www.instagram.com/northframebuilds/" }] as readonly {
+    label: string;
+    href: string;
+  }[],
   founder: {
     name: "Sarvesh",
     fullName: "Sarvesh Jagtap",

@@ -52,9 +52,26 @@ type TextFieldProps = Omit<ComponentPropsWithoutRef<"input">, "onChange" | "valu
   onValueChange: (value: string) => void;
 };
 
-export const TextField = ({ label, hint, error, optional, value, onValueChange, className, ...input }: TextFieldProps) => (
+export const TextField = ({
+  label,
+  hint,
+  error,
+  optional,
+  value,
+  onValueChange,
+  className,
+  ...input
+}: TextFieldProps) => (
   <Field label={label} hint={hint} error={error} optional={optional} className={className}>
-    {(aria) => <input {...input} {...aria} className="field__control" value={value} onChange={(e) => onValueChange(e.target.value)} />}
+    {(aria) => (
+      <input
+        {...input}
+        {...aria}
+        className="field__control"
+        value={value}
+        onChange={(e) => onValueChange(e.target.value)}
+      />
+    )}
   </Field>
 );
 
@@ -71,7 +88,13 @@ export const TextAreaField = ({ label, hint, error, value, onValueChange, counte
   <Field label={label} hint={hint} error={error}>
     {(aria) => (
       <>
-        <textarea {...area} {...aria} className="field__control field__control--area" value={value} onChange={(e) => onValueChange(e.target.value)} />
+        <textarea
+          {...area}
+          {...aria}
+          className="field__control field__control--area"
+          value={value}
+          onChange={(e) => onValueChange(e.target.value)}
+        />
         {counter !== undefined && value.length > counter * 0.8 && (
           <p className="field__count" aria-live="polite">
             {value.length.toLocaleString("en-US")} / {counter.toLocaleString("en-US")}
@@ -100,11 +123,27 @@ type ChoiceGroupProps = {
 };
 
 /** Fieldset of native radios/checkboxes styled as tiles. Keyboard and screen-reader behaviour stay native. */
-export const ChoiceGroup = ({ legend, hint, error, name, type, choices, selected, onToggle, layout = "chip", optional, className }: ChoiceGroupProps) => {
+export const ChoiceGroup = ({
+  legend,
+  hint,
+  error,
+  name,
+  type,
+  choices,
+  selected,
+  onToggle,
+  layout = "chip",
+  optional,
+  className,
+}: ChoiceGroupProps) => {
   const id = useId();
   const describedBy = [hint && `${id}-hint`, error && `${id}-error`].filter(Boolean).join(" ") || undefined;
   return (
-    <fieldset className={cn("field choice-set", className)} aria-describedby={describedBy} data-invalid={error ? "" : undefined}>
+    <fieldset
+      className={cn("field choice-set", className)}
+      aria-describedby={describedBy}
+      data-invalid={error ? "" : undefined}
+    >
       <legend className="field__label">
         {legend}
         {optional && <span className="field__optional"> (optional)</span>}

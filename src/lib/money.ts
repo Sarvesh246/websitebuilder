@@ -4,5 +4,10 @@ export const formatUsd = (cents: number | null | undefined, opts: { compact?: bo
   const dollars = cents / 100;
   const whole = Number.isInteger(dollars);
   if (opts.compact && Math.abs(dollars) >= 10_000) return `$${(dollars / 1000).toFixed(1)}k`;
-  return dollars.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: 2 });
+  return dollars.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
 };

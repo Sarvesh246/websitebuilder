@@ -21,7 +21,9 @@
     padding: 0.85rem 1rem;
     border-radius: var(--radius-md);
     background: var(--pt-tint);
-    box-shadow: inset 0 1px 0 var(--etch-lit), inset 0 -1px 0 var(--etch-shade);
+    box-shadow:
+      inset 0 1px 0 var(--etch-lit),
+      inset 0 -1px 0 var(--etch-shade);
     counter-increment: wait;
   }
   .pt-waiting__item[data-tone="warn"] {
@@ -170,7 +172,9 @@
 
   /* ---------- Uploads ---------- */
   .pt-drop {
-    transition: border-color var(--dur-fast, 0.15s) ease, background-color var(--dur-fast, 0.15s) ease;
+    transition:
+      border-color var(--dur-fast, 0.15s) ease,
+      background-color var(--dur-fast, 0.15s) ease;
   }
   .pt-drop--over {
     border-color: var(--accent);
@@ -318,7 +322,9 @@
     padding: 1rem;
     border-radius: var(--radius-md);
     background: var(--pt-tint);
-    box-shadow: inset 0 1px 0 var(--etch-lit), inset 0 -1px 0 var(--etch-shade);
+    box-shadow:
+      inset 0 1px 0 var(--etch-lit),
+      inset 0 -1px 0 var(--etch-shade);
   }
   .pt-fb-list {
     display: grid;
@@ -569,7 +575,9 @@
     border-radius: var(--radius-card);
     background: var(--surface-solid, var(--bg));
     color: var(--text);
-    box-shadow: var(--shadow-md, 0 18px 40px -24px rgb(0 0 0 / 0.35)), inset 0 0 0 1px var(--border);
+    box-shadow:
+      var(--shadow-md, 0 18px 40px -24px rgb(0 0 0 / 0.35)),
+      inset 0 0 0 1px var(--border);
   }
   .pt-invoice__head {
     display: flex;

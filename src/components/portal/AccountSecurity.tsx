@@ -16,7 +16,11 @@ const fetchIdentities = async (): Promise<Identity[] | null> => {
   try {
     const { data, error } = await (await browserAuth()).getUserIdentities();
     if (error) return null;
-    return (data?.identities ?? []).map((i) => ({ identity_id: i.identity_id, provider: i.provider, email: (i.identity_data?.email as string | undefined) ?? undefined }));
+    return (data?.identities ?? []).map((i) => ({
+      identity_id: i.identity_id,
+      provider: i.provider,
+      email: (i.identity_data?.email as string | undefined) ?? undefined,
+    }));
   } catch {
     return null;
   }
@@ -26,7 +30,11 @@ const fetchIdentities = async (): Promise<Identity[] | null> => {
 export const PasswordForm = ({ disabled }: { disabled?: boolean }) => {
   const [pw, setPw] = useState("");
   const [again, setAgain] = useState("");
-  const [state, setState] = useState<{ pending: boolean; error: string | null; notice: string | null }>({ pending: false, error: null, notice: null });
+  const [state, setState] = useState<{ pending: boolean; error: string | null; notice: string | null }>({
+    pending: false,
+    error: null,
+    notice: null,
+  });
   const mismatch = again.length > 0 && pw !== again;
 
   const submit = async () => {
@@ -62,18 +70,46 @@ export const PasswordForm = ({ disabled }: { disabled?: boolean }) => {
       {/* Hidden username helps password managers save the new password against the right account. */}
       <div className="pt-field">
         <label htmlFor="pt-pw-new">New password</label>
-        <input id="pt-pw-new" type="password" className="pt-input" autoComplete="new-password" minLength={MIN_PASSWORD} value={pw} disabled={disabled || state.pending} onChange={(e) => setPw(e.target.value)} aria-describedby="pt-pw-hint" />
+        <input
+          id="pt-pw-new"
+          type="password"
+          className="pt-input"
+          autoComplete="new-password"
+          minLength={MIN_PASSWORD}
+          value={pw}
+          disabled={disabled || state.pending}
+          onChange={(e) => setPw(e.target.value)}
+          aria-describedby="pt-pw-hint"
+        />
         <p id="pt-pw-hint" className="pt-small">
           At least {MIN_PASSWORD} characters. If you only sign in with Google, this adds a password as a second way in.
         </p>
       </div>
       <div className="pt-field">
         <label htmlFor="pt-pw-again">Confirm new password</label>
-        <input id="pt-pw-again" type="password" className="pt-input" autoComplete="new-password" value={again} disabled={disabled || state.pending} onChange={(e) => setAgain(e.target.value)} aria-invalid={mismatch || undefined} />
-        {mismatch && <p className="pt-small" role="alert">The passwords do not match yet.</p>}
+        <input
+          id="pt-pw-again"
+          type="password"
+          className="pt-input"
+          autoComplete="new-password"
+          value={again}
+          disabled={disabled || state.pending}
+          onChange={(e) => setAgain(e.target.value)}
+          aria-invalid={mismatch || undefined}
+        />
+        {mismatch && (
+          <p className="pt-small" role="alert">
+            The passwords do not match yet.
+          </p>
+        )}
       </div>
       <div className="pt-form-row">
-        <button type="submit" className="btn btn-primary btn-sm" disabled={disabled || state.pending || pw.length < MIN_PASSWORD || pw !== again} aria-busy={state.pending}>
+        <button
+          type="submit"
+          className="btn btn-primary btn-sm"
+          disabled={disabled || state.pending || pw.length < MIN_PASSWORD || pw !== again}
+          aria-busy={state.pending}
+        >
           <KeyRound aria-hidden size={15} />
           {state.pending ? "Saving" : "Update password"}
         </button>
@@ -92,7 +128,8 @@ export const PasswordForm = ({ disabled }: { disabled?: boolean }) => {
   );
 };
 
-const providerName = (p: string) => (p === "google" ? "Google" : p === "email" ? "Email and password" : p.charAt(0).toUpperCase() + p.slice(1));
+const providerName = (p: string) =>
+  p === "google" ? "Google" : p === "email" ? "Email and password" : p.charAt(0).toUpperCase() + p.slice(1);
 
 /** Sign-in methods on this account. Google can be connected, or disconnected while another method remains. */
 export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
@@ -121,7 +158,9 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
     setError(null);
     const next = encodeURIComponent("/portal/settings");
     try {
-      const { error: err } = await (await browserAuth()).linkIdentity({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=${next}` } });
+      const { error: err } = await (
+        await browserAuth()
+      ).linkIdentity({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=${next}` } });
       if (!err) return; // the browser is leaving for Google
     } catch {
       // Network or a failed chunk load: same message as a refusal.
@@ -144,7 +183,10 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
     }
     setBusy(false);
     if (err) setError("Google could not be disconnected. Make sure you have set a password first.");
-    else { setVersion((v) => v + 1); setConfirmDisconnect(false); }
+    else {
+      setVersion((v) => v + 1);
+      setConfirmDisconnect(false);
+    }
   };
 
   if (disabled) return <p className="pt-small">Sign-in changes are unavailable in this read-only view.</p>;
@@ -163,7 +205,12 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
               <div className="pt-row__aside">
                 <span className="pt-chip pt-chip--done">Connected</span>
                 {i.provider === "google" && ids.length > 1 && (
-                  <button type="button" className="btn-link pt-small" disabled={busy} onClick={() => setConfirmDisconnect(true)}>
+                  <button
+                    type="button"
+                    className="btn-link pt-small"
+                    disabled={busy}
+                    onClick={() => setConfirmDisconnect(true)}
+                  >
                     Disconnect
                   </button>
                 )}
@@ -173,7 +220,13 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
         </ul>
       )}
       {ids !== null && !google && (
-        <button type="button" className="btn btn-secondary btn-sm" style={{ justifySelf: "start" }} disabled={busy} onClick={() => void connect()}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          style={{ justifySelf: "start" }}
+          disabled={busy}
+          onClick={() => void connect()}
+        >
           <Link2 aria-hidden size={15} />
           Connect Google
         </button>
@@ -183,9 +236,20 @@ export const ConnectedAccounts = ({ disabled }: { disabled?: boolean }) => {
           {error}
         </p>
       )}
-      <ConfirmDialog open={confirmDisconnect} onClose={() => setConfirmDisconnect(false)} title="Disconnect Google?" confirmLabel="Disconnect Google" busy={busy} onConfirm={() => void disconnect()}>
+      <ConfirmDialog
+        open={confirmDisconnect}
+        onClose={() => setConfirmDisconnect(false)}
+        title="Disconnect Google?"
+        confirmLabel="Disconnect Google"
+        busy={busy}
+        onConfirm={() => void disconnect()}
+      >
         <p>Make sure you can sign in with your email and password before removing Google.</p>
-        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+        {error && (
+          <p className="pt-msg pt-msg--error" role="alert">
+            {error}
+          </p>
+        )}
       </ConfirmDialog>
     </div>
   );
@@ -201,12 +265,20 @@ export const DeleteAccount = ({ disabled }: { disabled?: boolean }) => {
       <summary>Delete my account</summary>
       <div className="pt-stack">
         <p className="pt-small">
-          This permanently removes your sign-in, profile, messages and files. Requests you never paid for are deleted too. Records of payments you made are kept for accounting, as the privacy
-          policy explains. This cannot be undone.
+          This permanently removes your sign-in, profile, messages and files. Requests you never paid for are deleted
+          too. Records of payments you made are kept for accounting, as the privacy policy explains. This cannot be
+          undone.
         </p>
         <div className="pt-field">
           <label htmlFor="pt-delete-confirm">Type DELETE to confirm</label>
-          <input id="pt-delete-confirm" className="pt-input" autoComplete="off" value={text} disabled={disabled} onChange={(e) => setText(e.target.value)} />
+          <input
+            id="pt-delete-confirm"
+            className="pt-input"
+            autoComplete="off"
+            value={text}
+            disabled={disabled}
+            onChange={(e) => setText(e.target.value)}
+          />
         </div>
         <button
           type="button"

@@ -22,7 +22,8 @@ export const HANDLED_EVENTS = [
   "charge.dispute.created",
 ] as const;
 
-const asId = (value: string | { id: string } | null | undefined): string | null => (typeof value === "string" ? value : (value?.id ?? null));
+const asId = (value: string | { id: string } | null | undefined): string | null =>
+  typeof value === "string" ? value : (value?.id ?? null);
 
 const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<void> => {
   switch (event.type) {
@@ -35,9 +36,21 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       const amountReceived = session.amount_total ?? 0;
       if (!["deposit", "full", "final_balance"].includes(session.metadata?.payment_stage ?? "")) return;
       if (session.metadata?.payment_stage === "final_balance") {
-        await finalizeFinal(deps, { projectId, paymentIntentId, amountReceived, currency: session.currency ?? undefined, sessionId: session.id });
+        await finalizeFinal(deps, {
+          projectId,
+          paymentIntentId,
+          amountReceived,
+          currency: session.currency ?? undefined,
+          sessionId: session.id,
+        });
       } else {
-        await finalizeDeposit(deps, { projectId, paymentIntentId, amountReceived, currency: session.currency ?? undefined, sessionId: session.id });
+        await finalizeDeposit(deps, {
+          projectId,
+          paymentIntentId,
+          amountReceived,
+          currency: session.currency ?? undefined,
+          sessionId: session.id,
+        });
       }
       return;
     }
@@ -47,7 +60,12 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       if (!projectId) return;
       if (!["deposit", "full", "final_balance"].includes(intent.metadata?.payment_stage ?? "")) return;
       if (intent.metadata?.payment_stage === "final_balance") {
-        await finalizeFinal(deps, { projectId, paymentIntentId: intent.id, amountReceived: intent.amount_received, currency: intent.currency });
+        await finalizeFinal(deps, {
+          projectId,
+          paymentIntentId: intent.id,
+          amountReceived: intent.amount_received,
+          currency: intent.currency,
+        });
       } else {
         await finalizeDeposit(deps, {
           projectId,
@@ -68,7 +86,12 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       if (intent.metadata?.payment_stage === "final_balance") {
         // Hosted-Checkout retries are the customer's to repeat; only our own off-session attempt records a failure.
         if (intent.metadata?.collect !== "off_session") return;
-        await recordFinalFailure(deps, { projectId, paymentIntentId: intent.id, reason: code, requiresAction: code === "authentication_required" });
+        await recordFinalFailure(deps, {
+          projectId,
+          paymentIntentId: intent.id,
+          reason: code,
+          requiresAction: code === "authentication_required",
+        });
       } else {
         await recordDepositFailure(deps, { projectId, reason: code });
       }
@@ -80,7 +103,11 @@ const handleEvent = async (deps: PaymentsDeps, event: Stripe.Event): Promise<voi
       if (!paymentIntentId) return;
       const source = await deps.repo.findLedgerByPaymentIntent(paymentIntentId);
       if (!source) return;
-      await applyRefundedTotal(deps, { projectId: source.project_id, paymentIntentId, refundedTotal: charge.amount_refunded });
+      await applyRefundedTotal(deps, {
+        projectId: source.project_id,
+        paymentIntentId,
+        refundedTotal: charge.amount_refunded,
+      });
       return;
     }
     case "charge.dispute.created": {

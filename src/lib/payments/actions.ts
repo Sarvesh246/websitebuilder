@@ -2,7 +2,10 @@
 
 import { createDepositCheckout, createFinalCheckout } from "@/lib/payments/checkout";
 import { collectFinalBalance, type CollectOutcome } from "@/lib/payments/finalBalance";
-import { refundPayment as refundPaymentLib, requestCancellation as requestCancellationLib } from "@/lib/payments/refunds";
+import {
+  refundPayment as refundPaymentLib,
+  requestCancellation as requestCancellationLib,
+} from "@/lib/payments/refunds";
 import { PaymentError } from "@/lib/payments/stripe";
 import { demoMode, getPerspective, getViewer } from "@/lib/auth/session";
 import type { Viewer } from "@/lib/portal/types";
@@ -24,14 +27,19 @@ const actor = async (role?: "admin"): Promise<Viewer> => {
   if (!viewer) throw new PaymentError("Please sign in to continue.");
   if (role === "admin" && viewer.role !== "admin") throw new PaymentError("Not allowed.");
   // Like every other studio action, money actions are refused while the admin previews the client view.
-  if (viewer.role === "admin" && (await getPerspective(viewer)) !== "admin") throw new PaymentError("Preview mode: switch back to your admin view to do this.");
+  if (viewer.role === "admin" && (await getPerspective(viewer)) !== "admin")
+    throw new PaymentError("Preview mode: switch back to your admin view to do this.");
   return viewer;
 };
 
 const toFailure = (err: unknown): Failure => {
   if (err instanceof PaymentError) return { ok: false, error: err.message };
   serverLog("error", "payments.action_failed", {}, err instanceof Error ? err.name : "unknown");
-  return { ok: false, error: "The payment result could not be confirmed. Check the Payments tab before trying again, or message the studio." };
+  return {
+    ok: false,
+    error:
+      "The payment result could not be confirmed. Check the Payments tab before trying again, or message the studio.",
+  };
 };
 
 export async function startCheckout(projectId: string, consent: boolean): Promise<{ ok: true; url: string } | Failure> {
@@ -80,7 +88,8 @@ export async function refundPayment(
   amountCents?: number,
 ): Promise<{ ok: true; refunded: number } | Failure> {
   if (demoMode()) return DEMO;
-  if (typeof projectId !== "string" || !UUID.test(projectId) || typeof paymentId !== "string" || !UUID.test(paymentId)) return INVALID;
+  if (typeof projectId !== "string" || !UUID.test(projectId) || typeof paymentId !== "string" || !UUID.test(paymentId))
+    return INVALID;
   if (amountCents !== undefined && (!Number.isSafeInteger(amountCents) || amountCents <= 0)) return INVALID;
   try {
     const viewer = await actor("admin");

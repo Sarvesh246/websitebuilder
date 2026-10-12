@@ -17,10 +17,7 @@ export const metadata: Metadata = {
   applicationName: siteConfig.entityName,
   // Google Search Console ownership token (public by design; keep it or Search Console unverifies the site).
   verification: {
-    google: [
-      "MEfX4usGD3i5kELjFilLbbr1DxTnZxjufyTmgBVa294",
-      "wtAKpBDP3sDsz_6iDOvu-7BjwKhPnuXZ6aWiRKezeig",
-    ],
+    google: ["MEfX4usGD3i5kELjFilLbbr1DxTnZxjufyTmgBVa294", "wtAKpBDP3sDsz_6iDOvu-7BjwKhPnuXZ6aWiRKezeig"],
     ...(bingVerification && { other: { "msvalidate.01": bingVerification } }),
   },
   // No canonical/openGraph.url here: each route sets its own via pageMetadata, so a route that
@@ -64,7 +61,12 @@ const themeScript = `var d=document.documentElement;d.dataset.js="";try{var c=na
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-US" data-scroll-behavior="smooth" suppressHydrationWarning className={`${figtree.variable} ${nunito.variable}`}>
+    <html
+      lang="en-US"
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+      className={`${figtree.variable} ${nunito.variable}`}
+    >
       <head>
         {/* Scroll reveals start hidden; without JS they must still be visible. */}
         <noscript>

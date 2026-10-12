@@ -75,7 +75,15 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
             </EmptyState>
           </Card>
         )}
-        <FeedbackPanel projectId={p.id} rounds={rounds} admin={isAdmin} canGive={open} used={p.revisionsUsed} included={p.revisionsIncluded} previewing={previewing} />
+        <FeedbackPanel
+          projectId={p.id}
+          rounds={rounds}
+          admin={isAdmin}
+          canGive={open}
+          used={p.revisionsUsed}
+          included={p.revisionsIncluded}
+          previewing={previewing}
+        />
       </div>
 
       <div className="pt-stack">
@@ -83,7 +91,12 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
           <div className="pt-prompt pt-prompt--stack">
             <div>
               <p className="pt-strong">Happy with it as it is?</p>
-              <p className="pt-small">{approvalNote(approvalChargeLabel(p), "Approving tells the studio the design is final and ends the revision rounds.")}</p>
+              <p className="pt-small">
+                {approvalNote(
+                  approvalChargeLabel(p),
+                  "Approving tells the studio the design is final and ends the revision rounds.",
+                )}
+              </p>
             </div>
             <ApproveButton projectId={p.id} chargeLabel={approvalChargeLabel(p)} />
           </div>
@@ -97,7 +110,10 @@ export default async function ProjectPreviewPage({ params }: PageProps<"/portal/
           <ol className="pt-steps">
             <li>Open the preview and note anything to change.</li>
             <li>Add one comment per change, with the page and a screenshot if it helps.</li>
-            <li>Send the round. Each round uses one of your {p.revisionsIncluded} included revision {p.revisionsIncluded === 1 ? "round" : "rounds"}.</li>
+            <li>
+              Send the round. Each round uses one of your {p.revisionsIncluded} included revision{" "}
+              {p.revisionsIncluded === 1 ? "round" : "rounds"}.
+            </li>
             <li>The studio works through it and lets you know when the round is addressed.</li>
           </ol>
         </Card>

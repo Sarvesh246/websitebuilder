@@ -46,14 +46,16 @@ export const ConceptCard = ({ concept, index }: { concept: Concept; index: numbe
   };
 
   const style = { "--glow": concept.glow, "--i": index } as CSSProperties;
-  const veil = inset && {
-    "--t": `${inset.t}px`,
-    "--r": `${inset.r}px`,
-    "--b": `${inset.b}px`,
-    "--l": `${inset.l}px`,
-    "--glow": concept.glow,
-    backgroundImage: `url(${concept.image})`,
-  } as CSSProperties;
+  const veil =
+    inset &&
+    ({
+      "--t": `${inset.t}px`,
+      "--r": `${inset.r}px`,
+      "--b": `${inset.b}px`,
+      "--l": `${inset.l}px`,
+      "--glow": concept.glow,
+      backgroundImage: `url(${concept.image})`,
+    } as CSSProperties);
 
   return (
     <>

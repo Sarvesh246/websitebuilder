@@ -135,7 +135,10 @@
     opacity: 0;
   }
   /* a frosted surface nested in another only fades once (via the outer one) */
-  :root[data-js] [data-reveal]:not([data-in]) :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
+  :root[data-js]
+    [data-reveal]:not([data-in])
+    :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"])
+    :is(.pane, .pkg, .pkg-common, .about__text, [class*="glass"]) {
     opacity: 1;
   }
   @media (prefers-reduced-motion: reduce) {

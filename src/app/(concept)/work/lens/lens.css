@@ -196,17 +196,34 @@
 }
 
 @keyframes lens-kenburns {
-  from { transform: scale(1); }
-  to { transform: scale(1.12); }
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
 }
 @keyframes lens-rise {
-  from { opacity: 0; transform: translateY(1.5rem); }
-  to { opacity: 1; transform: none; }
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 @keyframes lens-line {
-  0% { transform: scaleY(0); }
-  60% { transform: scaleY(1); }
-  100% { transform: scaleY(1); opacity: 0; }
+  0% {
+    transform: scaleY(0);
+  }
+  60% {
+    transform: scaleY(1);
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
 }
 
 /* ---------- gallery ---------- */
@@ -232,7 +249,9 @@
   text-transform: uppercase;
   color: var(--lens-mute);
   border-bottom: 1px solid transparent;
-  transition: color 0.4s var(--lens-ease), border-color 0.4s var(--lens-ease);
+  transition:
+    color 0.4s var(--lens-ease),
+    border-color 0.4s var(--lens-ease);
 }
 
 .cx-lens .lens-filter:hover {
@@ -259,10 +278,14 @@
 }
 
 @media (min-width: 700px) {
-  .cx-lens .lens-grid { columns: 2; }
+  .cx-lens .lens-grid {
+    columns: 2;
+  }
 }
 @media (min-width: 1400px) {
-  .cx-lens .lens-grid { columns: 3; }
+  .cx-lens .lens-grid {
+    columns: 3;
+  }
 }
 
 .cx-lens .lens-tile {
@@ -274,7 +297,9 @@
   .cx-lens .lens-tile {
     opacity: 0;
     transform: translateY(2rem);
-    transition: opacity .2s var(--ease-standard), transform var(--dur-spring) var(--lens-ease);
+    transition:
+      opacity 0.2s var(--ease-standard),
+      transform var(--dur-spring) var(--lens-ease);
   }
   .cx-lens .lens-tile[data-in] {
     opacity: 1;
@@ -318,7 +343,9 @@
   background: linear-gradient(to top, rgba(10, 10, 11, 0.88), rgba(10, 10, 11, 0));
   opacity: 0;
   transform: translateY(0.5rem);
-  transition: opacity 0.6s var(--lens-ease), transform 0.6s var(--lens-ease);
+  transition:
+    opacity 0.6s var(--lens-ease),
+    transform 0.6s var(--lens-ease);
 }
 
 .cx-lens .lens-tile__btn:hover .lens-tile__cap,
@@ -557,8 +584,12 @@
 }
 
 @keyframes lens-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .cx-lens .lens-lb__top {
@@ -638,8 +669,12 @@
     width: 3rem;
     height: 3rem;
   }
-  .cx-lens .lens-lb__nav--prev { left: 0.5rem; }
-  .cx-lens .lens-lb__nav--next { right: 0.5rem; }
+  .cx-lens .lens-lb__nav--prev {
+    left: 0.5rem;
+  }
+  .cx-lens .lens-lb__nav--next {
+    right: 0.5rem;
+  }
 }
 
 .cx-lens .lens-lb__cap {

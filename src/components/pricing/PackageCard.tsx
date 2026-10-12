@@ -47,7 +47,9 @@ export const PackageCard = ({ tier }: { tier: PackageTier }) => {
             </>
           )}
         </p>
-        <p className={founding ? "pkg__pill" : "pkg__pill pkg__pill--plain"}>{founding ? `${label}${tier.priceLabel ? "*" : ""}` : "One-time price"}</p>
+        <p className={founding ? "pkg__pill" : "pkg__pill pkg__pill--plain"}>
+          {founding ? `${label}${tier.priceLabel ? "*" : ""}` : "One-time price"}
+        </p>
       </div>
       <div className="pkg__body">
         <p className="pkg__lead-in">{tier.includesLead}</p>

@@ -41,7 +41,9 @@ export default function CafePage() {
             <a href="#hours">Hours</a>
             <a href="#visit">Visit</a>
           </nav>
-          <a href="#visit" className="cafe-btn cafe-btn--sm">Plan a visit</a>
+          <a href="#visit" className="cafe-btn cafe-btn--sm">
+            Plan a visit
+          </a>
         </div>
       </header>
 
@@ -52,11 +54,16 @@ export default function CafePage() {
             Warm bread, <em>slow</em> coffee, a seat by the window.
           </h1>
           <p className="cafe-hero__lead">
-            Marlow &amp; Finch bakes every morning and pours every cup by hand. Stay a while, or grab something warm for the walk.
+            Marlow &amp; Finch bakes every morning and pours every cup by hand. Stay a while, or grab something warm for
+            the walk.
           </p>
           <div className="cafe-hero__cta">
-            <a href="#visit" className="cafe-btn">Plan a visit</a>
-            <a href="#menu" className="cafe-link">See the menu</a>
+            <a href="#visit" className="cafe-btn">
+              Plan a visit
+            </a>
+            <a href="#menu" className="cafe-link">
+              See the menu
+            </a>
           </div>
           <p className="cafe-script" aria-hidden>
             come as you are, stay for the second cup
@@ -64,11 +71,29 @@ export default function CafePage() {
         </div>
         <div className="cafe-hero__art">
           <div className="cafe-arch">
-            <Image src="/images/work/cafe/table.webp" alt="A sunny cafe table by the window with a french press, cups and plants" fill priority sizes="(min-width: 900px) 46vw, 92vw" />
+            <Image
+              src="/images/work/cafe/table.webp"
+              alt="A sunny cafe table by the window with a french press, cups and plants"
+              fill
+              priority
+              sizes="(min-width: 900px) 46vw, 92vw"
+            />
           </div>
           <svg className="cafe-steam" aria-hidden viewBox="0 0 40 60" width="40" height="60">
-            <path d="M12 56c-6-10 6-14 0-24s6-14 0-24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-            <path d="M28 56c-6-10 6-14 0-24s6-14 0-24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            <path
+              d="M12 56c-6-10 6-14 0-24s6-14 0-24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d="M28 56c-6-10 6-14 0-24s6-14 0-24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
           </svg>
           <div className="cafe-sticker" aria-hidden>
             <span>Baked</span>
@@ -93,7 +118,12 @@ export default function CafePage() {
             <h2 className="cafe-h2">Simple things, made properly.</h2>
             <p className="cafe-body">A short menu that changes with the season and with what the oven allows.</p>
             <div className="cafe-menu-photo">
-              <Image src="/images/work/cafe/latte.webp" alt="Two latte art cups decorated with leaves" fill sizes="(min-width: 900px) 30vw, 70vw" />
+              <Image
+                src="/images/work/cafe/latte.webp"
+                alt="Two latte art cups decorated with leaves"
+                fill
+                sizes="(min-width: 900px) 30vw, 70vw"
+              />
             </div>
           </Reveal>
           <Reveal className="cafe-menu-main" delay={80}>
@@ -110,22 +140,52 @@ export default function CafePage() {
           </Reveal>
           <Reveal className="cafe-mosaic" delay={60}>
             <figure className="m m-a">
-              <Image src="/images/work/cafe/pour.webp" alt="A barista setting up a pour-over coffee" fill sizes="(min-width: 900px) 36vw, 92vw" />
+              <Image
+                src="/images/work/cafe/pour.webp"
+                alt="A barista setting up a pour-over coffee"
+                fill
+                sizes="(min-width: 900px) 36vw, 92vw"
+              />
             </figure>
             <figure className="m m-b">
-              <Image src="/images/work/cafe/pastry.webp" alt="Fruit tarts lined up on a white surface, seen from above" fill sizes="(min-width: 900px) 22vw, 46vw" />
+              <Image
+                src="/images/work/cafe/pastry.webp"
+                alt="Fruit tarts lined up on a white surface, seen from above"
+                fill
+                sizes="(min-width: 900px) 22vw, 46vw"
+              />
             </figure>
             <figure className="m m-c">
-              <Image src="/images/work/cafe/bread.webp" alt="Rustic sourdough loaves with wheat stalks" fill sizes="(min-width: 900px) 30vw, 92vw" />
+              <Image
+                src="/images/work/cafe/bread.webp"
+                alt="Rustic sourdough loaves with wheat stalks"
+                fill
+                sizes="(min-width: 900px) 30vw, 92vw"
+              />
             </figure>
             <figure className="m m-d">
-              <Image src="/images/work/cafe/cheers.webp" alt="Two people clinking latte cups, seen from above" fill sizes="(min-width: 900px) 30vw, 92vw" />
+              <Image
+                src="/images/work/cafe/cheers.webp"
+                alt="Two people clinking latte cups, seen from above"
+                fill
+                sizes="(min-width: 900px) 30vw, 92vw"
+              />
             </figure>
             <figure className="m m-e">
-              <Image src="/images/work/cafe/interior.webp" alt="Cafe interior with plants and wooden tables" fill sizes="(min-width: 900px) 30vw, 92vw" />
+              <Image
+                src="/images/work/cafe/interior.webp"
+                alt="Cafe interior with plants and wooden tables"
+                fill
+                sizes="(min-width: 900px) 30vw, 92vw"
+              />
             </figure>
             <figure className="m m-f">
-              <Image src="/images/work/cafe/beans.webp" alt="Close up of roasted coffee beans" fill sizes="(min-width: 900px) 20vw, 46vw" />
+              <Image
+                src="/images/work/cafe/beans.webp"
+                alt="Close up of roasted coffee beans"
+                fill
+                sizes="(min-width: 900px) 20vw, 46vw"
+              />
             </figure>
           </Reveal>
         </div>
@@ -172,7 +232,9 @@ export default function CafePage() {
                 <rect x="20" y="230" width="80" height="70" rx="10" fill="#e2d2b9" />
                 <rect x="140" y="230" width="130" height="70" rx="10" fill="#e2d2b9" />
                 <rect x="310" y="230" width="70" height="70" rx="10" fill="#e2d2b9" />
-                <text x="130" y="206" fontSize="11" fill="#6b5543" letterSpacing="2">ALDER STREET</text>
+                <text x="130" y="206" fontSize="11" fill="#6b5543" letterSpacing="2">
+                  ALDER STREET
+                </text>
                 <g transform="translate(205 118)">
                   <path d="M0 0c-14-18-20-26-20-36a20 20 0 0 1 40 0c0 10-6 18-20 36z" fill="#c9672f" />
                   <circle cy="-36" r="8" fill="#f6efe4" />
@@ -195,7 +257,9 @@ export default function CafePage() {
             <a href="#hours">Hours</a>
             <a href="#visit">Visit</a>
           </nav>
-          <a href="#visit" className="cafe-btn cafe-btn--light">Plan a visit</a>
+          <a href="#visit" className="cafe-btn cafe-btn--light">
+            Plan a visit
+          </a>
         </div>
         <p className="cafe-foot__fine">A concept website. Marlow &amp; Finch is a fictional cafe.</p>
       </footer>

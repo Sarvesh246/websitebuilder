@@ -48,7 +48,9 @@ const showSelf = (el: HTMLElement) => el.setAttribute("data-in", "");
 
 /** Items of a group reveal in order: each gets its index for the stagger delay, then all flip at once. */
 const showItems = (group: HTMLElement) => {
-  const items = Array.from(group.querySelectorAll<HTMLElement>("[data-reveal-item]")).filter((item) => item.closest("[data-reveal-group]") === group);
+  const items = Array.from(group.querySelectorAll<HTMLElement>("[data-reveal-item]")).filter(
+    (item) => item.closest("[data-reveal-group]") === group,
+  );
   items.forEach((item, i) => {
     item.style.setProperty("--reveal-i", String(i));
     item.setAttribute("data-in", "");
@@ -89,7 +91,10 @@ type RevealGroupProps = {
 /** Parent that staggers its <RevealItem/> children (in document order) once the group scrolls into view. */
 export const RevealGroup = ({ children, className, stagger = 0.08, delay = 0 }: RevealGroupProps) => {
   const ref = useRevealOnView(showItems);
-  const style = { "--reveal-stagger": `${stagger}s`, ...(delay ? { "--reveal-delay": `${delay}s` } : null) } as CSSProperties;
+  const style = {
+    "--reveal-stagger": `${stagger}s`,
+    ...(delay ? { "--reveal-delay": `${delay}s` } : null),
+  } as CSSProperties;
   return (
     <div ref={ref} data-reveal-group className={className} style={style}>
       {children}

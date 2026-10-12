@@ -13,8 +13,12 @@ export const NotFoundContent = () => (
         <h1 className="t-h2">Page not found.</h1>
         <p className="t-lead max-w-[38ch]">The page you&apos;re looking for doesn&apos;t exist or may have moved.</p>
         <div className="final-cta__actions">
-          <Button href="/" size="lg" variant="secondary">Back home</Button>
-          <Button href={siteConfig.cta.href} size="lg" icon="diag">{siteConfig.cta.label}</Button>
+          <Button href="/" size="lg" variant="secondary">
+            Back home
+          </Button>
+          <Button href={siteConfig.cta.href} size="lg" icon="diag">
+            {siteConfig.cta.label}
+          </Button>
         </div>
       </div>
     </Container>

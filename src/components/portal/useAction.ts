@@ -16,7 +16,11 @@ export const useAction = () => {
 
   const run = (
     fn: () => Promise<ActionResult>,
-    opts: { refresh?: boolean; success?: string | ((r: ActionResult) => string); onOk?: (r: ActionResult) => void } = {},
+    opts: {
+      refresh?: boolean;
+      success?: string | ((r: ActionResult) => string);
+      onOk?: (r: ActionResult) => void;
+    } = {},
   ) => {
     if (running.current) return;
     running.current = true;

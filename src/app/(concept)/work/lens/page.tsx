@@ -32,10 +32,18 @@ export default function LensPage() {
         </a>
         <nav aria-label="Primary">
           <ul className="lens-nav__list">
-            <li><a href="#work">Work</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#services">Services</a></li>
-            <li><a href="#book">Book</a></li>
+            <li>
+              <a href="#work">Work</a>
+            </li>
+            <li>
+              <a href="#about">About</a>
+            </li>
+            <li>
+              <a href="#services">Services</a>
+            </li>
+            <li>
+              <a href="#book">Book</a>
+            </li>
           </ul>
         </nav>
       </header>
@@ -75,7 +83,9 @@ export default function LensPage() {
       </section>
 
       <section className="lens-services" id="services" aria-labelledby="lens-services-t">
-        <h2 id="lens-services-t" className="lens-label">Services</h2>
+        <h2 id="lens-services-t" className="lens-label">
+          Services
+        </h2>
         <ul className="lens-services__list">
           {services.map((s) => (
             <li key={s.name} className="lens-services__row">

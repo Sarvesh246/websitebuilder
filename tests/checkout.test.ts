@@ -2,7 +2,17 @@ import { describe, expect, it } from "vitest";
 import { createDepositCheckout, createFinalCheckout } from "@/lib/payments/checkout";
 import { startCheckout } from "@/lib/payments/actions";
 import { PaymentError } from "@/lib/payments/stripe";
-import { type Params, ADMIN, FakeRepo, OWNER, PROJECT_ID, STRANGER, makeDeps, makePaidDepositProject, makeProject } from "./helpers/fakes";
+import {
+  type Params,
+  ADMIN,
+  FakeRepo,
+  OWNER,
+  PROJECT_ID,
+  STRANGER,
+  makeDeps,
+  makePaidDepositProject,
+  makeProject,
+} from "./helpers/fakes";
 
 describe("deposit checkout", () => {
   it("charges the database deposit and saves the card for split packages", async () => {
@@ -41,11 +51,21 @@ describe("deposit checkout", () => {
     await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
     mocks.sessionsCreate.mockResolvedValueOnce({ id: "cs_2", url: "https://checkout.stripe.test/cs_2" });
     mocks.sessionsExpire.mockRejectedValueOnce(new Error("session already complete"));
-    await expect(createDepositCheckout(PROJECT_ID, OWNER, true, deps)).resolves.toEqual({ url: "https://checkout.stripe.test/cs_2" });
+    await expect(createDepositCheckout(PROJECT_ID, OWNER, true, deps)).resolves.toEqual({
+      url: "https://checkout.stripe.test/cs_2",
+    });
   });
 
   it("Launch pays in full and does not save a card", async () => {
-    const repo = new FakeRepo(makeProject({ package: "launch", total_amount: 5000, deposit_amount: 5000, remaining_amount: 0, final_payment_status: "not_required" }));
+    const repo = new FakeRepo(
+      makeProject({
+        package: "launch",
+        total_amount: 5000,
+        deposit_amount: 5000,
+        remaining_amount: 0,
+        final_payment_status: "not_required",
+      }),
+    );
     const { deps, mocks } = makeDeps(repo);
     await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
     const [params] = mocks.sessionsCreate.mock.calls[0] as unknown as [Params];
@@ -67,13 +87,17 @@ describe("deposit checkout", () => {
   });
 
   it("refuses a Custom project that has no quote yet", async () => {
-    const repo = new FakeRepo(makeProject({ package: "custom", total_amount: null, deposit_amount: null, remaining_amount: null }));
+    const repo = new FakeRepo(
+      makeProject({ package: "custom", total_amount: null, deposit_amount: null, remaining_amount: null }),
+    );
     const { deps } = makeDeps(repo);
     await expect(createDepositCheckout(PROJECT_ID, OWNER, true, deps)).rejects.toThrow("not been set");
   });
 
   it("uses the Custom amounts stored on the row, not a 50/50 assumption", async () => {
-    const repo = new FakeRepo(makeProject({ package: "custom", total_amount: 100000, deposit_amount: 30000, remaining_amount: 70000 }));
+    const repo = new FakeRepo(
+      makeProject({ package: "custom", total_amount: 100000, deposit_amount: 30000, remaining_amount: 70000 }),
+    );
     const { deps, mocks } = makeDeps(repo);
     await createDepositCheckout(PROJECT_ID, OWNER, true, deps);
     const [params] = mocks.sessionsCreate.mock.calls[0] as unknown as [Params];

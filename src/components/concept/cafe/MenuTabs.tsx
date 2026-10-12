@@ -90,7 +90,14 @@ export const MenuTabs = () => {
           </button>
         ))}
       </div>
-      <div key={group.id} role="tabpanel" id={`panel-${group.id}`} aria-labelledby={`tab-${group.id}`} className="cafe-panel" tabIndex={0}>
+      <div
+        key={group.id}
+        role="tabpanel"
+        id={`panel-${group.id}`}
+        aria-labelledby={`tab-${group.id}`}
+        className="cafe-panel"
+        tabIndex={0}
+      >
         <p className="cafe-panel__note">{group.note}</p>
         <ul className="cafe-items">
           {group.items.map((it) => (

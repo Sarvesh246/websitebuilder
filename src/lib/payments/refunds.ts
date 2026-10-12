@@ -22,9 +22,10 @@ export const refundPayment = async (
   const payment = await repo.getLedgerById(paymentId);
   if (!payment || payment.project_id !== projectId) throw new PaymentError("Payment not found on this project.");
   if (payment.status === "refunded") throw new PaymentError("This payment has already been fully refunded.");
-  const refundable =["full", "deposit", "final_balance"].includes(payment.type);
+  const refundable = ["full", "deposit", "final_balance"].includes(payment.type);
   const paidStatus = ["succeeded", "partially_refunded"].includes(payment.status);
-  if (!refundable || !paidStatus || !payment.stripe_payment_intent_id) throw new PaymentError("This payment cannot be refunded.");
+  if (!refundable || !paidStatus || !payment.stripe_payment_intent_id)
+    throw new PaymentError("This payment cannot be refunded.");
 
   const intentId = payment.stripe_payment_intent_id;
   const already = recordedRefunds(await repo.listLedger(projectId), intentId);
@@ -42,15 +43,16 @@ export const refundPayment = async (
     { payment_intent: intentId, amount, metadata: { project_id: projectId, payment_id: paymentId } },
     { idempotencyKey: `refund:${paymentId}:${already}:${amount}` },
   );
-  if (refund.status !== "succeeded") throw new PaymentError("The refund has not been confirmed yet. Check it in Stripe before trying again.");
+  if (refund.status !== "succeeded")
+    throw new PaymentError("The refund has not been confirmed yet. Check it in Stripe before trying again.");
   const intent = await stripe.paymentIntents.retrieve(intentId, { expand: ["latest_charge"] });
   const charge = typeof intent.latest_charge === "object" ? intent.latest_charge : null;
   // Read Stripe's cumulative total: another studio refund may have completed concurrently.
-  const refundedTotal = charge && typeof charge.amount_refunded === "number" ? charge.amount_refunded : already + amount;
+  const refundedTotal =
+    charge && typeof charge.amount_refunded === "number" ? charge.amount_refunded : already + amount;
   await applyRefundedTotal(deps, { projectId, paymentIntentId: intentId, refundedTotal, stripeRefundId: refund.id });
   return { refunded: amount };
 };
-
 
 /**
  * Client request to cancel within the 3-Day Project Cancellation Policy. Only stamps
@@ -69,7 +71,9 @@ export const requestCancellation = async (
   if (!project.initial_paid_at) throw new PaymentError("Nothing has been paid on this project yet.");
 
   if (!inCancellationWindow(project.initial_paid_at, now())) {
-    throw new PaymentError("The 3-day cancellation window has passed. Please message the studio if something has changed.");
+    throw new PaymentError(
+      "The 3-day cancellation window has passed. Please message the studio if something has changed.",
+    );
   }
 
   const requestedAt = now().toISOString();

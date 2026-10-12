@@ -37,8 +37,14 @@ const typeScale = [
   ["t-h2", "Choose what fits."],
   ["t-h3", "A clear process."],
   ["t-h4", "Personal, professional, business."],
-  ["t-lead", "Start simple or build something more ambitious. Every project includes responsive design, deployment, and complete ownership."],
-  ["t-body", "Body copy sits at a comfortable measure with generous line height, so longer paragraphs stay easy to read on any screen."],
+  [
+    "t-lead",
+    "Start simple or build something more ambitious. Every project includes responsive design, deployment, and complete ownership.",
+  ],
+  [
+    "t-body",
+    "Body copy sits at a comfortable measure with generous line height, so longer paragraphs stay easy to read on any screen.",
+  ],
   ["t-small", "Supporting copy, captions and helper text."],
 ] as const;
 
@@ -108,17 +114,30 @@ export default function DesignSystemPage() {
           <h2 className="t-h3">Buttons and badges</h2>
           <div className="flex flex-wrap items-center gap-4">
             <Button icon="diag">Start a Project</Button>
-            <Button variant="secondary" icon="right">Explore Work</Button>
-            <Button variant="link" icon="diag">View project</Button>
+            <Button variant="secondary" icon="right">
+              Explore Work
+            </Button>
+            <Button variant="link" icon="diag">
+              View project
+            </Button>
             <Button disabled>Disabled</Button>
-            <Button variant="secondary" disabled>Disabled</Button>
+            <Button variant="secondary" disabled>
+              Disabled
+            </Button>
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <Button size="lg" icon="diag">Large primary</Button>
-            <Button size="lg" variant="secondary" icon="right">Large secondary</Button>
+            <Button size="lg" icon="diag">
+              Large primary
+            </Button>
+            <Button size="lg" variant="secondary" icon="right">
+              Large secondary
+            </Button>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Badge><Sparkles aria-hidden size={12} strokeWidth={2} />Best value</Badge>
+            <Badge>
+              <Sparkles aria-hidden size={12} strokeWidth={2} />
+              Best value
+            </Badge>
             <Badge>Founding Client Pricing</Badge>
             <Badge tone="neutral">Neutral</Badge>
             <Badge tone="outline">Outline</Badge>
@@ -160,7 +179,9 @@ export default function DesignSystemPage() {
             </GlassSurface>
             <GlassSurface variant="subtle" className="flex min-h-40 flex-col gap-2">
               <h3 className="t-h4">Reduced transparency</h3>
-              <p className="t-small">Falls back to a solid surface when blur is unavailable or the OS asks for less transparency.</p>
+              <p className="t-small">
+                Falls back to a solid surface when blur is unavailable or the OS asks for less transparency.
+              </p>
             </GlassSurface>
           </Grid>
         </Container>

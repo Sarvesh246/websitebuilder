@@ -68,13 +68,18 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
   return (
     <m.dialog
       ref={root}
-      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 6 }}
-      transition={{ ...spring, opacity: { duration: .16 } }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
+      transition={{ ...spring, opacity: { duration: 0.16 } }}
       className="lens-lb"
       role="dialog"
       aria-modal="true"
       aria-label={`${photo.title}, ${photo.place}, ${photo.year}`}
-      onCancel={(event) => { event.preventDefault(); onClose(); }}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -97,7 +102,12 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
         </button>
       </div>
       <div className="lens-lb__stage">
-        <button type="button" className="lens-lb__nav lens-lb__nav--prev" onClick={() => go(-1)} aria-label="Previous photograph">
+        <button
+          type="button"
+          className="lens-lb__nav lens-lb__nav--prev"
+          onClick={() => go(-1)}
+          aria-label="Previous photograph"
+        >
           <span aria-hidden>&larr;</span>
         </button>
         <div className="lens-lb__frame" key={photo.id}>
@@ -112,7 +122,12 @@ export const Lightbox = ({ photos, index, onClose, onIndex }: Props) => {
             priority
           />
         </div>
-        <button type="button" className="lens-lb__nav lens-lb__nav--next" onClick={() => go(1)} aria-label="Next photograph">
+        <button
+          type="button"
+          className="lens-lb__nav lens-lb__nav--next"
+          onClick={() => go(1)}
+          aria-label="Next photograph"
+        >
           <span aria-hidden>&rarr;</span>
         </button>
       </div>

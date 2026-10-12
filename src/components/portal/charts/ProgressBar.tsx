@@ -12,11 +12,25 @@ type ProgressBarProps = {
   className?: string;
 };
 
-export const ProgressBar = ({ value, label, showValue = true, tone = "accent", size = "md", className }: ProgressBarProps) => {
+export const ProgressBar = ({
+  value,
+  label,
+  showValue = true,
+  tone = "accent",
+  size = "md",
+  className,
+}: ProgressBarProps) => {
   const pct = Math.max(0, Math.min(100, Math.round(value)));
   return (
     <div className={cn("pt-progress", `pt-progress--${size}`, `pt-progress--${tone}`, className)}>
-      <div className="pt-progress__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label={label ?? "Progress"}>
+      <div
+        className="pt-progress__track"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-label={label ?? "Progress"}
+      >
         <span className="pt-progress__fill" style={{ width: "100%", transform: `scaleX(${pct / 100})` }} />
       </div>
       {showValue && <span className="pt-progress__value">{pct}%</span>}

@@ -56,12 +56,7 @@ export const packageTiers: readonly PackageTier[] = [
     regularPrice: 99,
     priceLabel: "Student pricing",
     includesLead: "What's included",
-    features: [
-      "1 custom-designed page",
-      "Projects and resume sections",
-      "Basic contact section",
-      "1 revision round",
-    ],
+    features: ["1 custom-designed page", "Projects and resume sections", "Basic contact section", "1 revision round"],
     note: "One page. Need more pages? See Presence.",
     ctaLabel: "Get Launch",
   },
@@ -150,7 +145,9 @@ export const discountLabel = (tier: PackageTier): string | null =>
 /** Footnote for the asterisk on the Launch price. Derived from the config, so it can never disagree with the card. */
 export const studentFootnote = (): string | null => {
   const tier = packageTiers.find((t) => t.priceLabel && t.regularPrice !== undefined);
-  return tier ? `*Student pricing: ${tier.name} is $${tier.price} for students, regularly $${tier.regularPrice}.` : null;
+  return tier
+    ? `*Student pricing: ${tier.name} is $${tier.price} for students, regularly $${tier.regularPrice}.`
+    : null;
 };
 
 /** What every fixed package has, said once instead of on every card. */
@@ -171,7 +168,15 @@ export type CompareRow = {
 };
 
 export const compareRows: readonly CompareRow[] = [
-  { label: "Best for", values: ["Portfolios and resumes", "Creators and professionals", "Organizations and businesses", "Advanced projects"] },
+  {
+    label: "Best for",
+    values: [
+      "Portfolios and resumes",
+      "Creators and professionals",
+      "Organizations and businesses",
+      "Advanced projects",
+    ],
+  },
   { label: "Pages", values: ["1 page", "Up to 3", "Up to 5", "As scoped"] },
   { label: "Contact form", values: ["Basic contact section", true, true, "As scoped"] },
   { label: "SEO setup and analytics", values: [false, true, true, "As scoped"] },

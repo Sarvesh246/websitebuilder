@@ -8,7 +8,15 @@ import { ComparisonGuide, isComparisonGuide } from "@/components/guides/Comparis
 import { Button } from "@/components/ui/Button";
 import { Ambient } from "@/components/visual/Ambient";
 import { articleBySlug, articles, formatDate, type Article } from "@/config/articles";
-import { audienceGuides, faqPage, guideBySlug, guidesUpdated, priceLine, type GuideFaq, type GuideSection } from "@/config/guides";
+import {
+  audienceGuides,
+  faqPage,
+  guideBySlug,
+  guidesUpdated,
+  priceLine,
+  type GuideFaq,
+  type GuideSection,
+} from "@/config/guides";
 import { startHref } from "@/config/inquiry";
 import { commonInclusions, customTier, packageTiers } from "@/config/pricing";
 import { aboutPage } from "@/config/about";
@@ -68,14 +76,20 @@ const GuideShell = ({
     {jsonLd && jsonLdScript(jsonLd)}
     <Ambient preset="quiet" />
     <Container>
-      <article className={`legal__wrap doc${wide ? " doc--wide" : ""}${purpose ? ` purpose-guide purpose-guide--${purpose}` : ""}`}>
+      <article
+        className={`legal__wrap doc${wide ? " doc--wide" : ""}${purpose ? ` purpose-guide purpose-guide--${purpose}` : ""}`}
+      >
         <header className="legal__head">
           <nav aria-label="Breadcrumb" className="guide__crumbs t-small">
             <Link href="/">{siteConfig.entityName}</Link>
             {trail.map((c, i) => (
               <Fragment key={c.path}>
                 <span aria-hidden>/</span>
-                {i === trail.length - 1 ? <span aria-current="page">{c.name}</span> : <Link href={c.path}>{c.name}</Link>}
+                {i === trail.length - 1 ? (
+                  <span aria-current="page">{c.name}</span>
+                ) : (
+                  <Link href={c.path}>{c.name}</Link>
+                )}
               </Fragment>
             ))}
           </nav>
@@ -190,8 +204,8 @@ const ClosingCta = () => (
   <section className="legal__section guide__closing">
     <h2 className="t-h4">Ready to start?</h2>
     <p>
-      A project request takes a few minutes, costs nothing, and does not commit you to anything. You can also compare the
-      packages first.
+      A project request takes a few minutes, costs nothing, and does not commit you to anything. You can also compare
+      the packages first.
     </p>
     <div className="guide__actions">
       <Button href={startHref()} icon="diag">
@@ -287,7 +301,11 @@ const faqJsonLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: faqPage.groups.flatMap((g) =>
-    g.items.map((item) => ({ "@type": "Question", name: item.q, acceptedAnswer: { "@type": "Answer", text: plainText(item.a) } })),
+    g.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: plainText(item.a) },
+    })),
   ),
 };
 
@@ -365,7 +383,13 @@ export const ArticleView = ({ slug }: { slug: string }) => {
       ]}
     >
       {isComparisonGuide(slug) && <ComparisonGuide slug={slug} />}
-      {isComparisonGuide(slug) ? <div className="comparison-reading"><Sections sections={article.sections} /></div> : <Sections sections={article.sections} />}
+      {isComparisonGuide(slug) ? (
+        <div className="comparison-reading">
+          <Sections sections={article.sections} />
+        </div>
+      ) : (
+        <Sections sections={article.sections} />
+      )}
 
       {article.faq && (
         <section id="article-faq" className="legal__section" aria-labelledby="article-faq-title">
@@ -473,7 +497,13 @@ export const AboutView = () => (
     h1={aboutPage.h1}
     lead={aboutPage.lead}
     jsonLd={graph(
-      { "@type": "AboutPage", url: `${siteConfig.url}/about`, name: aboutPage.title, about: orgRef, mainEntity: founderRef },
+      {
+        "@type": "AboutPage",
+        url: `${siteConfig.url}/about`,
+        name: aboutPage.title,
+        about: orgRef,
+        mainEntity: founderRef,
+      },
       organizationNode,
       founderNode,
     )}
@@ -522,7 +552,8 @@ export const CalculatorView = () => (
       "@context": "https://schema.org",
       "@type": "WebApplication",
       name: "Website cost calculator",
-      description: "Estimate custom website design and build pricing from page count and features, with package inclusions and a payment breakdown.",
+      description:
+        "Estimate custom website design and build pricing from page count and features, with package inclusions and a payment breakdown.",
       url: `${siteConfig.url}${calcPath}`,
       applicationCategory: "BusinessApplication",
       operatingSystem: "Any",
@@ -535,7 +566,9 @@ export const CalculatorView = () => (
 
     <section className="legal__section">
       <h2 className="t-h4">How your website cost is calculated</h2>
-      <p>The number of pages sets the smallest package that fits. Features can only move the estimate up, never down.</p>
+      <p>
+        The number of pages sets the smallest package that fits. Features can only move the estimate up, never down.
+      </p>
       <ul>
         {packageTiers.map((t) => (
           <li key={t.id}>
@@ -565,7 +598,9 @@ export const CalculatorView = () => (
         <li>
           <Link href="/faq">FAQ</Link>
         </li>
-        <li><Link href="/guides/custom-website-vs-website-builder">Custom website vs Wix or Squarespace</Link></li>
+        <li>
+          <Link href="/guides/custom-website-vs-website-builder">Custom website vs Wix or Squarespace</Link>
+        </li>
       </ul>
     </nav>
   </GuideShell>

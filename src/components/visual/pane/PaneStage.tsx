@@ -14,7 +14,17 @@ export type StageLayer = {
   node: ReactNode;
 };
 
-const Layer = ({ x, y, layer, index }: { x: MotionValue<number>; y: MotionValue<number>; layer: StageLayer; index: number }) => {
+const Layer = ({
+  x,
+  y,
+  layer,
+  index,
+}: {
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+  layer: StageLayer;
+  index: number;
+}) => {
   const tx = useTransform(x, (v) => v * layer.depth);
   const ty = useTransform(y, (v) => v * layer.depth);
   return (
@@ -31,7 +41,15 @@ const Layer = ({ x, y, layer, index }: { x: MotionValue<number>; y: MotionValue<
  * motion is a spring-smoothed pointer parallax for desktop mice (never touch, never reduced motion).
  * Pointer position lives in motion values, so moving the mouse never re-renders React.
  */
-export const PaneStage = ({ label, className, layers }: { label: string; className?: string; layers: StageLayer[] }) => {
+export const PaneStage = ({
+  label,
+  className,
+  layers,
+}: {
+  label: string;
+  className?: string;
+  layers: StageLayer[];
+}) => {
   const reduce = useReducedMotion();
   const px = useMotionValue(0);
   const py = useMotionValue(0);
@@ -64,7 +82,14 @@ export const PaneStage = ({ label, className, layers }: { label: string; classNa
   };
 
   return (
-    <div ref={ref} className={cn("stage", className)} role="img" aria-label={label} onPointerMove={onMove} onPointerLeave={onLeave}>
+    <div
+      ref={ref}
+      className={cn("stage", className)}
+      role="img"
+      aria-label={label}
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+    >
       {layers.map((layer, i) => (
         <Layer key={layer.id} x={x} y={y} layer={layer} index={i} />
       ))}

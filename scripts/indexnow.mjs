@@ -22,7 +22,9 @@ if (!sitemap.ok) {
   console.error(`Could not read ${site}/sitemap.xml (HTTP ${sitemap.status}).`);
   process.exit(1);
 }
-const urlList = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].trim()).filter((u) => new URL(u).host === host);
+const urlList = [...(await sitemap.text()).matchAll(/<loc>([^<]+)<\/loc>/g)]
+  .map((m) => m[1].trim())
+  .filter((u) => new URL(u).host === host);
 
 const res = await fetch("https://api.indexnow.org/indexnow", {
   method: "POST",

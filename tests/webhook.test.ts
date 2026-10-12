@@ -4,13 +4,24 @@ import { FakeRepo, PROJECT_ID, makeDeps, makePaidDepositProject, makeProject } f
 
 const SECRET = "whsec_unit_test";
 
-const signedEvent = (deps: ReturnType<typeof makeDeps>["deps"], id: string, type: string, object: Record<string, unknown>) => {
+const signedEvent = (
+  deps: ReturnType<typeof makeDeps>["deps"],
+  id: string,
+  type: string,
+  object: Record<string, unknown>,
+) => {
   const rawBody = JSON.stringify({ id, object: "event", type, data: { object } });
   const signature = deps.stripe.webhooks.generateTestHeaderString({ payload: rawBody, secret: SECRET });
   return { rawBody, signature, secret: SECRET };
 };
 
-const paidSession = { id: "cs_1", payment_status: "paid", payment_intent: "pi_dep", amount_total: 10000, metadata: { project_id: PROJECT_ID, payment_stage: "deposit" } };
+const paidSession = {
+  id: "cs_1",
+  payment_status: "paid",
+  payment_intent: "pi_dep",
+  amount_total: 10000,
+  metadata: { project_id: PROJECT_ID, payment_stage: "deposit" },
+};
 
 describe("stripe webhook", () => {
   it("rejects a bad signature and a missing header, and changes nothing", async () => {
@@ -44,7 +55,12 @@ describe("stripe webhook", () => {
     const events = repo.events.length;
     await processStripeWebhook(
       deps,
-      signedEvent(deps, "evt_b", "payment_intent.succeeded", { id: "pi_dep", amount_received: 10000, payment_method: "pm_1", metadata: { project_id: PROJECT_ID, payment_stage: "deposit" } }),
+      signedEvent(deps, "evt_b", "payment_intent.succeeded", {
+        id: "pi_dep",
+        amount_received: 10000,
+        payment_method: "pm_1",
+        metadata: { project_id: PROJECT_ID, payment_stage: "deposit" },
+      }),
     );
     expect(repo.events).toHaveLength(events);
     expect(repo.ledger.filter((r) => r.status === "succeeded")).toHaveLength(1);
@@ -55,7 +71,11 @@ describe("stripe webhook", () => {
     const { deps } = makeDeps(repo);
     await processStripeWebhook(
       deps,
-      signedEvent(deps, "evt_f", "payment_intent.succeeded", { id: "pi_fin", amount_received: 10000, metadata: { project_id: PROJECT_ID, payment_stage: "final_balance" } }),
+      signedEvent(deps, "evt_f", "payment_intent.succeeded", {
+        id: "pi_fin",
+        amount_received: 10000,
+        metadata: { project_id: PROJECT_ID, payment_stage: "final_balance" },
+      }),
     );
     expect(repo.projects.get(PROJECT_ID)).toMatchObject({ final_payment_status: "paid", status: "ready_for_launch" });
   });
@@ -63,7 +83,10 @@ describe("stripe webhook", () => {
   it("ignores unpaid sessions and unhandled event types without recording them", async () => {
     const repo = new FakeRepo(makeProject());
     const { deps } = makeDeps(repo);
-    await processStripeWebhook(deps, signedEvent(deps, "evt_u", "checkout.session.completed", { ...paidSession, payment_status: "unpaid" }));
+    await processStripeWebhook(
+      deps,
+      signedEvent(deps, "evt_u", "checkout.session.completed", { ...paidSession, payment_status: "unpaid" }),
+    );
     expect(repo.projects.get(PROJECT_ID)!.initial_payment_status).toBe("pending");
     const other = await processStripeWebhook(deps, signedEvent(deps, "evt_o", "customer.created", { id: "cus_1" }));
     expect(other.body).toBe("ignored");
@@ -89,13 +112,30 @@ describe("stripe webhook", () => {
   it("records a dispute without deleting anything, and a refund keeps the ledger", async () => {
     const repo = new FakeRepo(makePaidDepositProject());
     repo.ledger.push({
-      id: "led-x", project_id: PROJECT_ID, type: "deposit", status: "succeeded", amount: 10000, currency: "usd", stripe_session_id: null,
-      stripe_payment_intent_id: "pi_dep", stripe_refund_id: null, failure_reason: null, idempotency_key: `project:${PROJECT_ID}:deposit`, created_at: "", paid_at: "",
+      id: "led-x",
+      project_id: PROJECT_ID,
+      type: "deposit",
+      status: "succeeded",
+      amount: 10000,
+      currency: "usd",
+      stripe_session_id: null,
+      stripe_payment_intent_id: "pi_dep",
+      stripe_refund_id: null,
+      failure_reason: null,
+      idempotency_key: `project:${PROJECT_ID}:deposit`,
+      created_at: "",
+      paid_at: "",
     });
     const { deps } = makeDeps(repo);
-    await processStripeWebhook(deps, signedEvent(deps, "evt_d", "charge.dispute.created", { id: "dp_1", payment_intent: "pi_dep" }));
+    await processStripeWebhook(
+      deps,
+      signedEvent(deps, "evt_d", "charge.dispute.created", { id: "dp_1", payment_intent: "pi_dep" }),
+    );
     expect(repo.projects.get(PROJECT_ID)).toMatchObject({ dispute_status: "open", payment_status: "disputed" });
-    await processStripeWebhook(deps, signedEvent(deps, "evt_rf", "charge.refunded", { id: "ch_1", payment_intent: "pi_dep", amount_refunded: 4000 }));
+    await processStripeWebhook(
+      deps,
+      signedEvent(deps, "evt_rf", "charge.refunded", { id: "ch_1", payment_intent: "pi_dep", amount_refunded: 4000 }),
+    );
     expect(repo.projects.get(PROJECT_ID)).toMatchObject({ refunded_amount: 4000, refund_status: "partial" });
     expect(repo.ledger.find((r) => r.id === "led-x")!.status).toBe("partially_refunded");
   });

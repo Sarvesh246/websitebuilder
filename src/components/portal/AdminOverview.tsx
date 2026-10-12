@@ -37,13 +37,29 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
 
       <div className="pt-grid pt-kpis">
         <StatTile label="Active projects" value={k.activeProjects} sub="Accepted through launch" icon={FolderKanban} />
-        <StatTile label="New requests" value={k.newRequests} sub={k.newRequests === 1 ? "Awaiting a reply" : "Awaiting replies"} icon={Inbox} />
+        <StatTile
+          label="New requests"
+          value={k.newRequests}
+          sub={k.newRequests === 1 ? "Awaiting a reply" : "Awaiting replies"}
+          icon={Inbox}
+        />
         <StatTile label="Collected" value={formatUsd(k.collected)} sub="All time, after refunds" icon={Banknote}>
           <Sparkline values={o.revenueByMonth.map((m) => m.collected)} label="Collected per month, last six months" />
         </StatTile>
         <StatTile label="Outstanding" value={formatUsd(k.outstanding)} sub="Balances not yet paid" icon={Hourglass} />
-        <StatTile label="Overdue" value={k.overdue} sub={k.overdue === 0 ? "Everything on schedule" : "Past their deadline"} icon={AlarmClock} tone={k.overdue > 0 ? "warn" : "default"} />
-        <StatTile label="Unread" value={k.unread} sub={k.unread === 0 ? "Inbox is clear" : "Client messages"} icon={MessageSquare} />
+        <StatTile
+          label="Overdue"
+          value={k.overdue}
+          sub={k.overdue === 0 ? "Everything on schedule" : "Past their deadline"}
+          icon={AlarmClock}
+          tone={k.overdue > 0 ? "warn" : "default"}
+        />
+        <StatTile
+          label="Unread"
+          value={k.unread}
+          sub={k.unread === 0 ? "Inbox is clear" : "Client messages"}
+          icon={MessageSquare}
+        />
       </div>
 
       <div className="pt-grid pt-cols-main pt-section-gap">
@@ -57,7 +73,10 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
 
       <div className="pt-grid pt-cols-2 pt-section-gap">
         <Card title="Pipeline" note="Projects at each stage">
-          <PipelineBars title="Projects by stage" rows={o.pipeline.map((p) => ({ label: stageLabel[p.stage], value: p.count }))} />
+          <PipelineBars
+            title="Projects by stage"
+            rows={o.pipeline.map((p) => ({ label: stageLabel[p.stage], value: p.count }))}
+          />
         </Card>
 
         <Card
@@ -136,7 +155,11 @@ export const AdminOverview = async ({ viewer }: { viewer: Viewer }) => {
                 <li key={a.id}>
                   <span className="pt-dot" aria-hidden />
                   <div>
-                    <Link href={`/portal/projects/${a.projectId}`} className="pt-strong" style={{ textDecoration: "none" }}>
+                    <Link
+                      href={`/portal/projects/${a.projectId}`}
+                      className="pt-strong"
+                      style={{ textDecoration: "none" }}
+                    >
                       {a.clientName || "Project"}
                     </Link>
                     <span className="pt-muted">: {a.title}</span>

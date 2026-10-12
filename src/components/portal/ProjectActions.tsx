@@ -36,13 +36,29 @@ export const ApproveButton = ({ projectId, chargeLabel }: { projectId: string; c
     });
   return (
     <div className="pt-stack">
-      <button type="button" className="btn btn-primary" disabled={pending} aria-busy={pending} onClick={() => (chargeLabel ? setOpen(true) : approve())}>
+      <button
+        type="button"
+        className="btn btn-primary"
+        disabled={pending}
+        aria-busy={pending}
+        onClick={() => (chargeLabel ? setOpen(true) : approve())}
+      >
         <BadgeCheck aria-hidden size={17} strokeWidth={1.9} />
         {pending ? "Approving" : "Approve final version"}
       </button>
       {chargeLabel && (
-        <ConfirmDialog open={open} onClose={() => setOpen(false)} title="Approve and pay the balance?" confirmLabel={`Approve and pay ${chargeLabel}`} onConfirm={approve} busy={pending}>
-          <p>Approving ends the revision rounds. Your remaining balance of {chargeLabel} is then charged to the card you saved at checkout, as you authorized.</p>
+        <ConfirmDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          title="Approve and pay the balance?"
+          confirmLabel={`Approve and pay ${chargeLabel}`}
+          onConfirm={approve}
+          busy={pending}
+        >
+          <p>
+            Approving ends the revision rounds. Your remaining balance of {chargeLabel} is then charged to the card you
+            saved at checkout, as you authorized.
+          </p>
         </ConfirmDialog>
       )}
       <Feedback error={error} notice={notice} />
@@ -85,7 +101,15 @@ const outcomeText: Record<string, string> = {
   not_eligible: "This project is not ready for final payment.",
 };
 
-export const CollectFinalButton = ({ projectId, amountLabel, disabled }: { projectId: string; amountLabel: string; disabled?: boolean }) => {
+export const CollectFinalButton = ({
+  projectId,
+  amountLabel,
+  disabled,
+}: {
+  projectId: string;
+  amountLabel: string;
+  disabled?: boolean;
+}) => {
   const [open, setOpen] = useState(false);
   const { pending, error, notice, run } = useAction();
   return (
@@ -107,8 +131,8 @@ export const CollectFinalButton = ({ projectId, amountLabel, disabled }: { proje
         }
       >
         <p>
-          This marks revisions complete and charges the saved card {amountLabel} once. If the card is declined nothing is retried automatically, and the client is
-          asked to pay through checkout.
+          This marks revisions complete and charges the saved card {amountLabel} once. If the card is declined nothing
+          is retried automatically, and the client is asked to pay through checkout.
         </p>
       </ConfirmDialog>
       <Feedback error={error} notice={notice} />
@@ -117,9 +141,16 @@ export const CollectFinalButton = ({ projectId, amountLabel, disabled }: { proje
 };
 
 /** Turns the structured outcome into words the studio can act on. */
-export const outcomeMessage = (outcome: string | undefined, fallback?: string) => (outcome && outcomeText[outcome]) || fallback || "";
+export const outcomeMessage = (outcome: string | undefined, fallback?: string) =>
+  (outcome && outcomeText[outcome]) || fallback || "";
 
-export const RefundForm = ({ projectId, payments }: { projectId: string; payments: { id: string; label: string; amountCents: number }[] }) => {
+export const RefundForm = ({
+  projectId,
+  payments,
+}: {
+  projectId: string;
+  payments: { id: string; label: string; amountCents: number }[];
+}) => {
   const [chosenId, setPaymentId] = useState(payments[0]?.id ?? "");
   // After a refresh the list can change (a payment fully refunded drops out): never submit a stale id.
   const paymentId = payments.some((p) => p.id === chosenId) ? chosenId : (payments[0]?.id ?? "");
@@ -130,14 +161,25 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
 
   const cents = amount.trim() === "" ? undefined : Math.round(Number(amount) * 100);
   const selected = payments.find((p) => p.id === paymentId);
-  const invalid = cents !== undefined && (!/^\d+(?:\.\d{1,2})?$/.test(amount.trim()) || !Number.isSafeInteger(cents) || cents <= 0 || cents > (selected?.amountCents ?? 0));
+  const invalid =
+    cents !== undefined &&
+    (!/^\d+(?:\.\d{1,2})?$/.test(amount.trim()) ||
+      !Number.isSafeInteger(cents) ||
+      cents <= 0 ||
+      cents > (selected?.amountCents ?? 0));
 
   return (
     <div className="pt-stack">
       <div className="pt-form-row">
         <div className="pt-field">
           <label htmlFor="pt-refund-pay">Payment</label>
-          <select id="pt-refund-pay" disabled={pending || confirming} className="pt-select" value={paymentId} onChange={(e) => setPaymentId(e.target.value)}>
+          <select
+            id="pt-refund-pay"
+            disabled={pending || confirming}
+            className="pt-select"
+            value={paymentId}
+            onChange={(e) => setPaymentId(e.target.value)}
+          >
             {payments.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.label}
@@ -147,10 +189,29 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
         </div>
         <div className="pt-field">
           <label htmlFor="pt-refund-amt">Amount in dollars (blank = full)</label>
-          <input id="pt-refund-amt" className="pt-input" inputMode="decimal" value={amount} disabled={pending || confirming} onChange={(e) => setAmount(e.target.value)} placeholder="Full amount" aria-invalid={invalid || undefined} aria-describedby={invalid ? "pt-refund-error" : undefined} />
-          {invalid && <p id="pt-refund-error" className="pt-small" role="alert">Enter a positive amount with up to two decimals, no more than the selected payment.</p>}
+          <input
+            id="pt-refund-amt"
+            className="pt-input"
+            inputMode="decimal"
+            value={amount}
+            disabled={pending || confirming}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Full amount"
+            aria-invalid={invalid || undefined}
+            aria-describedby={invalid ? "pt-refund-error" : undefined}
+          />
+          {invalid && (
+            <p id="pt-refund-error" className="pt-small" role="alert">
+              Enter a positive amount with up to two decimals, no more than the selected payment.
+            </p>
+          )}
         </div>
-        <button type="button" className="btn btn-secondary btn-sm" disabled={invalid || !paymentId || pending} onClick={() => setConfirming(true)}>
+        <button
+          type="button"
+          className="btn btn-secondary btn-sm"
+          disabled={invalid || !paymentId || pending}
+          onClick={() => setConfirming(true)}
+        >
           <RotateCcw aria-hidden size={15} />
           Refund
         </button>
@@ -161,9 +222,17 @@ export const RefundForm = ({ projectId, payments }: { projectId: string; payment
         title="Issue this refund?"
         confirmLabel="Issue refund"
         busy={pending}
-        onConfirm={() => run(() => refundPayment(projectId, paymentId, cents), { success: "Refund issued.", onOk: () => setConfirming(false) })}
+        onConfirm={() =>
+          run(() => refundPayment(projectId, paymentId, cents), {
+            success: "Refund issued.",
+            onOk: () => setConfirming(false),
+          })
+        }
       >
-        <p>Refund {cents === undefined ? "the remaining refundable amount" : `$${(cents / 100).toFixed(2)}`} from {selected?.label} to the original payment method through Stripe. It cannot be undone.</p>
+        <p>
+          Refund {cents === undefined ? "the remaining refundable amount" : `$${(cents / 100).toFixed(2)}`} from{" "}
+          {selected?.label} to the original payment method through Stripe. It cannot be undone.
+        </p>
       </ConfirmDialog>
       <Feedback error={error} notice={notice} />
     </div>
@@ -175,7 +244,12 @@ export const RequestCancellationButton = ({ projectId }: { projectId: string }) 
   const { pending, error, notice, run } = useAction();
   return (
     <div className="pt-stack">
-      <button type="button" className="btn btn-secondary btn-sm btn-danger" onClick={() => setOpen(true)} disabled={pending}>
+      <button
+        type="button"
+        className="btn btn-secondary btn-sm btn-danger"
+        onClick={() => setOpen(true)}
+        disabled={pending}
+      >
         <XCircle aria-hidden size={15} />
         Request cancellation
       </button>
@@ -185,9 +259,17 @@ export const RequestCancellationButton = ({ projectId }: { projectId: string }) 
         title="Request cancellation?"
         confirmLabel="Send request"
         busy={pending}
-        onConfirm={() => run(() => requestCancellation(projectId), { success: "Cancellation requested. The studio will follow up.", onOk: () => setOpen(false) })}
+        onConfirm={() =>
+          run(() => requestCancellation(projectId), {
+            success: "Cancellation requested. The studio will follow up.",
+            onOk: () => setOpen(false),
+          })
+        }
       >
-        <p>This sends a request to the studio. Nothing is refunded automatically; any approved refund follows the cancellation policy.</p>
+        <p>
+          This sends a request to the studio. Nothing is refunded automatically; any approved refund follows the
+          cancellation policy.
+        </p>
       </ConfirmDialog>
       <Feedback error={error} notice={notice} />
     </div>

@@ -15,7 +15,15 @@ type Job = { key: string; name: string; pct: number; state: "uploading" | "done"
 /**
  * Drop zone plus a queue: every dropped or chosen file uploads straight to storage with its own progress bar.
  */
-export const FileUploader = ({ projectId, disabledReason, compact }: { projectId: string; disabledReason?: string; compact?: boolean }) => {
+export const FileUploader = ({
+  projectId,
+  disabledReason,
+  compact,
+}: {
+  projectId: string;
+  disabledReason?: string;
+  compact?: boolean;
+}) => {
   const router = useRouter();
   const inputId = useId();
   const input = useRef<HTMLInputElement>(null);
@@ -24,11 +32,15 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
   const disabled = Boolean(disabledReason);
   const busy = jobs.some((j) => j.state === "uploading");
 
-  const patch = (key: string, next: Partial<Job>) => setJobs((all) => all.map((j) => (j.key === key ? { ...j, ...next } : j)));
+  const patch = (key: string, next: Partial<Job>) =>
+    setJobs((all) => all.map((j) => (j.key === key ? { ...j, ...next } : j)));
 
   const start = async (files: File[]) => {
     if (disabled || files.length === 0) return;
-    const queued = files.map((f, i) => ({ file: f, job: { key: `${Date.now()}-${i}-${f.name}`, name: f.name, pct: 0, state: "uploading" as const } }));
+    const queued = files.map((f, i) => ({
+      file: f,
+      job: { key: `${Date.now()}-${i}-${f.name}`, name: f.name, pct: 0, state: "uploading" as const },
+    }));
     setJobs((all) => [...queued.map((q) => q.job), ...all.filter((j) => j.state !== "done")]);
     // Two uploads at a time: faster than one by one, without splitting a slow connection across many.
     let any = false;
@@ -55,7 +67,8 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
   };
 
   return (
-    <div className={cn("pt-drop", over && "pt-drop--over", compact && "pt-drop--compact")}
+    <div
+      className={cn("pt-drop", over && "pt-drop--over", compact && "pt-drop--compact")}
       onDragOver={(e) => {
         if (disabled) return;
         e.preventDefault();
@@ -67,10 +80,18 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
     >
       <Upload aria-hidden size={compact ? 18 : 24} strokeWidth={1.7} />
       <p className="pt-strong">
-        {over ? "Drop to upload" : <><span className="pt-drop__fine">Drag files here</span><span className="pt-drop__touch">Add files</span></>}
+        {over ? (
+          "Drop to upload"
+        ) : (
+          <>
+            <span className="pt-drop__fine">Drag files here</span>
+            <span className="pt-drop__touch">Add files</span>
+          </>
+        )}
       </p>
       <p className="pt-small">
-        <span className="pt-drop__fine">or choose them from your device. </span>Images, PDF, ZIP, DOCX or TXT, up to {MAX_UPLOAD_MB} MB each.
+        <span className="pt-drop__fine">or choose them from your device. </span>Images, PDF, ZIP, DOCX or TXT, up to{" "}
+        {MAX_UPLOAD_MB} MB each.
       </p>
       <input
         ref={input}
@@ -82,7 +103,12 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
         disabled={disabled}
         onChange={(e) => void start(Array.from(e.target.files ?? []))}
       />
-      <button type="button" className="btn btn-secondary btn-sm" disabled={disabled} onClick={() => input.current?.click()}>
+      <button
+        type="button"
+        className="btn btn-secondary btn-sm"
+        disabled={disabled}
+        onClick={() => input.current?.click()}
+      >
         {busy ? "Add more files" : "Choose files"}
       </button>
       {disabledReason && <p className="pt-small">{disabledReason}</p>}
@@ -91,21 +117,43 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
           {jobs.map((j) => (
             <li key={j.key} className="pt-upload" data-state={j.state}>
               <span className="pt-upload__icon" aria-hidden>
-                {j.state === "done" ? <CheckCircle2 size={16} /> : j.state === "error" ? <TriangleAlert size={16} /> : <Upload size={16} />}
+                {j.state === "done" ? (
+                  <CheckCircle2 size={16} />
+                ) : j.state === "error" ? (
+                  <TriangleAlert size={16} />
+                ) : (
+                  <Upload size={16} />
+                )}
               </span>
               <div className="pt-upload__body">
                 <span className="pt-upload__name">{j.name}</span>
                 {j.state === "error" ? (
-                  <span className="pt-upload__error" role="alert">{j.error}</span>
+                  <span className="pt-upload__error" role="alert">
+                    {j.error}
+                  </span>
                 ) : (
-                  <span className="pt-upload__bar" role="progressbar" aria-label={`Uploading ${j.name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={j.pct}>
+                  <span
+                    className="pt-upload__bar"
+                    role="progressbar"
+                    aria-label={`Uploading ${j.name}`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={j.pct}
+                  >
                     <span style={{ width: `${j.pct}%` }} />
                   </span>
                 )}
               </div>
-              <span className="pt-upload__pct pt-num">{j.state === "done" ? "Done" : j.state === "error" ? "" : `${j.pct}%`}</span>
+              <span className="pt-upload__pct pt-num">
+                {j.state === "done" ? "Done" : j.state === "error" ? "" : `${j.pct}%`}
+              </span>
               {j.state !== "uploading" && (
-                <button type="button" className="pt-upload__x" aria-label={`Dismiss ${j.name}`} onClick={() => setJobs((all) => all.filter((x) => x.key !== j.key))}>
+                <button
+                  type="button"
+                  className="pt-upload__x"
+                  aria-label={`Dismiss ${j.name}`}
+                  onClick={() => setJobs((all) => all.filter((x) => x.key !== j.key))}
+                >
                   <X aria-hidden size={14} />
                 </button>
               )}
@@ -121,7 +169,12 @@ export const FileUploader = ({ projectId, disabledReason, compact }: { projectId
 export const useFileOpener = () => {
   const { pending, error, run } = useAction();
   const open = (fileId: string) =>
-    run(() => fileDownloadUrl(fileId), { refresh: false, onOk: (r) => { if (r.url) window.location.assign(r.url); } });
+    run(() => fileDownloadUrl(fileId), {
+      refresh: false,
+      onOk: (r) => {
+        if (r.url) window.location.assign(r.url);
+      },
+    });
   return { pending, error, open, run };
 };
 
@@ -155,10 +208,20 @@ export const FileActions = ({ fileId, name, canDelete }: { fileId: string; name:
           <Trash2 aria-hidden size={19} strokeWidth={1.75} />
         </button>
       )}
-      <ConfirmDialog open={confirmDelete} onClose={() => setConfirmDelete(false)} title="Delete this file?" confirmLabel="Delete file" busy={pending}
-        onConfirm={() => run(() => deleteFile(fileId), { onOk: () => setConfirmDelete(false) })}>
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title="Delete this file?"
+        confirmLabel="Delete file"
+        busy={pending}
+        onConfirm={() => run(() => deleteFile(fileId), { onOk: () => setConfirmDelete(false) })}
+      >
         <p>{name} will be permanently removed. This cannot be undone.</p>
-        {error && <p className="pt-msg pt-msg--error" role="alert">{error}</p>}
+        {error && (
+          <p className="pt-msg pt-msg--error" role="alert">
+            {error}
+          </p>
+        )}
       </ConfirmDialog>
     </div>
   );

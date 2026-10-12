@@ -61,7 +61,12 @@ const CONTROL = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g;
 
 /** Trim and strip control characters (keeps normal newlines and tabs). */
 export const clean = (value: unknown, max: number) =>
-  typeof value === "string" ? value.replace(CONTROL, "").trim().slice(0, max + 1) : "";
+  typeof value === "string"
+    ? value
+        .replace(CONTROL, "")
+        .trim()
+        .slice(0, max + 1)
+    : "";
 
 /** Single-line fields: also collapse newlines/tabs so a value can never smuggle in extra lines. */
 const line = (value: unknown, max: number) => clean(value, max).replace(/\s+/g, " ");
@@ -106,7 +111,8 @@ export const validateInquiry = (input: unknown): Result => {
   const projectTypeOther = projectType === "other" ? line(raw.projectTypeOther, limits.other) : "";
   if (projectType === "other") {
     if (!projectTypeOther) errors.projectTypeOther = "Please briefly describe what the website is for.";
-    else if (projectTypeOther.length > limits.other) errors.projectTypeOther = `Please keep this under ${limits.other} characters.`;
+    else if (projectTypeOther.length > limits.other)
+      errors.projectTypeOther = `Please keep this under ${limits.other} characters.`;
   }
 
   const description = clean(raw.description, limits.descriptionMax);
@@ -136,11 +142,13 @@ export const validateInquiry = (input: unknown): Result => {
     if (normalized) links.push(normalized);
     else errors[`links.${index}`] = "Please enter a valid web address, such as example.com.";
   });
-  if (Array.isArray(raw.links) && raw.links.length > limits.links) errors.links = `Please include no more than ${limits.links} links.`;
+  if (Array.isArray(raw.links) && raw.links.length > limits.links)
+    errors.links = `Please include no more than ${limits.links} links.`;
 
   // Lists must be arrays when present (the form always sends arrays); other shapes are malformed.
   if (raw.links !== undefined && !Array.isArray(raw.links)) errors.links = "Please re-enter your reference links.";
-  if (raw.features !== undefined && !Array.isArray(raw.features)) errors.features = "One of the selected features was not recognized. Please select it again.";
+  if (raw.features !== undefined && !Array.isArray(raw.features))
+    errors.features = "One of the selected features was not recognized. Please select it again.";
   const featureList = Array.isArray(raw.features) ? raw.features : [];
   const selected = [...new Set(featureList.filter((f): f is string => typeof f === "string"))];
   if (selected.some((id) => !featureIds.includes(id)) || selected.length > featureIds.length) {
@@ -152,12 +160,14 @@ export const validateInquiry = (input: unknown): Result => {
   const timelineOther = timeline === "other" ? line(raw.timelineOther, limits.other) : "";
   if (timeline === "other") {
     if (!timelineOther) errors.timelineOther = "Please briefly describe your preferred launch timing.";
-    else if (timelineOther.length > limits.other) errors.timelineOther = `Please keep this under ${limits.other} characters.`;
+    else if (timelineOther.length > limits.other)
+      errors.timelineOther = `Please keep this under ${limits.other} characters.`;
   }
 
   // Budget only applies to Custom; ignore anything sent for fixed packages.
   const budgetRaw = clean(raw.budget, 20);
-  if (pkg === "custom" && budgetRaw && !oneOf(budgets, budgetRaw)) errors.budget = "Please select one of the budget ranges.";
+  if (pkg === "custom" && budgetRaw && !oneOf(budgets, budgetRaw))
+    errors.budget = "Please select one of the budget ranges.";
   const budget = pkg === "custom" && oneOf(budgets, budgetRaw) ? budgetRaw : "";
 
   const name = line(raw.name, limits.name);

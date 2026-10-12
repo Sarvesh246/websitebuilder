@@ -77,8 +77,7 @@
     border: 1px solid var(--glass-border);
     background:
       radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%),
-      linear-gradient(160deg, var(--pt-sheen), transparent 40%),
-      var(--pt-pane);
+      linear-gradient(160deg, var(--pt-sheen), transparent 40%), var(--pt-pane);
     -webkit-backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
     backdrop-filter: blur(var(--pt-blur)) saturate(1.5);
     box-shadow:
@@ -186,7 +185,9 @@
       gap: 1.5rem;
       padding: 1.5rem 0.85rem 1rem;
       border-radius: var(--radius-card);
-      background: radial-gradient(140% 50% at var(--light-x) 0%, var(--pt-specular), transparent 50%), linear-gradient(170deg, var(--pt-sheen), transparent 32%), var(--pt-rail);
+      background:
+        radial-gradient(140% 50% at var(--light-x) 0%, var(--pt-specular), transparent 50%),
+        linear-gradient(170deg, var(--pt-sheen), transparent 32%), var(--pt-rail);
     }
   }
   .pt-brand {
@@ -209,7 +210,9 @@
     font-weight: 500;
     font-size: 0.97rem;
     text-decoration: none;
-    transition: background-color var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+    transition:
+      background-color var(--dur-fast) var(--ease-standard),
+      color var(--dur-fast) var(--ease-standard);
   }
   .pt-nav__link:hover {
     background: var(--pt-tint);
@@ -656,7 +659,9 @@
   }
   /* A pane that needs attention holds a little of the warning colour in its glass. */
   .pt-stat--warn {
-    background: radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%), linear-gradient(180deg, var(--danger-soft), transparent 70%), var(--pt-pane);
+    background:
+      radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%),
+      linear-gradient(180deg, var(--danger-soft), transparent 70%), var(--pt-pane);
   }
 
   /* ---------- Chips ---------- */
@@ -1281,8 +1286,7 @@
     padding: clamp(1.4rem, 1rem + 2vw, 2.5rem);
     background:
       radial-gradient(120% 90% at var(--light-x) 0%, var(--glass-specular), transparent 46%),
-      radial-gradient(38rem 20rem at 92% 0%, var(--accent-soft), transparent 70%),
-      var(--pt-pane-raised);
+      radial-gradient(38rem 20rem at 92% 0%, var(--accent-soft), transparent 70%), var(--pt-pane-raised);
   }
   .pt-hero__ring {
     display: grid;
@@ -1626,7 +1630,8 @@
     padding: 1.5rem;
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-card);
-    background: radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%), var(--nav-sheet-bg);
+    background:
+      radial-gradient(120% 70% at var(--light-x) 0%, var(--pt-specular), transparent 46%), var(--nav-sheet-bg);
     color: var(--text);
     box-shadow:
       inset 1px 1px 0 var(--glass-edge-lit),
@@ -1639,9 +1644,18 @@
     backdrop-filter: blur(6px);
   }
   @media (prefers-reduced-motion: no-preference) {
-    .pt-dialog[open]::backdrop { animation: pt-backdrop-in 150ms var(--ease-standard) both; }
+    .pt-dialog[open]::backdrop {
+      animation: pt-backdrop-in 150ms var(--ease-standard) both;
+    }
   }
-  @keyframes pt-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pt-backdrop-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
   .pt-dialog h2 {
     font-size: 1.15rem;
     font-weight: 600;
@@ -1698,7 +1712,8 @@
   }
 
   /* Solid panes where blur is unavailable, unwanted, or too costly (same layout, same contrast). */
-  :root[data-power="low"] :is(.pt-top, .pt-tabbar, .pt-side, .pt-card, .pt-stat, .pt-frame, .pt-tabs, .pt-banner, .pt-prompt, .pt-hero) {
+  :root[data-power="low"]
+    :is(.pt-top, .pt-tabbar, .pt-side, .pt-card, .pt-stat, .pt-frame, .pt-tabs, .pt-banner, .pt-prompt, .pt-hero) {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--surface-solid);

@@ -40,12 +40,20 @@ export const estimate = (pages: PagesId, features: readonly FeatureId[]): Estima
   const pageNeed = PAGE_OPTIONS.find((p) => p.id === pages)!.min;
   const bySize = packageTiers.find((t) => t.pages >= pageNeed)?.id ?? "custom";
   let pick: PackageId = bySize;
-  const reasons: string[] = [bySize === "custom" ? "More than five pages is quoted by scope." : `${PAGE_OPTIONS.find((p) => p.id === pages)!.label} fits ${packageTiers.find((t) => t.id === bySize)!.name}.`];
+  const reasons: string[] = [
+    bySize === "custom"
+      ? "More than five pages is quoted by scope."
+      : `${PAGE_OPTIONS.find((p) => p.id === pages)!.label} fits ${packageTiers.find((t) => t.id === bySize)!.name}.`,
+  ];
 
   for (const f of FEATURE_OPTIONS) {
     if (!features.includes(f.id) || ORDER.indexOf(f.needs) <= ORDER.indexOf(pick)) continue;
     pick = larger(pick, f.needs);
-    reasons.push(f.needs === "custom" ? `${f.label} goes beyond a website, so it is quoted under Custom.` : `${f.label} starts at ${packageTiers.find((t) => t.id === f.needs)!.name}.`);
+    reasons.push(
+      f.needs === "custom"
+        ? `${f.label} goes beyond a website, so it is quoted under Custom.`
+        : `${f.label} starts at ${packageTiers.find((t) => t.id === f.needs)!.name}.`,
+    );
   }
 
   if (pick === "custom") return { kind: "custom", reasons };

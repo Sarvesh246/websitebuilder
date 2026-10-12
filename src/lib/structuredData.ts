@@ -79,7 +79,12 @@ export const serviceNode = {
         priceCurrency: "USD",
         url: `${url}/#pricing`,
       })),
-      { "@type": "Offer", name: `${customTier.name} package`, description: `${customTier.blurb} ${customTier.note}`, url: `${url}/#pricing` },
+      {
+        "@type": "Offer",
+        name: `${customTier.name} package`,
+        description: `${customTier.blurb} ${customTier.note}`,
+        url: `${url}/#pricing`,
+      },
     ],
   },
 };

@@ -35,7 +35,8 @@ export const ThemeToggle = () => {
       onClick={toggle}
       onPointerEnter={preloadOtherTheme}
       onFocus={preloadOtherTheme}
-      aria-label={`Switch to ${next} theme`}>
+      aria-label={`Switch to ${next} theme`}
+    >
       {/* Both icons render; CSS shows the one for the active theme, so there is no flash. */}
       <Sun aria-hidden size={20} strokeWidth={1.6} className="theme-icon theme-icon--sun" />
       <Moon aria-hidden size={20} strokeWidth={1.6} className="theme-icon theme-icon--moon" />

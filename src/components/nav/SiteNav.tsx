@@ -53,7 +53,9 @@ export const SiteNav = () => {
     // Everything outside the header is inert while the sheet is open (focus trap + no screen reader leakage).
     const behind = Array.from(document.querySelectorAll<HTMLElement>("main, footer, .skip-link"));
     const priorInert = behind.map((el) => el.inert);
-    behind.forEach((el) => { el.inert = true; });
+    behind.forEach((el) => {
+      el.inert = true;
+    });
 
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -61,14 +63,17 @@ export const SiteNav = () => {
         toggleRef.current?.focus();
       }
       if (event.key !== "Tab") return;
-      const focusable = Array.from(headerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]') ?? [])
-        .filter((el) => el.getClientRects().length > 0);
+      const focusable = Array.from(
+        headerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), [tabindex="0"]') ?? [],
+      ).filter((el) => el.getClientRects().length > 0);
       const first = focusable[0];
       const last = focusable.at(-1);
       if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault(); last?.focus();
+        event.preventDefault();
+        last?.focus();
       } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault(); first?.focus();
+        event.preventDefault();
+        first?.focus();
       }
     };
     // Sheet is mobile-only: close it if the viewport grows into the desktop layout.
@@ -78,7 +83,9 @@ export const SiteNav = () => {
     document.addEventListener("keydown", onKey);
     desktop.addEventListener("change", onChange);
     return () => {
-      behind.forEach((el, index) => { el.inert = priorInert[index]; });
+      behind.forEach((el, index) => {
+        el.inert = priorInert[index];
+      });
       document.removeEventListener("keydown", onKey);
       desktop.removeEventListener("change", onChange);
     };
@@ -89,7 +96,14 @@ export const SiteNav = () => {
   return (
     <>
       <div ref={sentinelRef} aria-hidden className="pointer-events-none absolute top-0 left-0 h-6 w-px" />
-      <header ref={headerRef} className="site-nav" data-scrolled={scrolled || present} role={present ? "dialog" : undefined} aria-modal={present ? true : undefined} aria-label={present ? "Menu" : undefined}>
+      <header
+        ref={headerRef}
+        className="site-nav"
+        data-scrolled={scrolled || present}
+        role={present ? "dialog" : undefined}
+        aria-modal={present ? true : undefined}
+        aria-label={present ? "Menu" : undefined}
+      >
         <Container className="site-nav__inner">
           <Link href="/" className="brand" aria-label={`${siteConfig.name} home`} onClick={close}>
             <BrandLogo />
@@ -126,7 +140,10 @@ export const SiteNav = () => {
               aria-expanded={open}
               aria-controls={sheetId}
               aria-label={open ? "Close menu" : "Open menu"}
-              onClick={() => { if (!open) setPresent(true); setOpen((value) => !value); }}
+              onClick={() => {
+                if (!open) setPresent(true);
+                setOpen((value) => !value);
+              }}
             >
               {open ? <X aria-hidden size={22} strokeWidth={1.6} /> : <Menu aria-hidden size={22} strokeWidth={1.6} />}
             </button>
@@ -134,31 +151,37 @@ export const SiteNav = () => {
         </Container>
 
         <AnimatePresence onExitComplete={() => setPresent(false)}>
-        {open && (
-          <m.div ref={sheetRef} id={sheetId} className="site-nav__sheet lg:hidden"
-            initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-            transition={{ ...spring, opacity: { duration: 0.15 } }}>
-            <nav aria-label="Mobile">
-              <ul>
-                {navLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link href={link.href} className="site-nav__sheet-link" onClick={close}>
-                      {link.label}
+          {open && (
+            <m.div
+              ref={sheetRef}
+              id={sheetId}
+              className="site-nav__sheet lg:hidden"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ ...spring, opacity: { duration: 0.15 } }}
+            >
+              <nav aria-label="Mobile">
+                <ul>
+                  {navLinks.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="site-nav__sheet-link" onClick={close}>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link href="/portal" className="site-nav__sheet-link" onClick={close}>
+                      {accountLabel}
                     </Link>
                   </li>
-                ))}
-                <li>
-                  <Link href="/portal" className="site-nav__sheet-link" onClick={close}>
-                    {accountLabel}
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-            <Button href={siteConfig.cta.href} size="lg" block icon="diag" onClick={close}>
-              {siteConfig.cta.label}
-            </Button>
-          </m.div>
-        )}
+                </ul>
+              </nav>
+              <Button href={siteConfig.cta.href} size="lg" block icon="diag" onClick={close}>
+                {siteConfig.cta.label}
+              </Button>
+            </m.div>
+          )}
         </AnimatePresence>
       </header>
     </>
