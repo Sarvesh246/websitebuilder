@@ -68,4 +68,4 @@ A pre-commit hook formats and lints staged files and scans them for secrets. A c
 - **Design tokens drive the styling.** Colours are `light-dark()` pairs in `src/styles/tokens.css`, bridged into Tailwind v4 through `src/styles/theme.css`. Component styling lives in CSS under `src/styles/`; components stay thin.
 - **Content is configuration.** Copy, packages, guides and FAQ live in `src/config/`, and the SEO tests check links between them.
 
-Deeper conventions and decisions are recorded in the project notes, `docs/ROADMAP.md` and `docs/AUDIT-2026-10-10.md`.
+Project history and release checks are recorded in `docs/ROADMAP.md` and `docs/AUDIT-2026-10-10.md`.
