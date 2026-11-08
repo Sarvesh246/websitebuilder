@@ -18,6 +18,7 @@ import {
   type GuideSection,
 } from "@/config/guides";
 import { startHref } from "@/config/inquiry";
+import { bestHub, intentBySlug, intents, type Intent } from "@/config/intents";
 import { commonInclusions, customTier, packageTiers } from "@/config/pricing";
 import { aboutPage } from "@/config/about";
 import { siteConfig } from "@/config/site";
@@ -291,6 +292,13 @@ export const AudiencePage = ({ slug }: { slug: string }) => {
               <Link href={`/guides/${a.slug}`}>{a.title}</Link>
             </li>
           ))}
+          {intents
+            .filter((i) => i.hub === guide.slug)
+            .map((i) => (
+              <li key={i.slug}>
+                <Link href={`/${i.slug}`}>{i.title}</Link>
+              </li>
+            ))}
         </ul>
       </nav>
     </GuideShell>
@@ -425,6 +433,13 @@ export const ArticleView = ({ slug }: { slug: string }) => {
               <Link href={`/guides/${a.slug}`}>{a.title}</Link>
             </li>
           ))}
+          {intents
+            .filter((i) => i.hub === article.hub)
+            .map((i) => (
+              <li key={i.slug}>
+                <Link href={`/${i.slug}`}>{i.title}</Link>
+              </li>
+            ))}
           <li>
             <Link href="/guides">All guides</Link>
           </li>
@@ -472,6 +487,19 @@ export const GuidesIndex = () => (
           </ul>
         </section>
       ))}
+    <section className="legal__section guide__related">
+      <h2 className="t-h4">
+        <Link href={bestHub.path}>{bestHub.title}</Link>
+      </h2>
+      <ul className="guide__list">
+        {intents.map((i) => (
+          <li key={i.slug}>
+            <Link href={`/${i.slug}`}>{i.title}</Link>
+            <span className="t-small">{i.description}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
     <section className="legal__section guide__related">
       <h2 className="t-h4">Tools and answers</h2>
       <ul className="guide__list">
@@ -603,5 +631,205 @@ export const CalculatorView = () => (
         </li>
       </ul>
     </nav>
+  </GuideShell>
+);
+
+const bestCrumb: Crumb = { name: bestHub.title, path: bestHub.path };
+
+/**
+ * Structured data for one search-intent page. Every node points at the shared Organization / Person /
+ * WebSite @ids, so the query, the page and the business resolve to a single entity. The ItemList is the
+ * comparison table (kinds of option, no named products or ratings); the FAQPage mirrors the visible FAQ.
+ */
+const intentJsonLd = (i: Intent) => {
+  const url = `${siteConfig.url}/${i.slug}`;
+  const rows = i.comparison.table?.rows ?? [];
+  return graph(
+    {
+      "@type": "WebPage",
+      "@id": `${url}#webpage`,
+      url,
+      name: `${i.title} | ${siteConfig.entityName}`,
+      headline: i.h1,
+      description: i.description,
+      inLanguage: "en-US",
+      datePublished: i.published,
+      dateModified: i.updated,
+      isPartOf: { "@id": `${siteConfig.url}/#website` },
+      about: { "@type": "Thing", name: i.query },
+      author: founderRef,
+      publisher: orgRef,
+      mainEntity: { "@id": `${url}#options` },
+      speakable: { "@type": "SpeakableSpecification", cssSelector: ["#guide-title", ".t-lead"] },
+    },
+    {
+      "@type": "ItemList",
+      "@id": `${url}#options`,
+      name: i.comparison.heading,
+      itemListOrder: "https://schema.org/ItemListUnordered",
+      numberOfItems: rows.length,
+      itemListElement: rows.map(([label], n) => ({ "@type": "ListItem", position: n + 1, name: label })),
+    },
+    {
+      "@type": "FAQPage",
+      "@id": `${url}#faq`,
+      mainEntity: i.faq.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: plainText(f.a) },
+      })),
+    },
+    {
+      "@type": "Service",
+      "@id": `${url}#service`,
+      name: i.title,
+      serviceType: "Web design",
+      description: i.description,
+      url,
+      provider: orgRef,
+    },
+    {
+      "@id": orgId,
+      "@type": "Organization",
+      name: siteConfig.entityName,
+      alternateName: siteConfig.name,
+      url: siteConfig.url,
+    },
+  );
+};
+
+/** One exact-match search-intent page, served at /<query-slug>. */
+export const IntentView = ({ slug }: { slug: string }) => {
+  const intent = intentBySlug(slug);
+  const tier = packageTiers.find((t) => t.id === intent.recommended);
+  if (!tier) throw new Error(`Unknown package: ${intent.recommended}`);
+  const hub = guideBySlug(intent.hub);
+  const sections = [...intent.criteria, intent.comparison, ...intent.after];
+  const relatedIntents = intent.related.map(intentBySlug);
+  const relatedGuides = intent.guides.map(articleBySlug).filter((a) => a !== undefined);
+
+  return (
+    <GuideShell
+      trail={[bestCrumb, { name: intent.title, path: `/${intent.slug}` }]}
+      h1={intent.h1}
+      lead={intent.lead}
+      byline={{ updated: intent.updated, published: intent.published }}
+      jsonLd={intentJsonLd(intent)}
+      toc={[
+        ...tocFrom(sections.map((s) => s.heading)),
+        { id: "intent-pkg", label: `${siteConfig.name} ${tier.name}` },
+        { id: "intent-faq", label: "Common questions" },
+      ]}
+    >
+      <Sections sections={sections} />
+
+      <section id="intent-pkg" className="legal__section guide__pkg" aria-labelledby="intent-pkg-title">
+        <h2 id="intent-pkg-title" className="t-h4">
+          {siteConfig.name} {tier.name}: the package that usually fits
+        </h2>
+        <div className="guide__card">
+          <p className="guide__price">{priceLine(tier.id)}.</p>
+          <ul>
+            {tier.features.map((f) => (
+              <li key={f}>{f}</li>
+            ))}
+          </ul>
+          <div className="guide__actions">
+            <Button href={startHref(tier.id)} icon="diag">
+              {tier.ctaLabel}
+            </Button>
+            <Button href={`/${hub.slug}`} variant="secondary">
+              {hub.label}
+            </Button>
+          </div>
+          <p className="t-small guide__note">
+            {tier.note} Projects that need accounts, databases, or payments are quoted under {customTier.name}.
+          </p>
+        </div>
+      </section>
+
+      <section id="intent-faq" className="legal__section" aria-labelledby="intent-faq-title">
+        <h2 id="intent-faq-title" className="t-h4">
+          Common questions
+        </h2>
+        <FaqList items={intent.faq} />
+      </section>
+
+      <ClosingCta />
+
+      <nav aria-label="Related guides" className="legal__section guide__related">
+        <h2 className="t-h4">Related guides</h2>
+        <ul>
+          {relatedIntents.map((r) => (
+            <li key={r.slug}>
+              <Link href={`/${r.slug}`}>{r.title}</Link>
+            </li>
+          ))}
+          {relatedGuides.map((a) => (
+            <li key={a.slug}>
+              <Link href={`/guides/${a.slug}`}>{a.title}</Link>
+            </li>
+          ))}
+          <li>
+            <Link href={bestHub.path}>{bestHub.title}</Link>
+          </li>
+          <li>
+            <Link href="/faq">FAQ</Link>
+          </li>
+        </ul>
+      </nav>
+    </GuideShell>
+  );
+};
+
+/** /best: the hub that lists every search-intent page. */
+export const BestHubView = () => (
+  <GuideShell
+    trail={[bestCrumb]}
+    wide
+    h1={bestHub.h1}
+    lead={bestHub.lead}
+    byline={{ updated: intents.reduce((a, i) => (i.updated > a ? i.updated : a), "") }}
+    jsonLd={graph(
+      {
+        "@type": "CollectionPage",
+        "@id": `${siteConfig.url}${bestHub.path}#webpage`,
+        name: bestHub.title,
+        description: bestHub.description,
+        url: `${siteConfig.url}${bestHub.path}`,
+        isPartOf: { "@id": `${siteConfig.url}/#website` },
+        about: orgRef,
+        publisher: orgRef,
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: intents.map((i, n) => ({
+            "@type": "ListItem",
+            position: n + 1,
+            name: i.title,
+            url: `${siteConfig.url}/${i.slug}`,
+          })),
+        },
+      },
+      {
+        "@id": orgId,
+        "@type": "Organization",
+        name: siteConfig.entityName,
+        alternateName: siteConfig.name,
+        url: siteConfig.url,
+      },
+    )}
+  >
+    <section className="legal__section guide__related">
+      <h2 className="t-h4">Guides</h2>
+      <ul className="guide__list">
+        {intents.map((i) => (
+          <li key={i.slug}>
+            <Link href={`/${i.slug}`}>{i.title}</Link>
+            <span className="t-small">{i.description}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+    <ClosingCta />
   </GuideShell>
 );

@@ -18,7 +18,16 @@ export const organizationNode = {
   url,
   description: siteConfig.description,
   founder: { "@id": founderId },
-  knowsAbout: ["Web design", "Web development", "Responsive websites", "Portfolio websites", "Small business websites"],
+  knowsAbout: [
+    "Web design",
+    "Web development",
+    "Responsive websites",
+    "Portfolio websites",
+    "Small business websites",
+    "Web design for students",
+    "Student organization websites",
+    "Affordable web design",
+  ],
   ...(siteConfig.contactEmail && { email: siteConfig.contactEmail }),
   ...(siteConfig.contactPhone && {
     telephone: siteConfig.contactPhone,

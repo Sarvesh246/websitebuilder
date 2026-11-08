@@ -1,6 +1,7 @@
 import { articles } from "@/config/articles";
 import { conceptPath, concepts } from "@/config/concepts";
 import { audienceGuides } from "@/config/guides";
+import { bestHub, intents } from "@/config/intents";
 import { customTier, discountLabel, packageTiers, pricingUpdated } from "@/config/pricing";
 import { siteConfig } from "@/config/site";
 
@@ -31,6 +32,11 @@ export function GET() {
     "",
     ...pkg,
     `- ${customTier.name}: quoted by scope. ${customTier.blurb}`,
+    "",
+    `## Best web design, compared (${bestHub.description})`,
+    "",
+    `- [${bestHub.title}](${u}${bestHub.path}): all of the guides below in one place.`,
+    ...intents.map((i) => `- [${i.title}](${u}/${i.slug}): ${i.description}`),
     "",
     "## Guides",
     "",

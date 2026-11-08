@@ -16,5 +16,6 @@ Each stage: update this roadmap last. Do not start the next stage until asked.
 | 10 | Final cohesion pass: copy audit (no fake proof, no em dashes), spacing/type rhythm across all sections, remove or gate `/design-system`, launch checklist | Code/browser audit done October 10; hosted migration objects and safe RPC paths verified. Live provider execution remains unverified. See AUDIT-2026-10-10.md |
 | 11 | Pricing clarity + conversion: Launch/Presence/Business/Custom naming, Founding Client Pricing, shared inclusions, comparison, CTA wording, preselection | Done |
 | 12 | SEO, metadata, social preview, icons, sitemap/robots, structured data, semantic audit | Done |
+| 13 | Search-intent pages: exact-match `/best-...` URLs (7 pages + `/best` hub), honest comparison guides with disclosure, shared-entity JSON-LD, sitemap, llms.txt, footer and in-page links, tests | Done |
 
 Open decisions to resolve before the stage that needs them: brand name and domain (Stage 2), artwork sourcing/generation (Stage 2 and 8), contact form backend (Stage 5), analytics provider (Stage 9).

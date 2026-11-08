@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { aboutPage } from "@/config/about";
 import { articles } from "@/config/articles";
 import { audienceGuides, faqPage, type GuideSection } from "@/config/guides";
+import { intents } from "@/config/intents";
 import { parseRich, plainText, richHrefs } from "@/lib/richText";
 
 type Source = { page: string; texts: string[] };
@@ -17,6 +18,10 @@ const sources: Source[] = [
   ...audienceGuides.map((g) => ({
     page: `/${g.slug}`,
     texts: [...sectionTexts(g.sections), ...g.faq.map((f) => f.a)],
+  })),
+  ...intents.map((i) => ({
+    page: `/${i.slug}`,
+    texts: [...sectionTexts([...i.criteria, i.comparison, ...i.after]), ...i.faq.map((f) => f.a)],
   })),
   {
     page: "/faq",
@@ -35,6 +40,8 @@ const routes = new Set([
   "/privacy",
   "/terms",
   "/start",
+  "/best",
+  ...intents.map((i) => `/${i.slug}`),
   ...audienceGuides.map((g) => `/${g.slug}`),
   ...articles.map((a) => `/guides/${a.slug}`),
 ]);

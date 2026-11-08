@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { articles, articlesUpdated } from "@/config/articles";
 import { conceptPath, concepts } from "@/config/concepts";
 import { guideLinks, guidesUpdated } from "@/config/guides";
+import { bestHub, intents, intentsUpdated } from "@/config/intents";
 import { pricingUpdated } from "@/config/pricing";
 import { legalUpdated, siteConfig } from "@/config/site";
 
@@ -19,6 +20,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     at("/work", guidesUpdated),
     ...concepts.map((c) => at(conceptPath(c.slug), guidesUpdated)),
     ...guideLinks.map((link) => at(link.href, latest(guidesUpdated, pricingUpdated.iso))),
+    at(bestHub.path, intentsUpdated),
+    ...intents.map((i) => at(`/${i.slug}`, i.updated)),
     at("/guides", articlesUpdated),
     ...articles.map((a) => at(`/guides/${a.slug}`, a.updated)),
     at("/tools/website-cost-calculator", latest(guidesUpdated, pricingUpdated.iso)),
