@@ -51,3 +51,7 @@ next-env.d.ts
 # local secrets, never commit
 Google_secret.txt
 *_secret*.txt
+# Skipper — machine-local artifacts (hook scratch + derived index), never commit
+.claude/.skipper-*
+.skipper/*
+!.skipper/receipts/
